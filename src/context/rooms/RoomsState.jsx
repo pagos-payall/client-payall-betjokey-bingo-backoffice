@@ -33,13 +33,6 @@ const RoomsState = ({ children }) => {
 		});
 	};
 
-	const setDisplayView = (view) => {
-		dispatch({
-			type: 'SET_DISPLAY_VIEW',
-			payload: view,
-		});
-	};
-
 	useEffect(() => {
 		getRooms();
 	}, []);
@@ -51,7 +44,6 @@ const RoomsState = ({ children }) => {
 				display_view: state.display_view,
 				username: state.username,
 				getRooms,
-				setDisplayView,
 			}}
 		>
 			{children}

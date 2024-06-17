@@ -1,20 +1,20 @@
 'use client';
+import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { theme } from '../../data/themes';
 import SearchBar from '../SearchBar';
-import MenuOption from './MenuOption';
+import MenuOption from '../MenuOption';
 import Separator from '../Separator';
-import SalaMenuCard from '../SalaMenuCard';
 import {
 	addIcon,
 	archiveStorageIcon,
 	boltIcon,
 	refreshIcon,
 } from '@/data/icons';
-import RoomsContext from '@/context/RoomsContext';
-import { useContext, useEffect, useState } from 'react';
+import UsersContext from '@/context/users/UsersContext';
 import NoInfoComp from '../NoInfoComp';
 import SubHeaderBar from '../SubHeaderBar';
+import UserMenuCard from './UsersMenuCard';
 
 const MenuOptionsContainer = styled.div`
 	display: flex;
@@ -27,17 +27,19 @@ const MenuOptionsContainer = styled.div`
 `;
 
 const MiddleMenu = () => {
-	const { rooms, getRooms } = useContext(RoomsContext);
+	const { users, getUsers } = useContext(UsersContext);
 	const [displayData, setDisplayData] = useState([]);
 	const [displayFilter, setDisplayFilter] = useState('all');
 
 	useEffect(() => {
 		displayFilter === 'all'
-			? setDisplayData(() => rooms.filter((room) => room.status !== 'archive'))
+			? setDisplayData(() =>
+					users.filter((users) => users.status !== 'archive')
+			  )
 			: setDisplayData(() =>
-					rooms.filter((room) => room.status === displayFilter)
+					users.filter((users) => users.status === displayFilter)
 			  );
-	}, [displayFilter, rooms]);
+	}, [displayFilter, users]);
 
 	return (
 		<div
@@ -54,26 +56,20 @@ const MiddleMenu = () => {
 			<SearchBar />
 			<MenuOptionsContainer>
 				<MenuOption
-					title='Crear Salas'
+					title='Crear Usuario'
 					icoUrl={addIcon}
-					path='/dashboard/roomForm'
+					path='/usersManagerView/userForm'
 				/>
 				<MenuOption
-					title='Salas Disponibles'
+					title='Usuarios Activos'
 					icoUrl={boltIcon}
 					onClick={() => setDisplayFilter('all')}
 				/>
 				<MenuOption
-					title='Archivero De Salas'
+					title='Archivero De Usuarios'
 					icoUrl={archiveStorageIcon}
 					onClick={() => setDisplayFilter('archive')}
 				/>
-				<MenuOption
-					title='Historial'
-					icoUrl={boltIcon}
-					path='/dashboard/historyLogs'
-				/>
-				<MenuOption title='Title' icoUrl={boltIcon} />
 			</MenuOptionsContainer>
 			<Separator width={100} />
 			<div
@@ -89,9 +85,9 @@ const MiddleMenu = () => {
 				<SubHeaderBar
 					icon={refreshIcon}
 					size={20}
-					onClick={() => getRooms(true)}
+					onClick={() => getUsers(true)}
 				>
-					Configuracion de Salas
+					Lista de Usuarios
 				</SubHeaderBar>
 				<Separator width={100} color={theme.dark.borders.secundary} />
 
@@ -108,11 +104,11 @@ const MiddleMenu = () => {
 					}}
 				>
 					{displayData.length > 0 ? (
-						displayData.map((room, key) => (
-							<SalaMenuCard data={room} key={key} />
+						displayData.map((user, key) => (
+							<UserMenuCard data={user} key={key} />
 						))
 					) : (
-						<NoInfoComp content='No hay Salas disponibles' />
+						<NoInfoComp content='No hay Usuarios disponibles' />
 					)}
 				</div>
 			</div>

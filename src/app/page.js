@@ -1,25 +1,19 @@
-'use client'
-import RoomsContext from "@/context/RoomsContext";
-import { theme } from "../data/themes";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useContext, useEffect } from "react";
-
-
+'use client';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
-  const { display_view } = useContext(RoomsContext)
-  const router  = useRouter();
+	const router = useRouter();
+	router.push('/login');
 
-  useEffect(()=> router.push(display_view), [])
-
-  return (
-    <main style={{
-      background: theme.dark.background.primary,
-      padding: '10px',
-      height: '100%'
-    }}>
-        <Link href="/dashboard">Dashboard</Link>
-    </main>
-  );
+	return (
+		<main
+			style={{
+				background: `linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(38,38,38,1) 100%)`,
+				padding: '0px',
+				margin: '0',
+				height: '100%',
+				display: 'flex',
+			}}
+		></main>
+	);
 }

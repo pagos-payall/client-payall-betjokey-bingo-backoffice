@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import { theme } from '@/data/themes';
 import { isEqual } from 'lodash';
 import fetchAPICall from '@/services/fetchAPICall';
-import Buttom from '@/components/Button';
+import Button from '@/components/Button';
 import { addIcon, closeIcon, saveIcon } from '@/data/icons';
 import { createRoomValidationSchema } from '@/validationSchemas/createRoom';
 import FormikInputValue from '@/components/FormikInputValue';
@@ -22,10 +22,10 @@ import {
 	PorcenSubHeader,
 } from '@/components/styled/roomForm';
 import TaxesForm from '@/components/TaxesForm';
-import RoomsContext from '@/context/RoomsContext';
+import RoomsContext from '@/context/rooms/RoomsContext';
 import RewardsDistribution from '@/components/RewardsDistribution';
 
-export default function roomForm() {
+export default function RoomForm() {
 	const { username, getRooms } = useContext(RoomsContext);
 	const router = useRouter();
 	const searchParams = useSearchParams();
@@ -60,6 +60,7 @@ export default function roomForm() {
 
 	function handleSubmit(values, setSubmitting, resetForm) {
 		let method = 'post';
+		const formValues = values;
 
 		if (values.beginsAtDate !== undefined) {
 			let date = values.beginsAtDate.split('T');
@@ -84,18 +85,16 @@ export default function roomForm() {
 			method = 'patch';
 		}
 
-		values['username'] = username;
-		// console.log(values);
+		values['operatorName'] = username;
+
 		fetchAPICall('bingo/rooms', method, values).then(() => {
 			setSubmitting(false);
 			getRooms();
 			if (!updateView) resetForm();
 			else {
-				setInitialValues((oldValues) => {
-					delete oldValues.room_id;
-					setUpdateMode(false);
-					return oldValues;
-				});
+				delete values.room_id;
+				setUpdateMode(false);
+				setInitialValues(formValues);
 			}
 		});
 	}
@@ -108,6 +107,8 @@ export default function roomForm() {
 			for (const key of searchParams.keys()) {
 				const data = JSON.parse(key);
 				const array = Object.entries(data);
+
+				console.log(array);
 
 				array.forEach((entrie) => {
 					const [key, value] = entrie;
@@ -330,14 +331,14 @@ export default function roomForm() {
 									</FieldsContainer>
 									<JuegoAsociado value={updateView} status={values.status} />
 									{!updateView ? (
-										<Buttom type='submit' color='green' icoUrl={addIcon}>
+										<Button type='submit' color='green' icoUrl={addIcon}>
 											Crear Sala
-										</Buttom>
+										</Button>
 									) : (
 										updateMode && (
-											<Buttom type='submit' color='purple' icoUrl={saveIcon}>
+											<Button type='submit' color='purple' icoUrl={saveIcon}>
 												Guardar Edicion
-											</Buttom>
+											</Button>
 										)
 									)}
 								</FormDiv>

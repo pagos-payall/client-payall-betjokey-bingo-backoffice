@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import Image from 'next/image';
-import { theme } from '../../data/themes';
+import { theme } from '../data/themes';
 import Link from 'next/link';
 
 const MenuOptionStyled = styled.div`
@@ -18,7 +18,7 @@ const MenuOptionStyled = styled.div`
 	}
 `;
 
-const MenuOption = ({ title, icoUrl, path = '/dashboard', onClick }) => (
+const MenuOption = ({ title, icoUrl, path = '', onClick }) => (
 	<Link href={path} onClick={onClick}>
 		<MenuOptionStyled>
 			<Image

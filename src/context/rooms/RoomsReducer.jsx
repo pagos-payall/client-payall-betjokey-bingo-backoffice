@@ -1,4 +1,4 @@
-import { GET_ROOMS, SET_DISPLAY_VIEW } from './types';
+import { GET_ROOMS } from './types';
 
 const RoomsReducer = (state, action) => {
 	const { payload, type } = action;
@@ -8,11 +8,6 @@ const RoomsReducer = (state, action) => {
 			return {
 				...state,
 				rooms: payload,
-			};
-		case SET_DISPLAY_VIEW:
-			return {
-				...state,
-				display_view: payload,
 			};
 	}
 };

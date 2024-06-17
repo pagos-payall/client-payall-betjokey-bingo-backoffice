@@ -4,7 +4,7 @@ import archiveTemplate from './modalTemplates/ArchiveTemplate';
 import editTemplate from './modalTemplates/editTemplate';
 import deleteTemplate from './modalTemplates/deleteTemplate';
 
-const sweetAlertbasic = (data) => {
+const sweetAlertbasic = (data, type = false) => {
 	const htmlTemplate = {
 		create: createTemplate,
 		delete: deleteTemplate,
@@ -19,10 +19,15 @@ const sweetAlertbasic = (data) => {
 	};
 	const cursor = data.operation !== 'delete' ? 1 : 2;
 
-	Swal.fire({
-		title: titleContent[cursor],
-		html: htmlTemplate[data.operation](data),
-	});
+	!type
+		? Swal.fire({
+				title: titleContent[cursor],
+				html: htmlTemplate[data.operation](data),
+			})
+		: Swal.fire({
+			title: 'Usuario Editado',
+			html: '<div></div>'
+		});
 };
 
 export default sweetAlertbasic;

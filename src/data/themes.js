@@ -17,7 +17,8 @@ export const theme = {
       red: '#F25C78',
       green: '#2BD999',
       yellow: '#F2AF5C',
-      purple: '#884dff'
+      purple: '#884dff',
+      transparent: 'rgba(110,110,110,0.75)',
     },
     filters: {
       green: 'invert(93%) sepia(64%) saturate(886%) hue-rotate(77deg) brightness(88%) contrast(91%)',

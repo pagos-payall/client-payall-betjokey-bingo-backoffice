@@ -1,12 +1,19 @@
-import { deleteIcon, editIcon, archiveIcon, unarchiveIcon } from '@/data/icons';
+import {
+	deleteIcon,
+	editIcon,
+	archiveIcon,
+	unarchiveIcon,
+	boltIcon,
+} from '@/data/icons';
 import StatusLight from './StatusLight';
 import { IconComponent } from './SubHeaderBar';
 import { toast } from 'react-toastify';
 import { useContext } from 'react';
 import fetchAPICall from '@/services/fetchAPICall';
-import RoomsContext from '@/context/RoomsContext';
-import { useRouter } from 'next/navigation';
+import RoomsContext from '@/context/rooms/RoomsContext';
+import { useRouter, usePathname } from 'next/navigation';
 import sweetAlert_confirm from './SweetAlert_confirm';
+import UsersContext from '@/context/users/UsersContext';
 
 const UpdateFormHeader = ({
 	name,
@@ -16,7 +23,12 @@ const UpdateFormHeader = ({
 	updateMode,
 }) => {
 	const { username, getRooms } = useContext(RoomsContext);
+	const { getUsers } = useContext(UsersContext);
 	const router = useRouter();
+	const path = usePathname();
+	const url = path.includes('user') ? '/backOffice' : 'bingo/rooms';
+	const fetchMethod = path.includes('user') ? 'patch' : 'put';
+
 	const handleSetUpdate = () => {
 		setUpdateMode((value) => {
 			return !value;
@@ -30,19 +42,26 @@ const UpdateFormHeader = ({
 		if (status === 'archive') operation = 'unarchive';
 
 		const values = {
-			username: username,
-			room_id: codigo,
-			operation: operation,
+			operatorName: username,
+			operation,
 		};
-		const method = operation === 'delete' ? 'delete' : 'put';
 
-		console.log(method);
+		path.includes('user')
+			? (values['username'] = name)
+			: (values['room_id'] = codigo);
 
-		const funct = () =>
-			fetchAPICall('bingo/rooms', method, values).then(() => {
-				getRooms();
-				router.push('/dashboard');
-			});
+		const method = operation === 'delete' ? 'delete' : fetchMethod;
+		const thenFunction = !path.includes('user')
+			? () => {
+					getRooms();
+					router.push('/dashboard');
+			  }
+			: () => {
+					getUsers();
+					router.push('/usersManagerView/historyLog');
+			  };
+
+		const funct = () => fetchAPICall(url, method, values).then(thenFunction);
 
 		if (operation === 'delete') {
 			const deleteConfirmationConfig = {
@@ -69,19 +88,23 @@ const UpdateFormHeader = ({
 				gap: '10px',
 			}}
 		>
-			{name + ' - ' + codigo}
+			{name + (codigo ? ' - ' + codigo : '')}
 			<StatusLight status={status} size={12.5} />
-			<IconComponent
-				url={deleteIcon}
-				size={20}
-				onClick={() => handleAction('delete')}
-			/>
-			<IconComponent url={editIcon} size={20} onClick={handleSetUpdate} />
-			<IconComponent
-				url={status !== 'archive' ? archiveIcon : unarchiveIcon}
-				size={20}
-				onClick={() => handleAction('archive')}
-			/>
+			{!name.includes('admin') && (
+				<>
+					<IconComponent
+						url={deleteIcon}
+						size={20}
+						onClick={() => handleAction('delete')}
+					/>
+					<IconComponent
+						url={status !== 'archive' ? archiveIcon : unarchiveIcon}
+						size={20}
+						onClick={() => handleAction('archive')}
+					/>
+					<IconComponent url={editIcon} size={20} onClick={handleSetUpdate} />
+				</>
+			)}
 		</div>
 	);
 };

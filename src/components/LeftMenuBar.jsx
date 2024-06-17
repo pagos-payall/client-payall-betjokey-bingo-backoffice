@@ -8,63 +8,52 @@ import {
 	mailIcon,
 	logOutIcon,
 	settingsIcon,
-	personIcon,
+	manageAccountsIcon,
 } from '../data/icons';
 import { useRouter } from 'next/navigation';
-
-const MenuComponent = styled.div`
-	display: flex;
-	flex-direction: column;
-	background-color: transparent;
-	justify-content: space-between;
-	align-items: center;
-	height: 100%;
-	width: 60px;
-	max-width: 60px;
-	min-width: 60px;
-	border-right: 2px solid;
-	border-color: ${theme.dark.borders.primary};
-	border-radius: 10px 0 0px 10px;
-	padding: 20px 0;
-`;
+import fetchAPICall from '@/services/fetchAPICall';
+import HeaderTitleComp from './styled/HeaderTitleComp';
+import { MenuComponent, UserHeaderComp } from './styled/MenuComponents';
+import useUser from '@/hooks/useUser';
 
 const LeftMenuBar = () => {
 	const router = useRouter();
+	const { username, logout } = useUser();
+
+	function handleLogout() {
+		fetchAPICall('backOffice/logout', 'put', { username }).then(() => logout());
+	}
 
 	return (
 		<MenuComponent>
 			<div
 				style={{
-					flex: 0.5,
-				}}
-			>
-				<p
-					style={{
-						color: 'white',
-						fontWeight: 'bolder',
-						fontSize: '2em',
-					}}
-				>
-					BJ
-				</p>
-			</div>
-			<div
-				style={{
 					display: 'flex',
 					flexDirection: 'column',
+					alignItems: 'center',
 					flex: 1.5,
 					gap: '5px',
 				}}
 			>
-				<IconComponent size={25} url={homeIcon} />
+				<HeaderTitleComp />
+				<UserHeaderComp>
+					<h3 style={{ margin: 'auto', textAlign: 'center' }}>
+						{username?.slice(0, 2)}
+					</h3>
+				</UserHeaderComp>
+				<IconComponent
+					size={25}
+					url={homeIcon}
+					onClick={() => router.push('/dashboard')}
+				/>
 				<IconComponent size={25} url={mailIcon} />
 				<IconComponent size={25} url={boltIcon} />
 				<IconComponent
 					size={25}
-					url={personIcon}
-					onClick={() => router.push('/usersManagerView')}
+					url={manageAccountsIcon}
+					onClick={() => router.push('/usersManagerView/historyLog')}
 				/>
-				<IconComponent size={25} url={logOutIcon} />
+				<IconComponent size={25} url={logOutIcon} onClick={handleLogout} />
 			</div>
 			<div
 				style={{

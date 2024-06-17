@@ -7,6 +7,7 @@ export const BoxTable = styled.div`
 	justify-content: flex-start;
 	gap: 5px;
 	overflow-y: auto;
+	height: 100%;
 `;
 
 export const ActionTitle = styled.h5`

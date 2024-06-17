@@ -1,9 +1,12 @@
-'use client'
+'use client';
 import styled from 'styled-components';
-import LeftMenuBar from '@/components/LeftMenuBar';
-import MiddleMenu from '@/components/MiddleMenu';
 import { theme } from '@/data/themes';
+import LeftMenuBar from '@/components/LeftMenuBar';
+import MiddleMenu from '@/components/dashboard/middleMenu';
 import Toastbox from '@/components/ToastBox';
+import useUser from '@/hooks/useUser';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 const BodyComponent = styled.div`
 	border: 2px solid;
@@ -14,18 +17,27 @@ const BodyComponent = styled.div`
 `;
 
 export default function DashboardLayout({ children }) {
+	const { isLogged } = useUser();
+	const router = useRouter();
+
+	useEffect(() => {
+		!isLogged && router.push('/');
+	}, []);
+
 	return (
-		<div style={{
-			background: theme.dark.background.primary,
-			padding: '10px',
-			height: '100%',
-		}}>
-				<BodyComponent>
-					<Toastbox />
-					<LeftMenuBar />
-					<MiddleMenu />
-					{children}
-				</BodyComponent>
+		<div
+			style={{
+				background: theme.dark.background.primary,
+				padding: '10px',
+				height: '100%',
+			}}
+		>
+			<BodyComponent>
+				<Toastbox />
+				<LeftMenuBar />
+				<MiddleMenu />
+				{children}
+			</BodyComponent>
 		</div>
 	);
 }
