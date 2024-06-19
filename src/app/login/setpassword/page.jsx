@@ -1,16 +1,19 @@
 'use client';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import InputRequirement from '@/components/login/InputRequirement';
 import Button from '@/components/Button';
 import { FormDiv } from '@/components/styled/roomForm';
 import FormikInputValue from '@/components/FormikInputValue';
 import { Formik } from 'formik';
 import { theme } from '@/data/themes';
-import { saveChangeIcon } from '@/data/icons';
+import { saveChangeIcon, refreshIcon } from '@/data/icons';
+import fetchAPICall from '@/services/fetchAPICall';
 
 export default function SetPassword() {
 	const router = useRouter();
+	const searchParams = useSearchParams();
+	const [username, setUsername] = useState(undefined);
 	const [passwordValidation, setPasswordValidation] = useState({
 		mayuscula: false,
 		especial: false,
@@ -24,14 +27,25 @@ export default function SetPassword() {
 	};
 
 	const handleSubmit = (values, resetForm) => {
-		fetchAPICall('backOffice/login', 'put', values)
-			.then((res) => {
+		const obj = {
+			username,
+			new_password: values.new_password,
+		};
+		fetchAPICall('backOffice/login', 'put', obj)
+			.then(() => {
 				router.push('/login');
 			})
 			.catch(() => {
 				resetForm();
 			});
 	};
+
+	useEffect(() => {
+		for (const key of searchParams.values()) {
+			setUsername(key);
+		}
+	}, []);
+
 	return (
 		<Formik
 			key='resetPassword'

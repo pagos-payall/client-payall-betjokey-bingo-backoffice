@@ -11,7 +11,7 @@ const instance = axios.create({
 	responseType: 'json',
 });
 
-const fetchAPICall = async (
+const fetchAPICall = (
 	route,
 	method = 'get',
 	body = {},
@@ -32,14 +32,18 @@ const fetchAPICall = async (
 		});
 
 		return promise
-			.then((res) => res.data)
-			.catch((e) => toast.error(e.response.data.error));
+			.then((res) => {
+				return res.data;
+			})
+			.catch((e) => {
+				console.log(e);
+				throw toast.error(e.response.data.error);
+			});
 	} else {
 		return response
 			.then((res) => res.data)
-			.catch((error) => {
-				console.log(error);
-				toast.error('Solicitud fallida');
+			.catch(() => {
+				throw toast.error('Solicitud fallida');
 			});
 	}
 };

@@ -6,10 +6,11 @@ import { Formik } from 'formik';
 import { FormDiv } from '../styled/roomForm';
 import FormikInputValue from '../FormikInputValue';
 import Button from '../Button';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import * as yup from 'yup';
 import { useRouter } from 'next/navigation';
 import fetchAPICall from '@/services/fetchAPICall';
+import UsersContext from '@/context/users/UsersContext';
 
 const validate = yup.object({
 	username: yup.string().min(4).required('Es requerido un usuario o correo'),
@@ -36,27 +37,30 @@ const RecoveryPassword = ({ setView, view }) => {
 	const [recovery, setRecovery] = useState(false);
 	const router = useRouter();
 	const inputRef = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()];
+	const [refUsername, setRefUsername] = useState(null);
+	const [refEmail, setRefEmail] = useState(null);
 
-	const handleCorreo = (value) => {
-		// fetchAPICall('backOffice/recoveryPassword/validateCredentials', 'put', value)
-		// 	.then((res) => {
-		// 		console.log(res);
-		setRecovery(true);
-		// 	})
-		// 	.catch(() => {
-		// 		resetForm();
-		// 	});
+	const handleCorreo = (value, resetForm) => {
+		fetchAPICall('backOffice/validate/credentials', 'put', value)
+			.then((res) => {
+				setRefUsername(res.username);
+				setRefEmail(res.email);
+				setRecovery(true);
+			})
+			.catch((e) => {
+				resetForm();
+			});
 	};
 
-	const handleValidate = (value) => {
+	const handleValidate = (value, resetForm) => {
 		const obj = {
-			...value,
-			username: 'username',
+			code: Object.values(value).toString().replaceAll(',', ''),
+			username: refUsername,
 		};
+
 		fetchAPICall('backOffice/validate/approval', 'put', obj)
 			.then((res) => {
-				console.log(res.result);
-				res.result && router.push('/login/setpassword');
+				res && router.push(`/login/setpassword?username=${refUsername}`);
 			})
 			.catch(() => {
 				resetForm();
@@ -102,16 +106,16 @@ const RecoveryPassword = ({ setView, view }) => {
 					>
 						{!recovery
 							? 'Procesor de recuperacion de contraseña, ingrese su usuario o correo.'
-							: 'Ingresa el codigo unico que fue enviado el correo registrado.'}
+							: `Ingresa el codigo unico que fue enviado su correo ${refEmail}.`}
 					</h4>
 					{!recovery ? (
 						<Formik
 							key='user_validate'
 							validationSchema={validate}
 							initialValues={{ username: '' }}
-							onSubmit={(value, { setSubmitting }) => {
+							onSubmit={(value, { setSubmitting, resetForm }) => {
 								setSubmitting(true);
-								handleCorreo(value);
+								handleCorreo(value, resetForm);
 								setSubmitting(false);
 							}}
 						>
