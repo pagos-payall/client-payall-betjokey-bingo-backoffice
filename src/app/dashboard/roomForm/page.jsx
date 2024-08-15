@@ -1,44 +1,47 @@
-'use client';
-import React, { useState, useEffect, useContext } from 'react';
-import { Formik } from 'formik';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { toast } from 'react-toastify';
-import { theme } from '@/data/themes';
-import { isEqual } from 'lodash';
-import fetchAPICall from '@/services/fetchAPICall';
-import Buttom from '@/components/Button';
-import { addIcon, closeIcon, saveIcon } from '@/data/icons';
-import { createRoomValidationSchema } from '@/validationSchemas/createRoom';
-import FormikInputValue from '@/components/FormikInputValue';
-import SubHeaderBar from '@/components/SubHeaderBar';
-import LoadingCircle from '@/components/LoadingCircle';
-import { isoShortDate } from '@/services/getISODate';
-import UpdateFormHeader from '@/components/UpdateFormHeader';
-import JuegoAsociado from '@/components/JuegoAsociado';
+'use client'
+import React, { useState, useEffect, useContext } from 'react'
+import { Formik } from 'formik'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { toast } from 'react-toastify'
+import { theme } from '@/data/themes'
+import { isEqual } from 'lodash'
+import useFetch from '@/hooks/useFetch'
+import Button from '@/components/Button'
+import { addIcon, closeIcon, saveIcon } from '@/data/icons'
+import { createRoomValidationSchema } from '@/validationSchemas/createRoom'
+import FormikInputValue from '@/components/FormikInputValue'
+import SubHeaderBar from '@/components/SubHeaderBar'
+import LoadingCircle from '@/components/LoadingCircle'
+import { isoShortDate } from '@/services/getISODate'
+import UpdateFormHeader from '@/components/UpdateFormHeader'
+import JuegoAsociado from '@/components/JuegoAsociado'
 import {
 	FormDiv,
 	FieldsContainer,
 	FieldsPorcenContainer,
 	PorcenSubHeader,
-} from '@/components/styled/roomForm';
-import TaxesForm from '@/components/TaxesForm';
-import RoomsContext from '@/context/RoomsContext';
-import RewardsDistribution from '@/components/RewardsDistribution';
+} from '@/components/styled/roomForm'
+import TaxesForm from '@/components/TaxesForm'
+import RoomsContext from '@/context/rooms/RoomsContext'
+import RewardsDistribution from '@/components/RewardsDistribution'
+import useUser from '@/hooks/useUser'
 
-export default function roomForm() {
-	const { username, getRooms } = useContext(RoomsContext);
-	const router = useRouter();
-	const searchParams = useSearchParams();
-	const min_date = isoShortDate();
-	const [initialValues, setInitialValues] = useState(null);
-	const [updateView, setUpdateView] = useState(false);
-	const [updateMode, setUpdateMode] = useState(false);
+export default function RoomForm() {
+	const { getRooms } = useContext(RoomsContext)
+	const { username } = useUser()
+	const { fetchAPICall } = useFetch()
+	const router = useRouter()
+	const searchParams = useSearchParams()
+	const min_date = isoShortDate()
+	const [initialValues, setInitialValues] = useState(null)
+	const [updateView, setUpdateView] = useState(false)
+	const [updateMode, setUpdateMode] = useState(false)
 	const [salaData, setSalaData] = useState({
 		room_id: '',
 		status: '',
 		createAt: '',
 		ref: '',
-	});
+	})
 	let fields = {
 		host_username: 'test',
 		room_name: '',
@@ -56,109 +59,108 @@ export default function roomForm() {
 		porcen_premio_asignado_linea: 30,
 		cant_cartones_premiados: 1,
 		cant_lineas_premiadas: 5,
-	};
+	}
 
 	function handleSubmit(values, setSubmitting, resetForm) {
-		let method = 'post';
+		let method = 'post'
+		const formValues = values
 
 		if (values.beginsAtDate !== undefined) {
-			let date = values.beginsAtDate.split('T');
-			let hora = date[1].split(':');
+			let date = values.beginsAtDate.split('T')
+			let hora = date[1].split(':')
 
 			if (date[0] === min_date.split('T')[0] && +hora[0] < +hh)
-				return toast.error('Ingrese una hora futura');
+				return toast.error('Ingrese una hora futura')
 		}
 
 		if (updateView) {
-			const array = Object.entries(values);
-			const obj = new Object();
+			const array = Object.entries(values)
+			const obj = new Object()
 
 			if (isEqual(values, initialValues))
-				return toast.info('No se altero ningun valor de la sala');
+				return toast.info('No se altero ningun valor de la sala')
 
 			for (const val of array) {
-				if (initialValues[val[0]] !== val[1]) obj[val[0]] = val[1];
+				if (initialValues[val[0]] !== val[1]) obj[val[0]] = val[1]
 			}
-			values = obj;
-			values['room_id'] = salaData.room_id;
-			method = 'patch';
+			values = obj
+			values['room_id'] = salaData.room_id
+			method = 'patch'
 		}
 
-		values['username'] = username;
-		// console.log(values);
+		values['operatorName'] = username
+
 		fetchAPICall('bingo/rooms', method, values).then(() => {
-			setSubmitting(false);
-			getRooms();
-			if (!updateView) resetForm();
+			setSubmitting(false)
+			getRooms()
+			if (!updateView) resetForm()
 			else {
-				setInitialValues((oldValues) => {
-					delete oldValues.room_id;
-					setUpdateMode(false);
-					return oldValues;
-				});
+				delete values.room_id
+				setUpdateMode(false)
+				setInitialValues(formValues)
 			}
-		});
+		})
 	}
 
 	useEffect(() => {
 		if (searchParams.size === 0) {
-			setInitialValues(fields);
-			setUpdateView(false);
+			setInitialValues(fields)
+			setUpdateView(false)
 		} else {
 			for (const key of searchParams.keys()) {
-				const data = JSON.parse(key);
-				const array = Object.entries(data);
+				const data = JSON.parse(key)
+				const array = Object.entries(data)
 
 				array.forEach((entrie) => {
-					const [key, value] = entrie;
+					const [key, value] = entrie
 
 					if (Array.isArray(value)) {
-						const obj = new Object();
-						obj[key] = [];
+						const obj = new Object()
+						obj[key] = []
 
 						value.forEach((entrie_2) => {
-							const array_3 = Object.entries(entrie_2);
-							const obj2 = new Object();
+							const array_3 = Object.entries(entrie_2)
+							const obj2 = new Object()
 
 							array_3.forEach(([key_3, value_3]) => {
-								obj2[key_3] = value_3;
-							});
-							obj[key].push(obj2);
-						});
+								obj2[key_3] = value_3
+							})
+							obj[key].push(obj2)
+						})
 
-						setInitialValues((oldValues) => ({ ...oldValues, ...obj }));
+						setInitialValues((oldValues) => ({ ...oldValues, ...obj }))
 					}
 
 					if (salaData[key] !== undefined) {
-						const obj = new Object();
-						obj[key] = value;
-						return setSalaData((oldValues) => ({ ...oldValues, ...obj }));
+						const obj = new Object()
+						obj[key] = value
+						return setSalaData((oldValues) => ({ ...oldValues, ...obj }))
 					}
-					if (fields[key] === undefined && typeof value !== 'object') return;
+					if (fields[key] === undefined && typeof value !== 'object') return
 					if (typeof value === 'object') {
-						const array_2 = Object.entries(value);
+						const array_2 = Object.entries(value)
 
 						return array_2.forEach((entrie_2) => {
-							const [key_2, value_2] = entrie_2;
+							const [key_2, value_2] = entrie_2
 
-							if (fields[key_2] === undefined) return;
+							if (fields[key_2] === undefined) return
 							else {
-								const obj = new Object();
-								obj[key_2] = value_2;
-								setInitialValues((oldValues) => ({ ...oldValues, ...obj }));
+								const obj = new Object()
+								obj[key_2] = value_2
+								setInitialValues((oldValues) => ({ ...oldValues, ...obj }))
 							}
-						});
+						})
 					}
 
-					const obj = new Object();
-					obj[key] = value;
-					setInitialValues((oldValues) => ({ ...oldValues, ...obj }));
-					setUpdateView(true);
-					setUpdateMode(false);
-				});
+					const obj = new Object()
+					obj[key] = value
+					setInitialValues((oldValues) => ({ ...oldValues, ...obj }))
+					setUpdateView(true)
+					setUpdateMode(false)
+				})
 			}
 		}
-	}, [searchParams]);
+	}, [searchParams])
 
 	return (
 		<>
@@ -212,7 +214,7 @@ export default function roomForm() {
 							validationSchema={createRoomValidationSchema}
 							initialValues={{ ...initialValues }}
 							onSubmit={async (values, { setSubmitting, resetForm }) => {
-								handleSubmit(values, setSubmitting, resetForm);
+								handleSubmit(values, setSubmitting, resetForm)
 							}}
 						>
 							{({ handleSubmit, values, handleChange, setFieldValue }) => (
@@ -330,14 +332,14 @@ export default function roomForm() {
 									</FieldsContainer>
 									<JuegoAsociado value={updateView} status={values.status} />
 									{!updateView ? (
-										<Buttom type='submit' color='green' icoUrl={addIcon}>
+										<Button type='submit' color='green' icoUrl={addIcon}>
 											Crear Sala
-										</Buttom>
+										</Button>
 									) : (
 										updateMode && (
-											<Buttom type='submit' color='purple' icoUrl={saveIcon}>
+											<Button type='submit' color='purple' icoUrl={saveIcon}>
 												Guardar Edicion
-											</Buttom>
+											</Button>
 										)
 									)}
 								</FormDiv>
@@ -347,5 +349,5 @@ export default function roomForm() {
 				</div>
 			)}
 		</>
-	);
+	)
 }

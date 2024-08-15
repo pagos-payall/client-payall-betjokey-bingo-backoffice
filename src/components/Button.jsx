@@ -11,9 +11,11 @@ const StyledButton = styled.button`
 	border: 1px solid
 		${(props) => (props.color ? theme.dark.colors[props.color] : 'white')};
 	border-radius: 10px;
-	width: 100%;
+	width: ${(props) => (props.w ? `${props.w}%` : '100%')};
+	height: min-content;
 	letter-spacing: 1px;
 	gap: 2.35px;
+	margin-top: auto;
 
 	align-items: center;
 	text-align: center;
@@ -44,7 +46,7 @@ const Button = ({ children, icoUrl, ...props }) => (
 	<StyledButton {...props}>
 		{children}
 		<ImageContainer>
-			<Image src={icoUrl} alt={'ico'} width={20} height={20} />
+			{icoUrl && <Image src={icoUrl} alt={'ico'} width={20} height={20} />}
 		</ImageContainer>
 	</StyledButton>
 );

@@ -1,0 +1,4 @@
+export const GET_USERS = 'GET_USERS'
+export const SET_ACT_USERNAME = 'SET_ACT_USERNAME'
+export const SET_TOKEN_STATUS = 'SET_TOKEN_STATUS'
+export const SET_NEW_SESSION = 'SET_NEW_SESSION'

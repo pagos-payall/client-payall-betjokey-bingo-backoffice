@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, forwardRef } from 'react';
 import styled from 'styled-components';
 import { useField } from 'formik';
 import { theme } from '@/data/themes';
@@ -63,7 +63,8 @@ const FieldStyled = styled.div`
 	gap: 2.5px;
 `;
 
-const FormikInputValue = ({ title, size, ...props }) => {
+const FormikInputValue = forwardRef((props, ref) => {
+	const { title, size } = props;
 	const [field, meta, helpers] = useField(props);
 	const [isFocused, setIsFocused] = useState(false);
 
@@ -71,6 +72,7 @@ const FormikInputValue = ({ title, size, ...props }) => {
 		1: '100%',
 		2: '49%',
 		3: '32.6%',
+		6: '15%',
 	};
 
 	const handleFocus = () => {
@@ -100,6 +102,7 @@ const FormikInputValue = ({ title, size, ...props }) => {
 						onBlur={handleBlur}
 						error={meta.error}
 						step={props.type === 'number' ? 'any' : undefined}
+						ref={ref}
 						{...field}
 						{...props}
 					/>
@@ -125,6 +128,6 @@ const FormikInputValue = ({ title, size, ...props }) => {
 			)}
 		</FieldStyled>
 	);
-};
+});
 
 export default FormikInputValue;
