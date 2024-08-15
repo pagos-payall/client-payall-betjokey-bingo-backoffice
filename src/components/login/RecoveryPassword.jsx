@@ -9,8 +9,7 @@ import Button from '../Button';
 import React, { useState, useRef, useContext } from 'react';
 import * as yup from 'yup';
 import { useRouter } from 'next/navigation';
-import fetchAPICall from '@/services/fetchAPICall';
-import UsersContext from '@/context/users/UsersContext';
+import fetchAPICall from '@/hooks/useFetch';
 
 const validate = yup.object({
 	username: yup.string().min(4).required('Es requerido un usuario o correo'),
@@ -41,7 +40,7 @@ const RecoveryPassword = ({ setView, view }) => {
 	const [refEmail, setRefEmail] = useState(null);
 
 	const handleCorreo = (value, resetForm) => {
-		fetchAPICall('backOffice/validate/credentials', 'put', value)
+		fetchAPICall('/auth/validate/credentials', 'put', value)
 			.then((res) => {
 				setRefUsername(res.username);
 				setRefEmail(res.email);
@@ -58,7 +57,7 @@ const RecoveryPassword = ({ setView, view }) => {
 			username: refUsername,
 		};
 
-		fetchAPICall('backOffice/validate/approval', 'put', obj)
+		fetchAPICall('/auth/validate/approval', 'put', obj)
 			.then((res) => {
 				res && router.push(`/login/setpassword?username=${refUsername}`);
 			})
@@ -76,26 +75,20 @@ const RecoveryPassword = ({ setView, view }) => {
 		inputRef[index - 1].current.focus();
 	};
 
+	const handlePaste = (e, setFieldValue) => {
+		const text_code = e.clipboardData.getData('Text');
+
+		for (let i = 0; i < 6; i++) {
+			setFieldValue(`input-${i}`, text_code[i]);
+		}
+	};
+
 	return (
 		<>
 			{view ? (
 				<Link onClick={() => setView(false)}>Recuperar cotraseña</Link>
 			) : (
-				<div style={{ position: 'relative' }}>
-					<div
-						style={{
-							position: 'absolute',
-							top: '-57.5%',
-							right: '0%',
-							transform: 'translate(-50%, -50%)',
-						}}
-					>
-						<IconComponent
-							url={closeIcon}
-							size={20}
-							onClick={() => setView(true)}
-						/>
-					</div>
+				<div>
 					<h4
 						style={{
 							color: theme.dark.fonts.subHeaders_text,
@@ -156,7 +149,13 @@ const RecoveryPassword = ({ setView, view }) => {
 								setSubmitting(false);
 							}}
 						>
-							{({ isSubmitting, handleSubmit, handleChange, errors }) => (
+							{({
+								isSubmitting,
+								handleSubmit,
+								handleChange,
+								errors,
+								setFieldValue,
+							}) => (
 								<FormDiv style={{ width: '100%' }} onSubmit={handleSubmit}>
 									<div
 										style={{
@@ -174,9 +173,9 @@ const RecoveryPassword = ({ setView, view }) => {
 													name={`input-${index}`}
 													size={6}
 													maxLength={1}
+													onPaste={(e) => handlePaste(e, setFieldValue)}
 													onChange={(e) => {
 														handleChange(e);
-														console.log(errors);
 														handleInputChange(index, e);
 													}}
 													autoFocus={+index === 0}

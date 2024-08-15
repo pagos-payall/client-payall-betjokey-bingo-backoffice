@@ -1,3 +1,5 @@
+import { GET_USERS } from '../users/types';
+import UsersContext from '../users/UsersContext';
 import { GET_ROOMS } from './types';
 
 const RoomsReducer = (state, action) => {
@@ -8,6 +10,11 @@ const RoomsReducer = (state, action) => {
 			return {
 				...state,
 				rooms: payload,
+			};
+		case GET_USERS:
+			return {
+				...state,
+				users: payload,
 			};
 	}
 };

@@ -8,7 +8,7 @@ import FormikInputValue from '@/components/FormikInputValue';
 import { Formik } from 'formik';
 import { theme } from '@/data/themes';
 import { saveChangeIcon, refreshIcon } from '@/data/icons';
-import fetchAPICall from '@/services/fetchAPICall';
+import fetchAPICall from '@/hooks/useFetch';
 
 export default function SetPassword() {
 	const router = useRouter();

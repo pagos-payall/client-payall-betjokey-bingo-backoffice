@@ -1,5 +1,5 @@
-import styled from 'styled-components';
-import { theme } from '@/data/themes';
+import styled from 'styled-components'
+import { theme } from '@/data/themes'
 
 export const BoxTable = styled.div`
 	display: flex;
@@ -7,13 +7,13 @@ export const BoxTable = styled.div`
 	justify-content: flex-start;
 	gap: 5px;
 	overflow-y: auto;
-	height: 100%;
-`;
+	flex: 1;
+`
 
 export const ActionTitle = styled.h5`
 	color: ${(props) => props.color || theme.dark.fonts.title_headers};
 	transition: 0.2s ease-out;
-`;
+`
 export const RowGrid = styled.div`
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
@@ -34,7 +34,7 @@ export const RowGrid = styled.div`
 	&:hover ${ActionTitle} {
 		color: #222;
 	}
-`;
+`
 
 export const RowGridHeader = styled.div`
 	display: grid;
@@ -49,39 +49,39 @@ export const RowGridHeader = styled.div`
 	color: ${theme.dark.fonts.title_headers};
 	background: ${theme.dark.background.secundary};
 	padding: 10px;
-`;
+`
 
 export const ChildGrid_1 = styled.div`
 	grid-area: 1 / 1 / 2 / 2;
 	display: flex;
 	justify-content: flex-start;
 	align-items: center;
-`;
+`
 export const ChildGrid_2 = styled.div`
 	grid-area: 1 / 2 / 2 / 3;
 	display: flex;
 	justify-content: space-around;
 	align-items: center;
-`;
+`
 export const ChildGrid_3 = styled.div`
 	grid-area: 1 / 3 / 2 / 4;
 	display: flex;
 	justify-content: space-around;
 	align-items: center;
-`;
+`
 
 export const RoomTitle = styled.h5`
 	font-weight: 500;
-`;
+`
 
 export const DateCellContent = styled.h5`
 	font-weight: 300;
 	margin: auto;
-`;
+`
 
 export const GridCell = styled.div`
 	display: flex;
 	flex-wrap: nowrap;
 	align-items: center;
 	gap: 5px;
-`;
+`

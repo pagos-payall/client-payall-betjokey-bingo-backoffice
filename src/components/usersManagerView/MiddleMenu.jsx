@@ -1,20 +1,20 @@
-'use client';
-import { useContext, useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { theme } from '../../data/themes';
-import SearchBar from '../SearchBar';
-import MenuOption from '../MenuOption';
-import Separator from '../Separator';
+'use client'
+import { useContext, useEffect, useState } from 'react'
+import styled from 'styled-components'
+import { theme } from '../../data/themes'
+import SearchBar from '../SearchBar'
+import MenuOption from '../MenuOption'
+import Separator from '../Separator'
 import {
 	addIcon,
 	archiveStorageIcon,
 	boltIcon,
 	refreshIcon,
-} from '@/data/icons';
-import UsersContext from '@/context/users/UsersContext';
-import NoInfoComp from '../NoInfoComp';
-import SubHeaderBar from '../SubHeaderBar';
-import UserMenuCard from './UsersMenuCard';
+} from '@/data/icons'
+import NoInfoComp from '../NoInfoComp'
+import SubHeaderBar from '../SubHeaderBar'
+import UserMenuCard from './UsersMenuCard'
+import RoomsContext from '@/context/rooms/RoomsContext'
 
 const MenuOptionsContainer = styled.div`
 	display: flex;
@@ -24,12 +24,12 @@ const MenuOptionsContainer = styled.div`
 	overflow: hidden;
 	overflow-x: auto;
 	padding-bottom: 15px;
-`;
+`
 
 const MiddleMenu = () => {
-	const { users, getUsers } = useContext(UsersContext);
-	const [displayData, setDisplayData] = useState([]);
-	const [displayFilter, setDisplayFilter] = useState('all');
+	const { users, getUsers } = useContext(RoomsContext)
+	const [displayData, setDisplayData] = useState([])
+	const [displayFilter, setDisplayFilter] = useState('all')
 
 	useEffect(() => {
 		displayFilter === 'all'
@@ -38,8 +38,8 @@ const MiddleMenu = () => {
 			  )
 			: setDisplayData(() =>
 					users.filter((users) => users.status === displayFilter)
-			  );
-	}, [displayFilter, users]);
+			  )
+	}, [displayFilter, users])
 
 	return (
 		<div
@@ -113,7 +113,7 @@ const MiddleMenu = () => {
 				</div>
 			</div>
 		</div>
-	);
-};
+	)
+}
 
-export default MiddleMenu;
+export default MiddleMenu

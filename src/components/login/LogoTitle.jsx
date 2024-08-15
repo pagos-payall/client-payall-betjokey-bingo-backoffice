@@ -1,14 +1,18 @@
-import styled from 'styled-components';
-import { theme } from '@/data/themes';
+import Image from 'next/image'
+import logo from '/public/logos/logo_betjockey.png'
 
-const Title = styled.h1`
-	color: ${theme.dark.fonts.title_headers};
-	height: auto;
-	text-align: center;
-	padding: 0 20px;
-	font-size: 1.82em;
-`;
+const LogoTitle = () => (
+	<Image
+		src={logo}
+		alt={'ico'}
+		style={{
+			width: '100%',
+			objectFit: 'contain',
+			margin: 0,
+			padding: 0,
+			maxHeight: '90px',
+		}}
+	/>
+)
 
-const LogoTitle = () => <Title>BetJockey - BackOffice</Title>;
-
-export default LogoTitle;
+export default LogoTitle

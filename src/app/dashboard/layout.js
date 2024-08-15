@@ -4,9 +4,8 @@ import { theme } from '@/data/themes';
 import LeftMenuBar from '@/components/LeftMenuBar';
 import MiddleMenu from '@/components/dashboard/middleMenu';
 import Toastbox from '@/components/ToastBox';
-import useUser from '@/hooks/useUser';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useContext, useEffect } from 'react';
+import RoomsContext from '@/context/rooms/RoomsContext';
 
 const BodyComponent = styled.div`
 	border: 2px solid;
@@ -17,13 +16,10 @@ const BodyComponent = styled.div`
 `;
 
 export default function DashboardLayout({ children }) {
-	const { isLogged } = useUser();
-	const router = useRouter();
-
-	useEffect(() => {
-		!isLogged && router.push('/');
-	}, []);
-
+	const { getRooms } = useContext(RoomsContext);
+	useEffect(()=>{
+		getRooms()
+	},[])
 	return (
 		<div
 			style={{

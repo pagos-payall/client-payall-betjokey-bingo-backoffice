@@ -19,6 +19,7 @@ const MotionDiv = ({ children }) => (
 			padding: '25px 10px',
 			alignItems: 'center',
 			justifyContent: 'space-evenly',
+			position: 'relative',
 		}}
 		animate={{
 			backgroundPositionY: ['0%', '300%'],

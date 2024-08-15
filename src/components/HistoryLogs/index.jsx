@@ -1,23 +1,24 @@
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { closeIcon } from '@/data/icons';
-import { BoxTable } from '../styled/HistoryLogsComps';
-import SubHeaderBar from '../SubHeaderBar';
-import TableHeader from './TableHeader';
-import FilterBox from './FilterBox';
-import LoadingCircle from '../LoadingCircle';
-import RowGridComp from './RowGridComp';
-import NoInfoComp from '../NoInfoComp';
-import { Container } from '../styled/DisplayLayouts';
-import { useDebounce } from '@/services/useDebouncedValue';
-import fetchAPICall from '@/services/fetchAPICall';
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { closeIcon } from '@/data/icons'
+import { BoxTable } from '../styled/HistoryLogsComps'
+import SubHeaderBar from '../SubHeaderBar'
+import TableHeader from './TableHeader'
+import FilterBox from './FilterBox'
+import LoadingCircle from '../LoadingCircle'
+import RowGridComp from './RowGridComp'
+import NoInfoComp from '../NoInfoComp'
+import { Container } from '../styled/DisplayLayouts'
+import { useDebounce } from '@/services/useDebouncedValue'
+import useFetch from '@/hooks/useFetch'
 
 const HistoryLogsTable = ({ logsUri, type, origin }) => {
-	const router = useRouter();
-	const [loading, setLoading] = useState(true);
-	const [valuesForm, setValuesForm] = useState({});
-	const debouncedSearchTerm = useDebounce(valuesForm);
-	const [historyData, setHistoryData] = useState([]);
+	const [loading, setLoading] = useState(true)
+	const [historyData, setHistoryData] = useState([])
+	const [valuesForm, setValuesForm] = useState({})
+	const debouncedSearchTerm = useDebounce(valuesForm)
+	const { fetchAPICall } = useFetch()
+	const router = useRouter()
 	const defaultConfig = {
 		searchBar: '',
 		create: false,
@@ -28,7 +29,7 @@ const HistoryLogsTable = ({ logsUri, type, origin }) => {
 		time_i: '00:00',
 		date_f: '',
 		time_f: '23:59',
-	};
+	}
 	const rowColor = {
 		delete: 'red',
 		create: 'green',
@@ -37,32 +38,31 @@ const HistoryLogsTable = ({ logsUri, type, origin }) => {
 		unarchive: 'yellow',
 		edit: 'purple',
 		white: '',
-	};
+	}
 
-	const fieldHandleChange = (handleChange, values, e) => {
-		setLoading(true);
-		handleChange(e);
+	const fieldHandleChange = (values, e) => {
+		const filters = { ...values }
+		setLoading(true)
 
 		e.target.type === 'checkbox'
-			? (values[e.target.name] = e.target.value !== 'true')
-			: (values[e.target.name] = e.target.value);
+			? (filters[e.target.name] = e.target.value !== 'true')
+			: (filters[e.target.name] = e.target.value)
 
-		setValuesForm(values);
-	};
+		setValuesForm(filters)
+	}
 
 	useEffect(() => {
-		if (Object.keys(debouncedSearchTerm).length === 0)
-			setValuesForm(defaultConfig);
-		else
+		if (Object.keys(debouncedSearchTerm).length !== 0) {
 			fetchAPICall(logsUri, 'get', debouncedSearchTerm)
 				.then((data) => {
-					setHistoryData(data.result.reverse());
-					setLoading(false);
+					setHistoryData(data.result.reverse())
+					setLoading(false)
 				})
 				.catch(() => {
-					setLoading(false);
-				});
-	}, [debouncedSearchTerm]);
+					setLoading(false)
+				})
+		} else setValuesForm(defaultConfig)
+	}, [debouncedSearchTerm])
 
 	return (
 		<Container>
@@ -93,11 +93,12 @@ const HistoryLogsTable = ({ logsUri, type, origin }) => {
 					{loading ? (
 						<LoadingCircle size={100} />
 					) : historyData.length > 0 ? (
-						historyData.map((data) => (
+						historyData.map((data, key) => (
 							<RowGridComp
 								data={data}
 								color={rowColor[data.operation || undefined]}
 								type={type}
+								key={key}
 							/>
 						))
 					) : (
@@ -106,7 +107,7 @@ const HistoryLogsTable = ({ logsUri, type, origin }) => {
 				</div>
 			</BoxTable>
 		</Container>
-	);
-};
+	)
+}
 
-export default HistoryLogsTable;
+export default HistoryLogsTable

@@ -1,74 +1,79 @@
-'use client';
-import { useReducer, useEffect } from 'react';
-import UsersContext from './UsersContext';
-import UsersReducer from './UsersReducer';
-import fetchAPICall from '@/services/fetchAPICall';
+'use client'
+import { useEffect, useReducer } from 'react'
+import UsersContext from './UsersContext'
+import UsersReducer from './UsersReducer'
+import Cookies from 'js-cookies'
 
 const UsersState = ({ children }) => {
 	const initialState = {
-		users: [],
-		username: sessionStorage.getItem('user_bj_bo') || undefined,
-		jwt: sessionStorage.getItem('jwt_bj_bo') || undefined,
-	};
+		username: '',
+		token_status: undefined, // active, expired, undefined
+		session: {
+			username: undefined,
+			password: undefined,
+		},
+	}
 
-	const [state, dispatch] = useReducer(UsersReducer, initialState);
+	const [state, dispatch] = useReducer(UsersReducer, initialState)
 
-	const getUsers = async (notification) => {
-		let response;
-		let boolean = notification ? notification : false;
-
-		try {
-			response = await fetchAPICall(
-				'/backOffice',
-				'get',
-				undefined,
-				boolean
-			).then((data) => data.result.reverse());
-		} catch (error) {
-			response = [];
-		}
-
-		dispatch({
-			type: 'GET_USERS',
-			payload: response,
-		});
-	};
-
-	const setActUsername = (username, jwt) => {
-		if (username && jwt) {
-			window.sessionStorage.setItem('jwt_bj_bo', jwt);
-			window.sessionStorage.setItem('user_bj_bo', username);
+	const setActUsername = async (username) => {
+		if (!username) {
+			Cookies.removeItem('username')
 		} else {
-			window.sessionStorage.removeItem('jwt_bj_bo');
-			window.sessionStorage.removeItem('user_bj_bo');
+			Cookies.setItem('username', username, {
+				expires: 0.29,
+				samesite: 'strict',
+			})
 		}
 
 		dispatch({
 			type: 'SET_ACT_USERNAME',
 			payload: {
 				username,
-				jwt,
 			},
-		});
-	};
+		})
+	}
+
+	const setTokenStatus = (status) => {
+		const token_status =
+			status === undefined ? undefined : status ? 'active' : 'expired'
+
+		dispatch({
+			type: 'SET_TOKEN_STATUS',
+			payload: {
+				token_status,
+			},
+		})
+	}
+
+	const setNewSession = ({ username, password }) => {
+		dispatch({
+			type: 'SET_NEW_SESSION',
+			payload: {
+				username,
+				password,
+			},
+		})
+	}
 
 	useEffect(() => {
-		getUsers();
-	}, []);
+		setActUsername(Cookies.getItem('username') || undefined)
+	}, [])
 
 	return (
 		<UsersContext.Provider
 			value={{
-				users: state.users,
 				username: state.username,
-				jwt: state.jwt,
-				getUsers,
+				token_status: state.token_status,
+				session: state.session,
 				setActUsername,
+				setTokenStatus,
+				setNewSession,
 			}}
 		>
 			{children}
 		</UsersContext.Provider>
-	);
-};
+	)
+}
 
-export default UsersState;
+export default UsersState

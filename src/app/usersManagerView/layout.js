@@ -1,12 +1,13 @@
-'use client';
-import styled from 'styled-components';
-import LeftMenuBar from '@/components/LeftMenuBar';
-import MiddleMenu from '@/components/usersManagerView/MiddleMenu';
-import { theme } from '@/data/themes';
-import Toastbox from '@/components/ToastBox';
-import { useRouter } from 'next/navigation';
-import useUser from '@/hooks/useUser';
-import { useEffect } from 'react';
+'use client'
+import styled from 'styled-components'
+import LeftMenuBar from '@/components/LeftMenuBar'
+import MiddleMenu from '@/components/usersManagerView/MiddleMenu'
+import { theme } from '@/data/themes'
+import Toastbox from '@/components/ToastBox'
+import { useRouter } from 'next/navigation'
+import useUser from '@/hooks/useUser.jsx'
+import { useEffect, useContext } from 'react'
+import RoomsContext from '@/context/rooms/RoomsContext'
 
 const BodyComponent = styled.div`
 	border: 2px solid;
@@ -14,15 +15,15 @@ const BodyComponent = styled.div`
 	border-radius: 10px;
 	display: flex;
 	height: 100%;
-`;
+`
 
 export default function UserManagerViewLayout({ children }) {
-	const { isLogged } = useUser();
-	const router = useRouter();
+	// const { getUsers } = useContext(RoomsContext)
 
-	useEffect(() => {
-		!isLogged && router.push('/');
-	}, []);
+	// useEffect(() => {
+	// 	getUsers()
+	// }, [])
+
 	return (
 		<div
 			style={{
@@ -38,5 +39,5 @@ export default function UserManagerViewLayout({ children }) {
 				{children}
 			</BodyComponent>
 		</div>
-	);
+	)
 }

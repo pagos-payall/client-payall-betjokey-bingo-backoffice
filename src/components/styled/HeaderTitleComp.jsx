@@ -1,3 +1,6 @@
+import logo_compact from '/public/logos/logo_betjockey_compacto.png'
+import Image from 'next/image'
+
 const HeaderTitleComp = () => (
 	<div
 		style={{
@@ -7,17 +10,8 @@ const HeaderTitleComp = () => (
 			justifyContent: 'flex-start',
 		}}
 	>
-		<p
-			style={{
-				color: 'white',
-				fontWeight: 'bolder',
-				fontSize: '2em',
-				textAlign: 'center',
-			}}
-		>
-			BJ
-		</p>
+		<Image src={logo_compact} alt={'ico'} width={45} height={45} />
 	</div>
-);
+)
 
-export default HeaderTitleComp;
+export default HeaderTitleComp

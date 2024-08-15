@@ -1,19 +1,13 @@
-import {
-	deleteIcon,
-	editIcon,
-	archiveIcon,
-	unarchiveIcon,
-	boltIcon,
-} from '@/data/icons';
-import StatusLight from './StatusLight';
-import { IconComponent } from './SubHeaderBar';
-import { toast } from 'react-toastify';
-import { useContext } from 'react';
-import fetchAPICall from '@/services/fetchAPICall';
-import RoomsContext from '@/context/rooms/RoomsContext';
-import { useRouter, usePathname } from 'next/navigation';
-import sweetAlert_confirm from './SweetAlert_confirm';
-import UsersContext from '@/context/users/UsersContext';
+import { useRouter, usePathname } from 'next/navigation'
+import { useContext } from 'react'
+import StatusLight from './StatusLight'
+import { IconComponent } from './SubHeaderBar'
+import { toast } from 'react-toastify'
+import RoomsContext from '@/context/rooms/RoomsContext'
+import sweetAlert_confirm from './SweetAlert_confirm'
+import { deleteIcon, editIcon, archiveIcon, unarchiveIcon } from '@/data/icons'
+import useUser from '@/hooks/useUser'
+import useFetch from '@/hooks/useFetch'
 
 const UpdateFormHeader = ({
 	name,
@@ -22,46 +16,47 @@ const UpdateFormHeader = ({
 	setUpdateMode,
 	updateMode,
 }) => {
-	const { username, getRooms } = useContext(RoomsContext);
-	const { getUsers } = useContext(UsersContext);
-	const router = useRouter();
-	const path = usePathname();
-	const url = path.includes('user') ? '/backOffice' : 'bingo/rooms';
-	const fetchMethod = path.includes('user') ? 'patch' : 'put';
+	const { getRooms, getUsers } = useContext(RoomsContext)
+	const { username } = useUser()
+	const { fetchAPICall } = useFetch()
+	const router = useRouter()
+	const path = usePathname()
+	const url = path.includes('user') ? '/backOffice' : 'bingo/rooms'
+	const fetchMethod = path.includes('user') ? 'patch' : 'put'
 
 	const handleSetUpdate = () => {
 		setUpdateMode((value) => {
-			return !value;
-		});
+			return !value
+		})
 
-		if (updateMode) toast('Modo de edicion desactivado');
-		else toast('Modo de edicion activo');
-	};
+		if (updateMode) toast('Modo de edicion desactivado')
+		else toast('Modo de edicion activo')
+	}
 
 	const handleAction = (operation) => {
-		if (status === 'archive') operation = 'unarchive';
+		if (status === 'archive') operation = 'unarchive'
 
 		const values = {
 			operatorName: username,
 			operation,
-		};
+		}
 
 		path.includes('user')
 			? (values['username'] = name)
-			: (values['room_id'] = codigo);
+			: (values['room_id'] = codigo)
 
-		const method = operation === 'delete' ? 'delete' : fetchMethod;
+		const method = operation === 'delete' ? 'delete' : fetchMethod
 		const thenFunction = !path.includes('user')
 			? () => {
-					getRooms();
-					router.push('/dashboard');
+					getRooms()
+					router.push('/dashboard')
 			  }
 			: () => {
-					getUsers();
-					router.push('/usersManagerView/historyLog');
-			  };
+					getUsers()
+					router.push('/usersManagerView/historyLog')
+			  }
 
-		const funct = () => fetchAPICall(url, method, values).then(thenFunction);
+		const funct = () => fetchAPICall(url, method, values).then(thenFunction)
 
 		if (operation === 'delete') {
 			const deleteConfirmationConfig = {
@@ -71,14 +66,13 @@ const UpdateFormHeader = ({
 					title: 'Cancelado',
 					subtitle: 'La sala no fue borrada',
 				},
-			};
+			}
 
-			sweetAlert_confirm(funct, deleteConfirmationConfig);
+			sweetAlert_confirm(funct, deleteConfirmationConfig)
 		} else {
-			console.log(values);
-			funct();
+			funct()
 		}
-	};
+	}
 
 	return (
 		<div
@@ -106,7 +100,7 @@ const UpdateFormHeader = ({
 				</>
 			)}
 		</div>
-	);
-};
+	)
+}
 
-export default UpdateFormHeader;
+export default UpdateFormHeader

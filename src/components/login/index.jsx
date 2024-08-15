@@ -3,13 +3,20 @@ import { useRouter } from 'next/navigation';
 import Button from '../Button';
 import { FormDiv } from '../styled/roomForm';
 import FormikInputValue from '../FormikInputValue';
-import { logInIcon, refreshIcon, saveChangeIcon } from '@/data/icons';
-import fetchAPICall from '@/services/fetchAPICall';
+import { logInIcon, refreshIcon } from '@/data/icons';
+import useFetch from '@/hooks/useFetch';
 import useUser from '@/hooks/useUser';
+import * as yup from 'yup';
+
+const validate = yup.object({
+	username: yup.string().min(4).required('Es requerido un usuario o correo'),
+	password: yup.string().min(1).required('El campo no puede estar vacio'),
+});
 
 const LoginForm = () => {
 	const router = useRouter();
-	const { login } = useUser();
+	const { login, newSession } = useUser();
+	const { fetchAPICall } = useFetch();
 	const initialValues = {
 		username: '',
 		password: '',
@@ -25,22 +32,27 @@ const LoginForm = () => {
 			if (initialValues[val[0]] !== val[1]) obj[val[0]] = val[1];
 		}
 		values = obj;
-		fetchAPICall('backOffice/login', 'put', values)
+		fetchAPICall('/auth/', 'post', values)
 			.then((res) => {
 				if (res.resetPassword) router.push('/login/setpassword');
 				else {
-					setTimeout(router.push('/dashboard'), 2250);
-					login(values.username, '123');
+					login(values.username);
+					setTimeout(router.push('/dashboard'), 2000);
 				}
 			})
-			.catch(() => {
-				resetForm();
+			.catch((error) => {
+				if(error.status === 304){
+					newSession(values)
+				}
+				resetForm()
 			});
 	};
 
 	return (
+		<>
 		<Formik
 			key='login'
+			validationSchema={validate}
 			initialValues={initialValues}
 			onSubmit={(values, { setSubmitting, resetForm }) => {
 				setSubmitting(true);
@@ -73,6 +85,7 @@ const LoginForm = () => {
 				</FormDiv>
 			)}
 		</Formik>
+		</>
 	);
 };
 

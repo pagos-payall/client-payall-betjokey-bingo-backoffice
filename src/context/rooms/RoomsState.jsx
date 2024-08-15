@@ -1,20 +1,20 @@
-'use client';
-import { useReducer, useEffect } from 'react';
-import RoomsContext from './RoomsContext';
-import RoomsReducer from './RoomsReducer';
-import fetchAPICall from '@/services/fetchAPICall';
+'use client'
+import { useReducer } from 'react'
+import RoomsContext from './RoomsContext'
+import RoomsReducer from './RoomsReducer'
+import useFetch from '@/hooks/useFetch'
 
 const RoomsState = ({ children }) => {
+	const { fetchAPICall } = useFetch()
 	const initialState = {
 		rooms: [],
-		username: 'test',
-		display_view: '/dashboard/roomForm',
-	};
-	const [state, dispatch] = useReducer(RoomsReducer, initialState);
+		users: [],
+	}
+	const [state, dispatch] = useReducer(RoomsReducer, initialState)
 
 	const getRooms = async (notification) => {
-		let response;
-		let boolean = notification ? notification : false;
+		let response
+		let boolean = notification ? notification : false
 
 		try {
 			response = await fetchAPICall(
@@ -22,33 +22,54 @@ const RoomsState = ({ children }) => {
 				'get',
 				undefined,
 				boolean
-			).then((data) => data.result.reverse());
+			).then((data) => data.result.reverse())
 		} catch (error) {
-			response = [];
+			response = []
 		}
 
 		dispatch({
 			type: 'GET_ROOMS',
 			payload: response,
-		});
-	};
+		})
+	}
 
-	useEffect(() => {
-		getRooms();
-	}, []);
+	const getUsers = async (notification) => {
+		let response
+		let boolean = notification ? notification : false
+
+		try {
+			response = await fetchAPICall(
+				'/backOffice',
+				'get',
+				undefined,
+				boolean
+			).then((data) => data.result.reverse())
+
+			console.log(response)
+		} catch (error) {
+			console.log(error)
+
+			response = []
+		}
+
+		dispatch({
+			type: 'GET_USERS',
+			payload: response,
+		})
+	}
 
 	return (
 		<RoomsContext.Provider
 			value={{
 				rooms: state.rooms,
-				display_view: state.display_view,
-				username: state.username,
+				users: state.users,
 				getRooms,
+				getUsers,
 			}}
 		>
 			{children}
 		</RoomsContext.Provider>
-	);
-};
+	)
+}
 
-export default RoomsState;
+export default RoomsState

@@ -1,7 +1,5 @@
-'use client';
-import styled from 'styled-components';
-import { theme } from '../data/themes';
-import { IconComponent } from './SubHeaderBar';
+'use client'
+import { IconComponent } from './SubHeaderBar'
 import {
 	homeIcon,
 	boltIcon,
@@ -9,19 +7,20 @@ import {
 	logOutIcon,
 	settingsIcon,
 	manageAccountsIcon,
-} from '../data/icons';
-import { useRouter } from 'next/navigation';
-import fetchAPICall from '@/services/fetchAPICall';
-import HeaderTitleComp from './styled/HeaderTitleComp';
-import { MenuComponent, UserHeaderComp } from './styled/MenuComponents';
-import useUser from '@/hooks/useUser';
+} from '../data/icons'
+import { useRouter } from 'next/navigation'
+import HeaderTitleComp from './styled/HeaderTitleComp'
+import { MenuComponent, UserHeaderComp } from './styled/MenuComponents'
+import useUser from '@/hooks/useUser.jsx'
+import useFetch from '@/hooks/useFetch'
 
-const LeftMenuBar = () => {
-	const router = useRouter();
-	const { username, logout } = useUser();
+function LeftMenuBar() {
+	const router = useRouter()
+	const { username, logout } = useUser()
+	const { fetchAPICall } = useFetch()
 
 	function handleLogout() {
-		fetchAPICall('backOffice/logout', 'put', { username }).then(() => logout());
+		fetchAPICall('/auth/logout', 'put', { username }).then(() => logout())
 	}
 
 	return (
@@ -66,7 +65,7 @@ const LeftMenuBar = () => {
 				<IconComponent size={25} url={settingsIcon} />
 			</div>
 		</MenuComponent>
-	);
-};
+	)
+}
 
-export default LeftMenuBar;
+export default LeftMenuBar
