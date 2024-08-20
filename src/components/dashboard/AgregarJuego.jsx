@@ -1,20 +1,20 @@
-import { useState } from 'react';
-import FormikInputValue from './FormikInputValue';
-import Buttom from './Button';
-import Separator from './Separator';
-import SubHeaderBar from './SubHeaderBar';
-import { expandIcon } from '@/data/icons';
-import { theme } from '@/data/themes';
-import { FieldsContainer } from './styled/roomForm';
-import { isoShortDate } from '@/services/getISODate';
+import { useState } from 'react'
+import FormikInputValue from '../FormikInputValue'
+import Buttom from '../Button'
+import Separator from '../Separator'
+import { FieldsContainer } from '../styled/roomForm'
+import SubHeaderBar from '../SubHeaderBar'
+import { expandIcon } from '@/data/icons'
+import { theme } from '@/data/themes'
+import { isoShortDate } from '@/services/getISODate'
 
 const AgregarJuego = () => {
-	const [addGameView, setAddGameView] = useState(false);
-	const min_date = isoShortDate();
+	const [addGameView, setAddGameView] = useState(false)
+	const min_date = isoShortDate()
 
 	const toggleState = () => {
-		setAddGameView((prevState) => !prevState);
-	};
+		setAddGameView((prevState) => !prevState)
+	}
 
 	return (
 		<>
@@ -48,7 +48,7 @@ const AgregarJuego = () => {
 				</div>
 			)}
 		</>
-	);
-};
+	)
+}
 
-export default AgregarJuego;
+export default AgregarJuego

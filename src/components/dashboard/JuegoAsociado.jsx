@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import NoInfoComp from './NoInfoComp';
-import AgregarJuego from './AgregarJuego';
+import { useState } from 'react'
+import NoInfoComp from '../NoInfoComp'
+import AgregarJuego from './AgregarJuego'
 
 const JuegoAsociado = ({ value, status }) => {
-	const [addGameView, setAddGameView] = useState(false);
+	const [addGameView, setAddGameView] = useState(false)
 
-	const handleClick = () => setAddGameView((val) => !val);
+	const handleClick = () => setAddGameView((val) => !val)
 
 	return (
 		<>
@@ -20,7 +20,7 @@ const JuegoAsociado = ({ value, status }) => {
 				</>
 			)}
 		</>
-	);
-};
+	)
+}
 
-export default JuegoAsociado;
+export default JuegoAsociado

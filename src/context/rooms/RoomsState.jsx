@@ -44,8 +44,6 @@ const RoomsState = ({ children }) => {
 				undefined,
 				boolean
 			).then((data) => data.result.reverse())
-
-			console.log(response)
 		} catch (error) {
 			console.log(error)
 

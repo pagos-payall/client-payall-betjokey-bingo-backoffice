@@ -17,6 +17,7 @@ import Separator from '@/components/Separator'
 import useFetch from '@/hooks/useFetch'
 import useUser from '@/hooks/useUser'
 import RoomsContext from '@/context/rooms/RoomsContext'
+import { createUserValidationSchema } from '@/validationSchemas/createUser'
 
 export default function UserForm() {
 	const router = useRouter()
@@ -24,7 +25,10 @@ export default function UserForm() {
 	const { fetchAPICall } = useFetch()
 	const { username } = useUser()
 	const { getUsers } = useContext(RoomsContext)
-	const [credentials, setCredentials] = useState(null)
+	const [credentials, setCredentials] = useState({
+		username: undefined,
+		password: undefined,
+	})
 	const [initialValues, setInitialValues] = useState(null)
 	const [updateView, setUpdateView] = useState(false)
 	const [updateMode, setUpdateMode] = useState(false)
@@ -40,9 +44,9 @@ export default function UserForm() {
 	}
 
 	function handleEmail() {
-		fetchAPICall('/backOffice/notifications', 'post', credentials).then(() =>
-			router.push('/usersManagerView')
-		)
+		fetchAPICall('/backOffice/notifications', 'post', {
+			username: credentials.username,
+		}).then(() => router.push('/usersManagerView/historyLog'))
 	}
 	function handleSubmit(values, setSubmitting) {
 		let method = 'post'
@@ -56,16 +60,23 @@ export default function UserForm() {
 			for (const val of array) {
 				if (initialValues[val[0]] !== val[1]) obj[val[0]] = val[1]
 			}
-			values = obj
-			method = 'patch'
+			values = {
+				username: userData.username,
+				...values,
+				...obj,
+			}
+			method = 'put'
 		}
+
+		console.log(values)
 
 		values['operatorName'] = username
 
 		fetchAPICall('/backOffice', method, values).then((data) => {
 			setSubmitting(false)
 			getUsers()
-			if (!updateView) setCredentials(data)
+
+			if (!updateView) setCredentials(data.result)
 			else {
 				delete values.username
 				setInitialValues(values)
@@ -178,7 +189,7 @@ export default function UserForm() {
 								initialValues &&
 								JSON.stringify(initialValues.names + updateMode)
 							}
-							// validationSchema={createRoomValidationSchema}
+							validationSchema={createUserValidationSchema}
 							initialValues={{ ...initialValues }}
 							onSubmit={async (values, { setSubmitting }) => {
 								handleSubmit(values, setSubmitting)
@@ -212,9 +223,8 @@ export default function UserForm() {
 											readOnly={updateView ? !updateMode : false}
 										/>
 										<FormikInputValue
-											placeholder='Role del usuario'
 											name='role'
-											title='Role del usuario'
+											title='Rol del usuario'
 											type='select'
 											size={2}
 											disabled={updateView ? !updateMode : false}
@@ -232,7 +242,7 @@ export default function UserForm() {
 											readOnly={updateView ? !updateMode : false}
 										/>
 									</FieldsContainer>
-									{!credentials &&
+									{credentials?.username === undefined &&
 										(!updateView ? (
 											<Button type='submit' color='green' icoUrl={addIcon}>
 												Crear Usuario
@@ -247,7 +257,7 @@ export default function UserForm() {
 								</FormDiv>
 							)}
 						</Formik>
-						{credentials && (
+						{credentials?.username !== undefined && (
 							<FormDiv>
 								<Separator width={100} color={theme.dark.borders.secundary} />
 								<h3

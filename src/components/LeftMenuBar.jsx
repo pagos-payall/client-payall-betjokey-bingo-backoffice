@@ -43,7 +43,7 @@ function LeftMenuBar() {
 				<IconComponent
 					size={25}
 					url={homeIcon}
-					onClick={() => router.push('/dashboard')}
+					onClick={() => router.push('/dashboard/historyLog')}
 				/>
 				<IconComponent size={25} url={mailIcon} />
 				<IconComponent size={25} url={boltIcon} />

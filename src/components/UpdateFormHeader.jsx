@@ -1,13 +1,13 @@
 import { useRouter, usePathname } from 'next/navigation'
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import StatusLight from './StatusLight'
 import { IconComponent } from './SubHeaderBar'
 import { toast } from 'react-toastify'
 import RoomsContext from '@/context/rooms/RoomsContext'
-import sweetAlert_confirm from './SweetAlert_confirm'
 import { deleteIcon, editIcon, archiveIcon, unarchiveIcon } from '@/data/icons'
 import useUser from '@/hooks/useUser'
 import useFetch from '@/hooks/useFetch'
+import AlertConfirmModal from './modals/AlertConfirmModal'
 
 const UpdateFormHeader = ({
 	name,
@@ -23,6 +23,7 @@ const UpdateFormHeader = ({
 	const path = usePathname()
 	const url = path.includes('user') ? '/backOffice' : 'bingo/rooms'
 	const fetchMethod = path.includes('user') ? 'patch' : 'put'
+	const [deleteModal, setDeleteModal] = useState(false)
 
 	const handleSetUpdate = () => {
 		setUpdateMode((value) => {
@@ -45,33 +46,18 @@ const UpdateFormHeader = ({
 			? (values['username'] = name)
 			: (values['room_id'] = codigo)
 
-		const method = operation === 'delete' ? 'delete' : fetchMethod
-		const thenFunction = !path.includes('user')
-			? () => {
-					getRooms()
-					router.push('/dashboard')
-			  }
-			: () => {
-					getUsers()
-					router.push('/usersManagerView/historyLog')
-			  }
-
-		const funct = () => fetchAPICall(url, method, values).then(thenFunction)
-
-		if (operation === 'delete') {
-			const deleteConfirmationConfig = {
-				title: 'Estas seguro de que deseas borrar la sala?',
-				subtitle: 'Una vez borrada no podras recuperarla!',
-				cancelConfig: {
-					title: 'Cancelado',
-					subtitle: 'La sala no fue borrada',
-				},
+		const method = fetchMethod
+		const thenFunction = () => {
+			if (!path.includes('user')) {
+				getRooms()
+				router.push('/dashboard/historyLog')
+			} else {
+				getUsers()
+				router.push('/usersManagerView/historyLog')
 			}
-
-			sweetAlert_confirm(funct, deleteConfirmationConfig)
-		} else {
-			funct()
 		}
+
+		fetchAPICall(url, method, values).then(thenFunction)
 	}
 
 	return (
@@ -82,6 +68,13 @@ const UpdateFormHeader = ({
 				gap: '10px',
 			}}
 		>
+			{deleteModal && (
+				<AlertConfirmModal
+					closeModal={() => setDeleteModal(false)}
+					method={() => handleAction('delete')}
+				/>
+			)}
+
 			{name + (codigo ? ' - ' + codigo : '')}
 			<StatusLight status={status} size={12.5} />
 			{!name.includes('admin') && (
@@ -89,7 +82,7 @@ const UpdateFormHeader = ({
 					<IconComponent
 						url={deleteIcon}
 						size={20}
-						onClick={() => handleAction('delete')}
+						onClick={() => setDeleteModal(true)}
 					/>
 					<IconComponent
 						url={status !== 'archive' ? archiveIcon : unarchiveIcon}

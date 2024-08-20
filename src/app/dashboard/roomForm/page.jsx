@@ -14,7 +14,7 @@ import SubHeaderBar from '@/components/SubHeaderBar'
 import LoadingCircle from '@/components/LoadingCircle'
 import { isoShortDate } from '@/services/getISODate'
 import UpdateFormHeader from '@/components/UpdateFormHeader'
-import JuegoAsociado from '@/components/JuegoAsociado'
+import JuegoAsociado from '@/components/dashboard/JuegoAsociado'
 import {
 	FormDiv,
 	FieldsContainer,
@@ -259,7 +259,7 @@ export default function RoomForm() {
 											<option>Serie</option>
 										</FormikInputValue>
 										<FieldsPorcenContainer>
-											<PorcenSubHeader pos='top'>
+											<PorcenSubHeader $position='top'>
 												Porcentajes de recoleccion
 											</PorcenSubHeader>
 											<FormikInputValue
@@ -298,7 +298,7 @@ export default function RoomForm() {
 												simbol='%'
 												readOnly={updateView ? !updateMode : false}
 											/>
-											<PorcenSubHeader pos='bottom'>
+											<PorcenSubHeader $position='bottom'>
 												La suma de los procentajes debe ser igual a 100%
 											</PorcenSubHeader>
 										</FieldsPorcenContainer>

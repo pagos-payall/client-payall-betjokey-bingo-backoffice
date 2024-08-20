@@ -1,20 +1,20 @@
-'use client';
-import styled from 'styled-components';
-import { theme } from '../../../data/themes';
-import SearchBar from '../../SearchBar';
-import MenuOption from '../../MenuOption';
-import Separator from '../../Separator';
-import SalaMenuCard from '../../SalaMenuCard';
+'use client'
+import styled from 'styled-components'
+import { theme } from '../../data/themes'
+import SearchBar from '../SearchBar'
+import MenuOption from '../MenuOption'
+import Separator from '../Separator'
+import SalaMenuCard from '../SalaMenuCard'
 import {
 	addIcon,
 	archiveStorageIcon,
 	boltIcon,
 	refreshIcon,
-} from '@/data/icons';
-import RoomsContext from '@/context/rooms/RoomsContext';
-import { useContext, useEffect, useState } from 'react';
-import NoInfoComp from '../../NoInfoComp';
-import SubHeaderBar from '../../SubHeaderBar';
+} from '@/data/icons'
+import RoomsContext from '@/context/rooms/RoomsContext'
+import { useContext, useEffect, useState } from 'react'
+import NoInfoComp from '../NoInfoComp'
+import SubHeaderBar from '../SubHeaderBar'
 
 const MenuOptionsContainer = styled.div`
 	display: flex;
@@ -24,20 +24,20 @@ const MenuOptionsContainer = styled.div`
 	overflow: hidden;
 	overflow-x: auto;
 	padding-bottom: 15px;
-`;
+`
 
 const MiddleMenu = () => {
-	const { rooms, getRooms } = useContext(RoomsContext);
-	const [displayData, setDisplayData] = useState([]);
-	const [displayFilter, setDisplayFilter] = useState('all');
+	const { rooms, getRooms } = useContext(RoomsContext)
+	const [displayData, setDisplayData] = useState([])
+	const [displayFilter, setDisplayFilter] = useState('all')
 
 	useEffect(() => {
 		displayFilter === 'all'
 			? setDisplayData(() => rooms.filter((room) => room.status !== 'archive'))
 			: setDisplayData(() =>
 					rooms.filter((room) => room.status === displayFilter)
-			  );
-	}, [displayFilter, rooms]);
+			  )
+	}, [displayFilter, rooms])
 
 	return (
 		<div
@@ -71,7 +71,7 @@ const MiddleMenu = () => {
 				<MenuOption
 					title='Historial'
 					icoUrl={boltIcon}
-					path='/dashboard/historyLogs'
+					path='/dashboard/historyLog'
 				/>
 			</MenuOptionsContainer>
 			<Separator width={100} />
@@ -116,7 +116,7 @@ const MiddleMenu = () => {
 				</div>
 			</div>
 		</div>
-	);
-};
+	)
+}
 
-export default MiddleMenu;
+export default MiddleMenu

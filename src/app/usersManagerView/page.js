@@ -1,8 +1,7 @@
-import Link from "next/link";
+import Link from 'next/link'
 
 const UserManagerView = () => {
-  return <Link href="/userManager" style={{color: 'white'}}>home</Link>;
-};
+	return <></>
+}
 
-
-export default UserManagerView;
+export default UserManagerView

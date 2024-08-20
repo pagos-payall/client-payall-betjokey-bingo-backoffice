@@ -4,8 +4,6 @@ import LeftMenuBar from '@/components/LeftMenuBar'
 import MiddleMenu from '@/components/usersManagerView/MiddleMenu'
 import { theme } from '@/data/themes'
 import Toastbox from '@/components/ToastBox'
-import { useRouter } from 'next/navigation'
-import useUser from '@/hooks/useUser.jsx'
 import { useEffect, useContext } from 'react'
 import RoomsContext from '@/context/rooms/RoomsContext'
 
@@ -18,11 +16,11 @@ const BodyComponent = styled.div`
 `
 
 export default function UserManagerViewLayout({ children }) {
-	// const { getUsers } = useContext(RoomsContext)
+	const { getUsers } = useContext(RoomsContext)
 
-	// useEffect(() => {
-	// 	getUsers()
-	// }, [])
+	useEffect(() => {
+		getUsers()
+	}, [])
 
 	return (
 		<div

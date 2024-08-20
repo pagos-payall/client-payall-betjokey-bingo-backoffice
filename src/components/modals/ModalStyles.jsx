@@ -50,11 +50,13 @@ export const Document = styled.div`
 	flex-direction: column;
 	align-items: center;
 	gap: 10px;
+	flex-grow: 1;
 `
 
 export const Header = styled.div`
 	display: flex;
 	gap: 5px;
+	padding: 5px;
 	justify-content: space-around;
 	flex-wrap: wrap;
 `

@@ -1,20 +1,20 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server'
 
 export function middleware(request) {
-	const refreshToken = request.cookies.get('refresh_token');
-	const url = request.nextUrl.clone();
+	const refreshToken = request.cookies.get('refresh_token')
+	const url = request.nextUrl.clone()
 
 	if (!refreshToken?.value) {
-		url.pathname = '/login';
-		return NextResponse.redirect(url);
+		url.pathname = '/login'
+		return NextResponse.redirect(url)
 	} else if (refreshToken?.value && url.pathname === '/') {
-		url.pathname = '/dashboard';
-		return NextResponse.redirect(url);
+		url.pathname = '/dashboard/historyLog'
+		return NextResponse.redirect(url)
 	}
-	return NextResponse.next();
+	return NextResponse.next()
 }
 
 // Protected routes
 export const config = {
 	matcher: ['/', '/dashboard/', '/usersManagerView/'],
-};
+}

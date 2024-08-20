@@ -70,6 +70,11 @@ const MiddleMenu = () => {
 					icoUrl={archiveStorageIcon}
 					onClick={() => setDisplayFilter('archive')}
 				/>
+				<MenuOption
+					title='Historial'
+					icoUrl={boltIcon}
+					path='/usersManagerView/historyLog'
+				/>
 			</MenuOptionsContainer>
 			<Separator width={100} />
 			<div

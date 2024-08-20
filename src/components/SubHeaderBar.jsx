@@ -1,6 +1,6 @@
-import Image from 'next/image';
-import styled from 'styled-components';
-import { theme } from '../data/themes';
+import Image from 'next/image'
+import styled from 'styled-components'
+import { theme } from '../data/themes'
 
 const IconStyled = styled.div`
 	background: ${theme.dark.background.secundary};
@@ -17,13 +17,15 @@ const IconStyled = styled.div`
 		-webkit-box-shadow: 0px 0px 10px 10px rgba(255, 255, 255, 0.45);
 		-moz-box-shadow: 0px 0px 10px 10px rgba(255, 255, 255, 0.45);
 	}
-`;
+`
+
+const H_Title = styled.h3`
+	font-weight: normal;
+	color: ${theme.dark.fonts.title_headers};
+`
 
 const SubHeaderBar = ({ children, tag = 'h3', ...props }) => {
-	const H_Title = styled(tag)`
-		font-weight: normal;
-		color: ${theme.dark.fonts.title_headers};
-	`;
+	H_Title.target = tag
 
 	return (
 		<div
@@ -49,8 +51,8 @@ const SubHeaderBar = ({ children, tag = 'h3', ...props }) => {
 				</IconStyled>
 			)}
 		</div>
-	);
-};
+	)
+}
 
 export const IconComponent = ({ size, url, onClick, style }) => (
 	<IconStyled onClick={onClick}>
@@ -65,6 +67,6 @@ export const IconComponent = ({ size, url, onClick, style }) => (
 			}}
 		/>
 	</IconStyled>
-);
+)
 
-export default SubHeaderBar;
+export default SubHeaderBar

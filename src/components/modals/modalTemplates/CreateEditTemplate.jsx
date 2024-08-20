@@ -63,11 +63,11 @@ const CreateEditTemplate = ({ data, title }) => {
 	}
 
 	return (
-		<Document style={{ flexGrow: 1 }}>
+		<Document>
 			<h2 style={{ width: '100%' }}>{title}</h2>
 			<Header>
 				<SubTitle>
-					<strong>Nombre de usuario: </strong>
+					<strong>Usuario operador: </strong>
 					{username}
 				</SubTitle>
 				<SubTitle>
