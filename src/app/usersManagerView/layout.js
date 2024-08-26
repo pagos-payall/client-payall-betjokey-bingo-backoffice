@@ -4,7 +4,7 @@ import LeftMenuBar from '@/components/LeftMenuBar'
 import MiddleMenu from '@/components/usersManagerView/MiddleMenu'
 import { theme } from '@/data/themes'
 import Toastbox from '@/components/ToastBox'
-import { useEffect, useContext } from 'react'
+import { useEffect, useContext, Suspense } from 'react'
 import RoomsContext from '@/context/rooms/RoomsContext'
 
 const BodyComponent = styled.div`
@@ -34,7 +34,7 @@ export default function UserManagerViewLayout({ children }) {
 				<Toastbox />
 				<LeftMenuBar />
 				<MiddleMenu />
-				{children}
+				<Suspense>{children}</Suspense>
 			</BodyComponent>
 		</div>
 	)

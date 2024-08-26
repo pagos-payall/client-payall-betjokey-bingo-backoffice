@@ -1,6 +1,6 @@
 'use client'
-import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, useEffect, useContext } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { isEqual } from 'lodash'
 import { Formik } from 'formik'
 import { toast } from 'react-toastify'
@@ -67,9 +67,6 @@ export default function UserForm() {
 			}
 			method = 'put'
 		}
-
-		console.log(values)
-
 		values['operatorName'] = username
 
 		fetchAPICall('/backOffice', method, values).then((data) => {
@@ -175,6 +172,7 @@ export default function UserForm() {
 								status={userData.status}
 								updateMode={updateMode}
 								setUpdateMode={setUpdateMode}
+								rol={initialValues.role}
 							/>
 						)}
 					</SubHeaderBar>

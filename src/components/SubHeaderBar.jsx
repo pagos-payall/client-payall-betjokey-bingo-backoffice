@@ -2,6 +2,16 @@ import Image from 'next/image'
 import styled from 'styled-components'
 import { theme } from '../data/themes'
 
+const color_selection = (props) => {
+	const color = props.color
+		? theme.dark.colors[props.color]
+		: 'rgba(255, 255, 255, 0.45)'
+
+	const extension = props.color ? '5px' : '10px'
+
+	return `0px 0px 10px ${extension} ${color};`
+}
+
 const IconStyled = styled.div`
 	background: ${theme.dark.background.secundary};
 	border-radius: 10px;
@@ -12,10 +22,12 @@ const IconStyled = styled.div`
 	transition: 0.5s;
 
 	&:hover {
-		filter: invert(100%);
-		box-shadow: 0px 0px 10px 10px rgba(255, 255, 255, 0.45);
-		-webkit-box-shadow: 0px 0px 10px 10px rgba(255, 255, 255, 0.45);
-		-moz-box-shadow: 0px 0px 10px 10px rgba(255, 255, 255, 0.45);
+		filter: ${(props) => !props.color && 'invert(100%)'};
+		background: ${(props) => props.color && theme.dark.colors[props.color]};
+		box-shadow:${color_selection} 
+
+		-webkit-box-shadow:${color_selection} 
+		-moz-box-shadow:${color_selection} 
 	}
 `
 
@@ -54,8 +66,8 @@ const SubHeaderBar = ({ children, tag = 'h3', ...props }) => {
 	)
 }
 
-export const IconComponent = ({ size, url, onClick, style }) => (
-	<IconStyled onClick={onClick}>
+export const IconComponent = ({ size, url, onClick, style, ...props }) => (
+	<IconStyled onClick={onClick} {...props}>
 		<Image
 			src={url}
 			alt='ico'

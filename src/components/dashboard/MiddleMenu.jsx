@@ -36,7 +36,7 @@ const MiddleMenu = () => {
 			? setDisplayData(() => rooms.filter((room) => room.status !== 'archive'))
 			: setDisplayData(() =>
 					rooms.filter((room) => room.status === displayFilter)
-			  )
+			)
 	}, [displayFilter, rooms])
 
 	return (

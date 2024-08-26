@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, Suspense } from 'react'
 import { Formik } from 'formik'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'react-toastify'
@@ -163,7 +163,7 @@ export default function RoomForm() {
 	}, [searchParams])
 
 	return (
-		<>
+		<Suspense>
 			{!initialValues && searchParams.size > 0 ? (
 				<LoadingCircle size={100} />
 			) : (
@@ -348,6 +348,6 @@ export default function RoomForm() {
 					</div>
 				</div>
 			)}
-		</>
+		</Suspense>
 	)
 }

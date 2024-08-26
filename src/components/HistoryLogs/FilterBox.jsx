@@ -3,7 +3,7 @@ import { theme } from '@/data/themes'
 import FormikInputValue from '../FormikInputValue'
 import { InputSearchBar } from '../SearchBar'
 
-const FilterBox = ({ fieldHandleChange, initialValues }) => {
+const FilterBox = ({ fieldHandleChange, initialValues, type }) => {
 	return (
 		<div>
 			<Formik initialValues={initialValues}>
@@ -64,6 +64,30 @@ const FilterBox = ({ fieldHandleChange, initialValues }) => {
 									fieldHandleChange(values, e)
 								}}
 							/>
+							{type === 'user' && (
+								<>
+									<FormikInputValue
+										size={2}
+										title='Active'
+										type='checkbox'
+										name='active'
+										onChange={(e) => {
+											handleChange(e)
+											fieldHandleChange(values, e)
+										}}
+									/>
+									<FormikInputValue
+										size={2}
+										title='Disable'
+										type='checkbox'
+										name='disable'
+										onChange={(e) => {
+											handleChange(e)
+											fieldHandleChange(values, e)
+										}}
+									/>
+								</>
+							)}
 							<FormikInputValue
 								size={2}
 								title='Fecha inicial'

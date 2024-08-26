@@ -1,7 +1,8 @@
-'use client';
-import MotionDiv from '@/components/login/MotionDiv';
-import LogoTitle from '@/components/login/LogoTitle';
-import Toastbox from '@/components/ToastBox';
+'use client'
+import MotionDiv from '@/components/login/MotionDiv'
+import LogoTitle from '@/components/login/LogoTitle'
+import Toastbox from '@/components/ToastBox'
+import { Suspense } from 'react'
 
 export default function LoginLayout({ children }) {
 	return (
@@ -17,8 +18,8 @@ export default function LoginLayout({ children }) {
 			<Toastbox />
 			<MotionDiv>
 				<LogoTitle />
-				{children}
+				<Suspense>{children}</Suspense>
 			</MotionDiv>
 		</main>
-	);
+	)
 }

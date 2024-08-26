@@ -1,19 +1,18 @@
-import { theme } from '@/data/themes';
-import styled from 'styled-components';
-import { IconComponent } from '../SubHeaderBar';
-import { closeIcon, personIcon, refreshIcon } from '@/data/icons';
-import { Formik } from 'formik';
-import { FormDiv } from '../styled/roomForm';
-import FormikInputValue from '../FormikInputValue';
-import Button from '../Button';
-import React, { useState, useRef, useContext } from 'react';
-import * as yup from 'yup';
-import { useRouter } from 'next/navigation';
-import fetchAPICall from '@/hooks/useFetch';
+import { theme } from '@/data/themes'
+import styled from 'styled-components'
+import { personIcon, refreshIcon } from '@/data/icons'
+import { Formik } from 'formik'
+import { FormDiv } from '../styled/roomForm'
+import FormikInputValue from '../FormikInputValue'
+import Button from '../Button'
+import React, { useState, useRef } from 'react'
+import * as yup from 'yup'
+import { useRouter } from 'next/navigation'
+import fetchAPICall from '@/hooks/useFetch'
 
 const validate = yup.object({
 	username: yup.string().min(4).required('Es requerido un usuario o correo'),
-});
+})
 
 const validateCode = yup.object({
 	'input-0': yup.string().min(1).required(''),
@@ -22,7 +21,7 @@ const validateCode = yup.object({
 	'input-3': yup.string().min(1).required(''),
 	'input-4': yup.string().min(1).required(''),
 	'input-5': yup.string().min(1).required(''),
-});
+})
 
 const Link = styled.p`
 	color: ${theme.dark.fonts.subHeaders_text};
@@ -30,58 +29,58 @@ const Link = styled.p`
 	font-size: 13px;
 	letter-spacing: 1.5px;
 	cursor: pointer;
-`;
+`
 
 const RecoveryPassword = ({ setView, view }) => {
-	const [recovery, setRecovery] = useState(false);
-	const router = useRouter();
-	const inputRef = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()];
-	const [refUsername, setRefUsername] = useState(null);
-	const [refEmail, setRefEmail] = useState(null);
+	const [recovery, setRecovery] = useState(false)
+	const router = useRouter()
+	const inputRef = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()]
+	const [refUsername, setRefUsername] = useState(null)
+	const [refEmail, setRefEmail] = useState(null)
 
 	const handleCorreo = (value, resetForm) => {
 		fetchAPICall('/auth/validate/credentials', 'put', value)
 			.then((res) => {
-				setRefUsername(res.username);
-				setRefEmail(res.email);
-				setRecovery(true);
+				setRefUsername(res.username)
+				setRefEmail(res.email)
+				setRecovery(true)
 			})
 			.catch((e) => {
-				resetForm();
-			});
-	};
+				resetForm()
+			})
+	}
 
 	const handleValidate = (value, resetForm) => {
 		const obj = {
 			code: Object.values(value).toString().replaceAll(',', ''),
 			username: refUsername,
-		};
+		}
 
 		fetchAPICall('/auth/validate/approval', 'put', obj)
 			.then((res) => {
-				res && router.push(`/login/setpassword?username=${refUsername}`);
+				res && router.push(`/login/setpassword?username=${refUsername}`)
 			})
 			.catch(() => {
-				resetForm();
-			});
-	};
+				resetForm()
+			})
+	}
 
 	const handleInputChange = (index, e) => {
 		if (e.target.value.length === 1) {
-			if (index === inputRef.length - 1) return;
-			return inputRef[index + 1].current.focus();
+			if (index === inputRef.length - 1) return
+			return inputRef[index + 1].current.focus()
 		}
-		if (index === 0) return;
-		inputRef[index - 1].current.focus();
-	};
+		if (index === 0) return
+		inputRef[index - 1].current.focus()
+	}
 
 	const handlePaste = (e, setFieldValue) => {
-		const text_code = e.clipboardData.getData('Text');
+		const text_code = e.clipboardData.getData('Text')
 
 		for (let i = 0; i < 6; i++) {
-			setFieldValue(`input-${i}`, text_code[i]);
+			setFieldValue(`input-${i}`, text_code[i])
 		}
-	};
+	}
 
 	return (
 		<>
@@ -107,9 +106,9 @@ const RecoveryPassword = ({ setView, view }) => {
 							validationSchema={validate}
 							initialValues={{ username: '' }}
 							onSubmit={(value, { setSubmitting, resetForm }) => {
-								setSubmitting(true);
-								handleCorreo(value, resetForm);
-								setSubmitting(false);
+								setSubmitting(true)
+								handleCorreo(value, resetForm)
+								setSubmitting(false)
 							}}
 						>
 							{({ isSubmitting, handleSubmit }) => (
@@ -124,7 +123,7 @@ const RecoveryPassword = ({ setView, view }) => {
 										type='submit'
 										color='purple'
 										icoUrl={!isSubmitting ? personIcon : refreshIcon}
-										disable={isSubmitting}
+										disabled={isSubmitting}
 									>
 										{!isSubmitting ? 'Validar Correo' : null}
 									</Button>
@@ -144,9 +143,9 @@ const RecoveryPassword = ({ setView, view }) => {
 								'input-5': '',
 							}}
 							onSubmit={(value, { setSubmitting, resetForm }) => {
-								setSubmitting(true);
-								handleValidate(value, resetForm);
-								setSubmitting(false);
+								setSubmitting(true)
+								handleValidate(value, resetForm)
+								setSubmitting(false)
 							}}
 						>
 							{({
@@ -175,8 +174,8 @@ const RecoveryPassword = ({ setView, view }) => {
 													maxLength={1}
 													onPaste={(e) => handlePaste(e, setFieldValue)}
 													onChange={(e) => {
-														handleChange(e);
-														handleInputChange(index, e);
+														handleChange(e)
+														handleInputChange(index, e)
 													}}
 													autoFocus={+index === 0}
 													ref={ref}
@@ -194,14 +193,14 @@ const RecoveryPassword = ({ setView, view }) => {
 																  theme.dark.colors.red,
 													}}
 												/>
-											);
+											)
 										})}
 									</div>
 									<Button
 										type='submit'
 										color='purple'
 										icoUrl={!isSubmitting ? personIcon : refreshIcon}
-										disable={isSubmitting}
+										disabled={isSubmitting}
 									>
 										{!isSubmitting ? 'Validar Correo' : null}
 									</Button>
@@ -212,7 +211,7 @@ const RecoveryPassword = ({ setView, view }) => {
 				</div>
 			)}
 		</>
-	);
-};
+	)
+}
 
-export default RecoveryPassword;
+export default RecoveryPassword

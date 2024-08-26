@@ -25,6 +25,8 @@ const HistoryLogsTable = ({ logsUri, type, origin }) => {
 		delete: false,
 		edit: false,
 		archive: false,
+		active: false,
+		disable: false,
 		date_i: '',
 		time_i: '00:00',
 		date_f: '',
@@ -37,6 +39,7 @@ const HistoryLogsTable = ({ logsUri, type, origin }) => {
 		archive: 'yellow',
 		unarchive: 'yellow',
 		edit: 'purple',
+		disable: 'purple',
 		white: '',
 	}
 
@@ -77,6 +80,7 @@ const HistoryLogsTable = ({ logsUri, type, origin }) => {
 			<FilterBox
 				initialValues={defaultConfig}
 				fieldHandleChange={fieldHandleChange}
+				type={type}
 			/>
 			<BoxTable>
 				<TableHeader col1='Operation' col2='Fecha' col3='Usuario' />

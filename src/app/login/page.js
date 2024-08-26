@@ -1,11 +1,11 @@
-'use client';
-import { useState } from 'react';
-import LoginForm from '@/components/login';
-import RecoveryPassword from '@/components/login/RecoveryPassword';
-import { IconComponent } from '@/components/SubHeaderBar';
-import { closeIcon } from '@/data/icons';
+'use client'
+import { useState } from 'react'
+import LoginForm from '@/components/login'
+import RecoveryPassword from '@/components/login/RecoveryPassword'
+import { IconComponent } from '@/components/SubHeaderBar'
+import { closeIcon } from '@/data/icons'
 const LoginPage = () => {
-	const [loginView, setLoginView] = useState(true);
+	const [loginView, setLoginView] = useState(true)
 
 	return (
 		<>
@@ -28,7 +28,7 @@ const LoginPage = () => {
 			)}
 			<RecoveryPassword setView={setLoginView} view={loginView} />
 		</>
-	);
-};
+	)
+}
 
-export default LoginPage;
+export default LoginPage

@@ -1,59 +1,59 @@
-'use client';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import InputRequirement from '@/components/login/InputRequirement';
-import Button from '@/components/Button';
-import { FormDiv } from '@/components/styled/roomForm';
-import FormikInputValue from '@/components/FormikInputValue';
-import { Formik } from 'formik';
-import { theme } from '@/data/themes';
-import { saveChangeIcon, refreshIcon } from '@/data/icons';
-import fetchAPICall from '@/hooks/useFetch';
+'use client'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState, Suspense } from 'react'
+import InputRequirement from '@/components/login/InputRequirement'
+import Button from '@/components/Button'
+import { FormDiv } from '@/components/styled/roomForm'
+import FormikInputValue from '@/components/FormikInputValue'
+import { Formik } from 'formik'
+import { theme } from '@/data/themes'
+import { saveChangeIcon, refreshIcon } from '@/data/icons'
+import fetchAPICall from '@/hooks/useFetch'
 
 export default function SetPassword() {
-	const router = useRouter();
-	const searchParams = useSearchParams();
-	const [username, setUsername] = useState(undefined);
+	const router = useRouter()
+	const searchParams = useSearchParams()
+	const [username, setUsername] = useState(undefined)
 	const [passwordValidation, setPasswordValidation] = useState({
 		mayuscula: false,
 		especial: false,
 		numerico: false,
 		size: false,
 		equals: false,
-	});
+	})
 	const initialValues = {
 		new_password: '',
 		duplicate_password: '',
-	};
+	}
 
 	const handleSubmit = (values, resetForm) => {
 		const obj = {
 			username,
 			new_password: values.new_password,
-		};
+		}
 		fetchAPICall('backOffice/login', 'put', obj)
 			.then(() => {
-				router.push('/login');
+				router.push('/login')
 			})
 			.catch(() => {
-				resetForm();
-			});
-	};
+				resetForm()
+			})
+	}
 
 	useEffect(() => {
 		for (const key of searchParams.values()) {
-			setUsername(key);
+			setUsername(key)
 		}
-	}, []);
+	}, [])
 
 	return (
 		<Formik
 			key='resetPassword'
 			initialValues={initialValues}
 			onSubmit={(values, { setSubmitting, resetForm }) => {
-				setSubmitting(true);
-				handleSubmit(values, resetForm);
-				setSubmitting(false);
+				setSubmitting(true)
+				handleSubmit(values, resetForm)
+				setSubmitting(false)
 			}}
 		>
 			{({ isSubmitting, handleSubmit, handleChange, values }) => (
@@ -75,16 +75,16 @@ export default function SetPassword() {
 						title='Nueva contraseña'
 						size={1}
 						onChange={(e) => {
-							handleChange(e);
-							const val = e.target.value;
-							const mayuscula = /(?=.*[A-Z]).+$/.test(val);
-							const numerico = /(?=.*\d).+$/.test(val);
-							const especial = /(?=.*[-+_!@#$%^&*.,?]).+$/.test(val);
-							const size = val.length >= 8;
+							handleChange(e)
+							const val = e.target.value
+							const mayuscula = /(?=.*[A-Z]).+$/.test(val)
+							const numerico = /(?=.*\d).+$/.test(val)
+							const especial = /(?=.*[-+_!@#$%^&*.,?]).+$/.test(val)
+							const size = val.length >= 8
 							const equals =
 								e.target.value !== ''
 									? values.duplicate_password === e.target.value
-									: false;
+									: false
 
 							setPasswordValidation(() => ({
 								mayuscula,
@@ -92,7 +92,7 @@ export default function SetPassword() {
 								especial,
 								size,
 								equals,
-							}));
+							}))
 						}}
 					/>
 					<FormikInputValue
@@ -101,16 +101,16 @@ export default function SetPassword() {
 						title='Repite la contraseña'
 						size={1}
 						onChange={(e) => {
-							handleChange(e);
+							handleChange(e)
 							const equals =
 								e.target.value !== ''
 									? values.new_password === e.target.value
-									: false;
+									: false
 
 							setPasswordValidation((old) => ({
 								...old,
 								equals,
-							}));
+							}))
 						}}
 					/>
 					<div
@@ -141,12 +141,12 @@ export default function SetPassword() {
 						type='submit'
 						color='purple'
 						icoUrl={!isSubmitting ? saveChangeIcon : refreshIcon}
-						disable={isSubmitting}
+						disabled={isSubmitting}
 					>
 						{!isSubmitting && 'Guardar Contraseña'}
 					</Button>
 				</FormDiv>
 			)}
 		</Formik>
-	);
+	)
 }

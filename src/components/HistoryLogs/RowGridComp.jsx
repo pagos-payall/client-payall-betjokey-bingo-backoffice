@@ -21,8 +21,6 @@ const RowGridComp = ({ color, data, type }) => {
 	const name =
 		type === 'room' ? data.room_name : data.operationDetails.target_username
 
-	console.log(data)
-
 	return (
 		<>
 			{modalView && (

@@ -1,5 +1,5 @@
-'use client';
-import { motion } from 'framer-motion';
+'use client'
+import { motion } from 'framer-motion'
 
 const MotionDiv = ({ children }) => (
 	<motion.div
@@ -20,6 +20,7 @@ const MotionDiv = ({ children }) => (
 			alignItems: 'center',
 			justifyContent: 'space-evenly',
 			position: 'relative',
+			maxHeight: '600px',
 		}}
 		animate={{
 			backgroundPositionY: ['0%', '300%'],
@@ -34,6 +35,6 @@ const MotionDiv = ({ children }) => (
 	>
 		{children}
 	</motion.div>
-);
+)
 
-export default MotionDiv;
+export default MotionDiv
