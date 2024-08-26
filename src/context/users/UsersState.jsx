@@ -58,7 +58,6 @@ const UsersState = ({ children }) => {
 
 	useEffect(() => {
 		setActUsername(Cookies.getItem('username') || undefined)
-		console.log(Cookies.getItem('username'))
 	}, [])
 
 	return (

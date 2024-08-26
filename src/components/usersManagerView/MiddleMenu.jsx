@@ -15,6 +15,8 @@ import NoInfoComp from '../NoInfoComp'
 import SubHeaderBar from '../SubHeaderBar'
 import UserMenuCard from './UsersMenuCard'
 import RoomsContext from '@/context/rooms/RoomsContext'
+import { useDebounce } from '@/services/useDebouncedValue'
+import useFetch from '@/hooks/useFetch'
 
 const MenuOptionsContainer = styled.div`
 	display: flex;
@@ -27,9 +29,12 @@ const MenuOptionsContainer = styled.div`
 `
 
 const MiddleMenu = () => {
-	const { users, getUsers } = useContext(RoomsContext)
+	const { users, getUsers, setUsers } = useContext(RoomsContext)
 	const [displayData, setDisplayData] = useState([])
 	const [displayFilter, setDisplayFilter] = useState('all')
+	const [searchbarvalue, setSearchbarValue] = useState(undefined)
+	const debouncedSearchTerm = useDebounce(searchbarvalue)
+	const { fetchAPICall } = useFetch()
 
 	useEffect(() => {
 		displayFilter === 'all'
@@ -40,6 +45,17 @@ const MiddleMenu = () => {
 					users.filter((users) => users.status === displayFilter)
 			  )
 	}, [displayFilter, users])
+
+	useEffect(() => {
+		if (debouncedSearchTerm !== undefined) {
+			fetchAPICall(
+				'/backOffice',
+				'get',
+				{ searchBar: debouncedSearchTerm },
+				true
+			).then((data) => setUsers(data.result.reverse()))
+		}
+	}, [debouncedSearchTerm])
 
 	return (
 		<div
@@ -53,7 +69,7 @@ const MiddleMenu = () => {
 				padding: '10px 20px',
 			}}
 		>
-			<SearchBar />
+			<SearchBar onChange={(e) => setSearchbarValue(e.target.value)} />
 			<MenuOptionsContainer>
 				<MenuOption
 					title='Crear Usuario'

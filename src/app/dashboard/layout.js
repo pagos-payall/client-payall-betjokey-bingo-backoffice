@@ -6,7 +6,6 @@ import MiddleMenu from '@/components/dashboard/MiddleMenu'
 import Toastbox from '@/components/ToastBox'
 import { Suspense, useContext, useEffect } from 'react'
 import RoomsContext from '@/context/rooms/RoomsContext'
-import { useRouter } from 'next/router'
 
 const BodyComponent = styled.div`
 	border: 2px solid;
@@ -18,11 +17,10 @@ const BodyComponent = styled.div`
 
 export default function DashboardLayout({ children }) {
 	const { getRooms } = useContext(RoomsContext)
-	const route = useRouter()
 
 	useEffect(() => {
 		getRooms()
-	}, [route])
+	}, [])
 
 	return (
 		<div

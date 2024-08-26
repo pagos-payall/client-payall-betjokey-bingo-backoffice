@@ -15,6 +15,8 @@ import RoomsContext from '@/context/rooms/RoomsContext'
 import { useContext, useEffect, useState } from 'react'
 import NoInfoComp from '../NoInfoComp'
 import SubHeaderBar from '../SubHeaderBar'
+import { useDebounce } from '@/services/useDebouncedValue'
+import useFetch from '@/hooks/useFetch'
 
 const MenuOptionsContainer = styled.div`
 	display: flex;
@@ -27,17 +29,31 @@ const MenuOptionsContainer = styled.div`
 `
 
 const MiddleMenu = () => {
-	const { rooms, getRooms } = useContext(RoomsContext)
+	const { rooms, getRooms, setRooms } = useContext(RoomsContext)
 	const [displayData, setDisplayData] = useState([])
 	const [displayFilter, setDisplayFilter] = useState('all')
+	const [searchbarvalue, setSearchbarValue] = useState(undefined)
+	const debouncedSearchTerm = useDebounce(searchbarvalue)
+	const { fetchAPICall } = useFetch()
 
 	useEffect(() => {
 		displayFilter === 'all'
 			? setDisplayData(() => rooms.filter((room) => room.status !== 'archive'))
 			: setDisplayData(() =>
 					rooms.filter((room) => room.status === displayFilter)
-			)
+			  )
 	}, [displayFilter, rooms])
+
+	useEffect(() => {
+		if (debouncedSearchTerm !== undefined) {
+			fetchAPICall(
+				'bingo/rooms',
+				'get',
+				{ value: debouncedSearchTerm },
+				true
+			).then((data) => setRooms(data.result.reverse()))
+		}
+	}, [debouncedSearchTerm])
 
 	return (
 		<div
@@ -51,7 +67,7 @@ const MiddleMenu = () => {
 				padding: '10px 20px',
 			}}
 		>
-			<SearchBar />
+			<SearchBar onChange={(e) => setSearchbarValue(e.target.value)} />
 			<MenuOptionsContainer>
 				<MenuOption
 					title='Crear Salas'

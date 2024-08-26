@@ -56,6 +56,20 @@ const RoomsState = ({ children }) => {
 		})
 	}
 
+	const setRooms = (data) => {
+		dispatch({
+			type: 'GET_ROOMS',
+			payload: data,
+		})
+	}
+
+	const setUsers = async (data) => {
+		dispatch({
+			type: 'GET_USERS',
+			payload: data,
+		})
+	}
+
 	return (
 		<RoomsContext.Provider
 			value={{
@@ -63,6 +77,8 @@ const RoomsState = ({ children }) => {
 				users: state.users,
 				getRooms,
 				getUsers,
+				setRooms,
+				setUsers,
 			}}
 		>
 			{children}
