@@ -2,7 +2,7 @@
 import { useEffect, useReducer } from 'react'
 import UsersContext from './UsersContext'
 import UsersReducer from './UsersReducer'
-import Cookies from 'js-cookies'
+import Cookies from 'js-cookie'
 
 const UsersState = ({ children }) => {
 	const initialState = {
@@ -18,11 +18,16 @@ const UsersState = ({ children }) => {
 
 	const setActUsername = async (username) => {
 		if (!username) {
-			Cookies.removeItem('username')
-		} else {
-			Cookies.setItem('username', username, {
+			Cookies.remove('username', {
 				expires: 0.29,
-				samesite: 'strict',
+				path: '/',
+				sameSite: 'strict',
+			})
+		} else {
+			Cookies.set('username', username, {
+				expires: 0.29,
+				path: '/',
+				sameSite: 'strict',
 			})
 		}
 
@@ -57,7 +62,13 @@ const UsersState = ({ children }) => {
 	}
 
 	useEffect(() => {
-		setActUsername(Cookies.getItem('username') || undefined)
+		setActUsername(
+			Cookies.get('username', {
+				expires: 0.29,
+				path: '/',
+				sameSite: 'Strict',
+			}) || undefined
+		)
 	}, [])
 
 	return (

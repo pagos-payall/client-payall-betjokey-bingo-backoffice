@@ -45,8 +45,8 @@ function LeftMenuBar() {
 					url={homeIcon}
 					onClick={() => router.push('/dashboard/historyLog')}
 				/>
-				<IconComponent size={25} url={mailIcon} />
-				<IconComponent size={25} url={boltIcon} />
+				{/* <IconComponent size={25} url={mailIcon} />
+				<IconComponent size={25} url={boltIcon} /> */}
 				<IconComponent
 					size={25}
 					url={manageAccountsIcon}
@@ -62,7 +62,7 @@ function LeftMenuBar() {
 					justifyContent: 'flex-end',
 				}}
 			>
-				<IconComponent size={25} url={settingsIcon} />
+				{/* <IconComponent size={25} url={settingsIcon} /> */}
 			</div>
 		</MenuComponent>
 	)

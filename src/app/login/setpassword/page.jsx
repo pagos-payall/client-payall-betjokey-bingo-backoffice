@@ -1,6 +1,6 @@
 'use client'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState } from 'react'
 import InputRequirement from '@/components/login/InputRequirement'
 import Button from '@/components/Button'
 import { FormDiv } from '@/components/styled/roomForm'
@@ -8,12 +8,14 @@ import FormikInputValue from '@/components/FormikInputValue'
 import { Formik } from 'formik'
 import { theme } from '@/data/themes'
 import { saveChangeIcon, refreshIcon } from '@/data/icons'
-import fetchAPICall from '@/hooks/useFetch'
+import useFetch from '@/hooks/useFetch'
 
 export default function SetPassword() {
 	const router = useRouter()
 	const searchParams = useSearchParams()
 	const [username, setUsername] = useState(undefined)
+	const { fetchAPICall } = useFetch()
+	const [validateDisabled, setValidateDisabled] = useState(true)
 	const [passwordValidation, setPasswordValidation] = useState({
 		mayuscula: false,
 		especial: false,
@@ -31,7 +33,7 @@ export default function SetPassword() {
 			username,
 			new_password: values.new_password,
 		}
-		fetchAPICall('backOffice/login', 'put', obj)
+		fetchAPICall('auth', 'post', obj)
 			.then(() => {
 				router.push('/login')
 			})
@@ -93,6 +95,12 @@ export default function SetPassword() {
 								size,
 								equals,
 							}))
+							setValidateDisabled(() => {
+								const boolean =
+									mayuscula && numerico && especial && size && equals
+
+								return !boolean
+							})
 						}}
 					/>
 					<FormikInputValue
@@ -111,6 +119,15 @@ export default function SetPassword() {
 								...old,
 								equals,
 							}))
+
+							setValidateDisabled(() => {
+								const { mayuscula, numerico, especial, size } =
+									passwordValidation
+								const boolean =
+									mayuscula && numerico && especial && size && equals
+
+								return !boolean
+							})
 						}}
 					/>
 					<div
@@ -141,7 +158,7 @@ export default function SetPassword() {
 						type='submit'
 						color='purple'
 						icoUrl={!isSubmitting ? saveChangeIcon : refreshIcon}
-						disabled={isSubmitting}
+						disabled={validateDisabled}
 					>
 						{!isSubmitting && 'Guardar Contraseña'}
 					</Button>

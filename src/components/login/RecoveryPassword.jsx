@@ -8,7 +8,7 @@ import Button from '../Button'
 import React, { useState, useRef } from 'react'
 import * as yup from 'yup'
 import { useRouter } from 'next/navigation'
-import fetchAPICall from '@/hooks/useFetch'
+import useFetch from '@/hooks/useFetch'
 
 const validate = yup.object({
 	username: yup.string().min(4).required('Es requerido un usuario o correo'),
@@ -37,6 +37,7 @@ const RecoveryPassword = ({ setView, view }) => {
 	const inputRef = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()]
 	const [refUsername, setRefUsername] = useState(null)
 	const [refEmail, setRefEmail] = useState(null)
+	const { fetchAPICall } = useFetch()
 
 	const handleCorreo = (value, resetForm) => {
 		fetchAPICall('/auth/validate/credentials', 'put', value)

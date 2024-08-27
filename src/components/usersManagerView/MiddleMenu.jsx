@@ -32,6 +32,7 @@ const MiddleMenu = () => {
 	const { users, getUsers, setUsers } = useContext(RoomsContext)
 	const [displayData, setDisplayData] = useState([])
 	const [displayFilter, setDisplayFilter] = useState('all')
+	const [displayTitle, setDisplayTitle] = useState('Usuarios Activos')
 	const [searchbarvalue, setSearchbarValue] = useState(undefined)
 	const debouncedSearchTerm = useDebounce(searchbarvalue)
 	const { fetchAPICall } = useFetch()
@@ -79,12 +80,18 @@ const MiddleMenu = () => {
 				<MenuOption
 					title='Usuarios Activos'
 					icoUrl={boltIcon}
-					onClick={() => setDisplayFilter('all')}
+					onClick={() => {
+						setDisplayFilter('all')
+						setDisplayTitle('Usuarios Activos')
+					}}
 				/>
 				<MenuOption
 					title='Archivero De Usuarios'
 					icoUrl={archiveStorageIcon}
-					onClick={() => setDisplayFilter('archive')}
+					onClick={() => {
+						setDisplayFilter('archive')
+						setDisplayTitle('Archivero De Usuarios')
+					}}
 				/>
 				<MenuOption
 					title='Historial'
@@ -108,7 +115,7 @@ const MiddleMenu = () => {
 					size={20}
 					onClick={() => getUsers(true)}
 				>
-					Lista de Usuarios
+					Lista - {displayTitle}
 				</SubHeaderBar>
 				<Separator width={100} color={theme.dark.borders.secundary} />
 
