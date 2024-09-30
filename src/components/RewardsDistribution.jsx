@@ -16,7 +16,7 @@ import {
 
 const RewardsDistribution = ({ values, setFieldValue, handleChange }) => (
 	<div style={{ width: '100%' }}>
-		<SubHeaderBar tag='h4'>Condiciones de victoria</SubHeaderBar>
+		<SubHeaderBar tag='h4'>Distribución de Premios</SubHeaderBar>
 		<GridDisplay>
 			<Grid1
 				style={{

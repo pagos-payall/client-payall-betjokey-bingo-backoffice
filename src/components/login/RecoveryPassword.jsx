@@ -86,7 +86,7 @@ const RecoveryPassword = ({ setView, view }) => {
 	return (
 		<>
 			{view ? (
-				<Link onClick={() => setView(false)}>Recuperar cotraseña</Link>
+				<Link onClick={() => setView(false)}>Recuperar contraseña</Link>
 			) : (
 				<div>
 					<h4

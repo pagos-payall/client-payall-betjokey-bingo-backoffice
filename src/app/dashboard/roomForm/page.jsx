@@ -9,7 +9,7 @@ import useFetch from '@/hooks/useFetch'
 import Button from '@/components/Button'
 import { addIcon, closeIcon, saveIcon } from '@/data/icons'
 import { createRoomValidationSchema } from '@/validationSchemas/createRoom'
-import FormikInputValue from '@/components/FormikInputValue'
+import FormikInputValue, { Input } from '@/components/FormikInputValue'
 import SubHeaderBar from '@/components/SubHeaderBar'
 import LoadingCircle from '@/components/LoadingCircle'
 import { isoShortDate } from '@/services/getISODate'
@@ -100,6 +100,19 @@ export default function RoomForm() {
 				setInitialValues(formValues)
 			}
 		})
+	}
+
+	function handleValidatePorcen(e, values, name) {
+		const { floatValue } = e
+		const { comision, pote_especial, premios } = values
+		const sumatoria =
+			(floatValue || 0) +
+			Number(comision || 0) +
+			Number(pote_especial || 0) +
+			Number(premios || 0) -
+			Number(values[name] || 0)
+
+		return sumatoria <= 100
 	}
 
 	useEffect(() => {
@@ -211,13 +224,21 @@ export default function RoomForm() {
 										updateMode
 								)
 							}
+							validateOnChange={false}
+							validateOnBlur={false}
 							validationSchema={createRoomValidationSchema}
 							initialValues={{ ...initialValues }}
 							onSubmit={async (values, { setSubmitting, resetForm }) => {
 								handleSubmit(values, setSubmitting, resetForm)
 							}}
 						>
-							{({ handleSubmit, values, handleChange, setFieldValue }) => (
+							{({
+								handleSubmit,
+								values,
+								handleChange,
+								setFieldValue,
+								validateField,
+							}) => (
 								<FormDiv onSubmit={handleSubmit}>
 									<h3
 										style={{
@@ -235,14 +256,19 @@ export default function RoomForm() {
 											title='Titulo para la Sala'
 											size={1}
 											readOnly={updateView ? !updateMode : false}
+											validateField={() => {
+												validateField('room_name')
+											}}
 										/>
 										<FormikInputValue
 											placeholder='Tipo de Juego'
 											name='typeOfGame'
 											title='Tipo de Juego'
+											inputType='select'
 											type='select'
 											size={2}
 											disabled={updateView ? !updateMode : false}
+											validateField={() => validateField('typeOfGame')}
 										>
 											<option>Series 12000</option>
 											<option>Series 4000</option>
@@ -252,51 +278,62 @@ export default function RoomForm() {
 											name='play'
 											title='Tipo de jugada'
 											type='select'
+											inputType='select'
 											size={2}
 											disabled={updateView ? !updateMode : false}
+											validateField={() => validateField('play')}
 										>
-											<option>Carton</option>
+											<option>Cartón</option>
 											<option>Serie</option>
 										</FormikInputValue>
 										<FieldsPorcenContainer>
 											<PorcenSubHeader $position='top'>
-												Porcentajes de recoleccion
+												Distribución de la recaudación
 											</PorcenSubHeader>
 											<FormikInputValue
-												placeholder='Comision del Juego'
-												type='number'
+												placeholder='Comisión del Juego'
+												type='text'
+												inputType='number'
+												isAllowed={(e) =>
+													handleValidatePorcen(e, values, 'comision')
+												}
 												name='comision'
-												title='Comision'
-												min={0}
-												max={100}
+												title='Comisión'
+												simbol='%'
 												size={3}
 												design={2}
-												simbol='%'
 												readOnly={updateView ? !updateMode : false}
+												validateField={() => validateField('comision')}
 											/>
 											<FormikInputValue
 												placeholder='Acumulado premios'
-												type='number'
+												inputType='number'
+												type='text'
 												name='pote_especial'
 												title='Premios especiales'
-												min={0}
-												max={100}
 												size={3}
 												design={2}
 												simbol='%'
+												isAllowed={(e) =>
+													handleValidatePorcen(e, values, 'pote_especial')
+												}
 												readOnly={updateView ? !updateMode : false}
+												validateField={() => validateField('pote_especial')}
 											/>
 											<FormikInputValue
 												placeholder='Porcentaje a repartir'
-												type='number'
+												inputType='number'
+												type='text'
 												name='premios'
 												title='Premios'
-												min={0}
-												max={100}
 												size={3}
 												design={2}
 												simbol='%'
+												isAllowed={(e) =>
+													handleValidatePorcen(e, values, 'premios')
+												}
 												readOnly={updateView ? !updateMode : false}
+												validateField={() => validateField('premios')}
 											/>
 											<PorcenSubHeader $position='bottom'>
 												La suma de los procentajes debe ser igual a 100%
@@ -314,20 +351,24 @@ export default function RoomForm() {
 										/>
 										<FormikInputValue
 											placeholder='Precio'
-											type='number'
+											inputType='number'
+											type='text'
 											name='card_price'
 											title='Precio de Carton'
 											size={2}
 											simbol='$'
 											readOnly={updateView ? !updateMode : false}
+											validateField={() => validateField('card_price')}
 										/>
 										<FormikInputValue
 											placeholder='Cant minima'
-											type='number'
+											type='text'
+											inputType='number'
 											name='min_value'
 											title='Cantidad minima de cartones/series para inicio de partida'
 											size={2}
 											readOnly={updateView ? !updateMode : false}
+											validateField={() => validateField('min_value')}
 										/>
 									</FieldsContainer>
 									<JuegoAsociado value={updateView} status={values.status} />

@@ -1,10 +1,11 @@
-import { useState, forwardRef, useCallback, Suspense } from 'react'
+import { useState, forwardRef, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { useField } from 'formik'
 import { theme } from '@/data/themes'
+import { NumericFormat } from 'react-number-format'
 
-const Input = styled.input`
+export const Input = styled.input`
 	padding: 10px;
 	padding-right: 25px;
 	background: ${(props) =>
@@ -68,6 +69,66 @@ const FieldStyled = styled.div`
 	gap: 2.5px;
 `
 
+const InputConstructor = ({
+	props,
+	ref,
+	field,
+	children,
+	error,
+	design,
+	onChange,
+	onBlur,
+	onFocus,
+}) => {
+	switch (props.inputType) {
+		case 'number':
+			return (
+				<NumericFormat
+					{...props}
+					{...field}
+					$design={design}
+					customInput={Input}
+					decimalScale={2}
+					allowNegative={false}
+					step={1}
+					onChange={onChange}
+					onBlur={onBlur}
+					onFocus={onFocus}
+					ref={ref}
+					error={error}
+				/>
+			)
+		case 'select':
+			return (
+				<Select
+					{...props}
+					{...field}
+					error={error}
+					onFocus={onFocus}
+					onBlur={onBlur}
+					onChange={onChange}
+					defaultValue={field.value}
+				>
+					{!field.value && <option>Escoge una opcion</option>}
+					{children}
+				</Select>
+			)
+		default:
+			return (
+				<Input
+					{...props}
+					{...field}
+					$design={design}
+					onChange={onChange}
+					onBlur={onBlur}
+					onFocus={onFocus}
+					ref={ref}
+					error={error}
+				/>
+			)
+	}
+}
+
 const FormikInputValue = forwardRef(
 	({ children, size, simbol, design, ...props }, ref) => {
 		const [field, meta, helpers] = useField(props)
@@ -85,7 +146,22 @@ const FormikInputValue = forwardRef(
 
 		const handleBlur = useCallback(() => {
 			setIsFocused(false)
-		}, [])
+
+			props.validateField && props.validateField()
+		}, [props.validateField])
+
+		const handleChange = useCallback(
+			(e) => {
+				field.onChange(e)
+
+				// if (props.type != 'select')
+				// 	props.validateField && props.validateField()
+
+				props.onChange && props.onChange(e)
+			},
+			[props.validateField]
+		)
+
 		return (
 			<FieldStyled
 				$size={fieldSize[size]}
@@ -94,38 +170,22 @@ const FormikInputValue = forwardRef(
 				<Label htmlFor={props.name} $isfocused={isFocused.toString()}>
 					{props.title}
 				</Label>
-				{props.type !== 'select' ? (
-					<InputContainer
-						$simbol={simbol}
-						$w={props.type === 'checkbox' ? 'auto' : '100%'}
-					>
-						<Input
-							id={props.name}
-							onFocus={handleFocus}
-							onBlur={handleBlur}
-							error={meta.error}
-							step={props.type === 'number' ? 'any' : undefined}
-							ref={ref}
-							$design={design}
-							{...field}
-							{...props}
-						/>
-					</InputContainer>
-				) : (
-					<Select
-						id={props.name}
-						onFocus={handleFocus}
-						onBlur={handleBlur}
-						error={meta.error}
-						defaultValue={field.value}
-						{...field}
-						{...props}
-					>
-						{!field.value && <option>Escoge una opcion</option>}
-						{children}
-					</Select>
-				)}
-
+				<InputContainer
+					$simbol={simbol}
+					$w={props.type === 'checkbox' ? 'auto' : '100%'}
+				>
+					{InputConstructor({
+						props,
+						ref,
+						field,
+						children,
+						error: meta.error,
+						design: design,
+						onChange: handleChange,
+						onBlur: handleBlur,
+						onFocus: handleFocus,
+					})}
+				</InputContainer>
 				{meta.error && (
 					<p style={{ color: theme.dark.colors.red }}>{meta.error}</p>
 				)}

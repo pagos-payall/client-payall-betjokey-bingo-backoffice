@@ -6,12 +6,7 @@ import FormikInputValue from '../FormikInputValue'
 import { logInIcon, refreshIcon } from '@/data/icons'
 import useFetch from '@/hooks/useFetch'
 import useUser from '@/hooks/useUser'
-import * as yup from 'yup'
-
-const validate = yup.object({
-	username: yup.string().min(4).required('Es requerido un usuario o correo'),
-	password: yup.string().min(1).required('El campo no puede estar vacio'),
-})
+import loginValidate from '@/validationSchemas/login'
 
 const LoginForm = () => {
 	const router = useRouter()
@@ -33,11 +28,12 @@ const LoginForm = () => {
 		}
 		values = obj
 		fetchAPICall('/auth/', 'post', values)
-			.then((res) => {
-				if (res.resetPassword) router.push('/login/setpassword')
+			.then(({ res }) => {
+				if (res.resetPassword)
+					router.push(`/login/setpassword?username=${values.username}`)
 				else {
 					login(values.username)
-					setTimeout(router.push('/dashboard'), 2000)
+					setTimeout(router.push('/dashboard/historyLog'), 2000)
 				}
 			})
 			.catch((error) => {
@@ -52,7 +48,7 @@ const LoginForm = () => {
 		<>
 			<Formik
 				key='login'
-				validationSchema={validate}
+				validationSchema={loginValidate}
 				initialValues={initialValues}
 				onSubmit={(values, { setSubmitting, resetForm }) => {
 					setSubmitting(true)

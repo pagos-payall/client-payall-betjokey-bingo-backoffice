@@ -1,12 +1,12 @@
-'use client';
-import HistoryLogsTable from '@/components/HistoryLogs';
+'use client'
+import HistoryLogsTable from '@/components/HistoryLogs'
 
 export default function HistoryLog() {
 	return (
 		<HistoryLogsTable
 			logsUri='/backOffice/logs'
 			type='user'
-			origin='/usersManagerView'
+			origin='/usersManagerView/historyLog'
 		/>
-	);
+	)
 }
