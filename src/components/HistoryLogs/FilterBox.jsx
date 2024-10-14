@@ -26,7 +26,7 @@ const FilterBox = ({ fieldHandleChange, initialValues, type }) => {
 						<div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
 							<FormikInputValue
 								size={2}
-								title='Create'
+								title='Crear'
 								type='checkbox'
 								name='create'
 								onChange={(e) => {
@@ -36,7 +36,7 @@ const FilterBox = ({ fieldHandleChange, initialValues, type }) => {
 							/>
 							<FormikInputValue
 								size={2}
-								title='Delete'
+								title='Borrar'
 								type='checkbox'
 								name='delete'
 								onChange={(e) => {
@@ -46,7 +46,7 @@ const FilterBox = ({ fieldHandleChange, initialValues, type }) => {
 							/>
 							<FormikInputValue
 								size={2}
-								title='Edited'
+								title='Editar'
 								type='checkbox'
 								name='edit'
 								onChange={(e) => {
@@ -56,7 +56,7 @@ const FilterBox = ({ fieldHandleChange, initialValues, type }) => {
 							/>
 							<FormikInputValue
 								size={2}
-								title='archive/unarchive'
+								title='Archivar/Desarchivar'
 								type='checkbox'
 								name='archive'
 								onChange={(e) => {
@@ -68,7 +68,7 @@ const FilterBox = ({ fieldHandleChange, initialValues, type }) => {
 								<>
 									<FormikInputValue
 										size={2}
-										title='Active'
+										title='Activar'
 										type='checkbox'
 										name='active'
 										onChange={(e) => {
@@ -78,7 +78,7 @@ const FilterBox = ({ fieldHandleChange, initialValues, type }) => {
 									/>
 									<FormikInputValue
 										size={2}
-										title='Disable'
+										title='Desactivar'
 										type='checkbox'
 										name='disable'
 										onChange={(e) => {

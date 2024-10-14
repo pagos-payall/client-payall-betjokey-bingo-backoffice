@@ -20,7 +20,7 @@ const AgregarJuego = () => {
 		<>
 			{!addGameView ? (
 				<Buttom onClick={toggleState} icoUrl={expandIcon}>
-					Agregar Juego
+					Programe un Juego
 				</Buttom>
 			) : (
 				<div>

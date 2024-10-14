@@ -58,7 +58,13 @@ export default function SetPassword() {
 				setSubmitting(false)
 			}}
 		>
-			{({ isSubmitting, handleSubmit, handleChange, values }) => (
+			{({
+				isSubmitting,
+				handleSubmit,
+				handleChange,
+				values,
+				validateField,
+			}) => (
 				<FormDiv
 					style={{ width: '100%', marginTop: 0, paddingTop: 0 }}
 					onSubmit={handleSubmit}
@@ -76,6 +82,7 @@ export default function SetPassword() {
 						name='new_password'
 						title='Nueva contraseña'
 						size={1}
+						validateField={() => validateField('new_password')}
 						onChange={(e) => {
 							handleChange(e)
 							const val = e.target.value
@@ -85,7 +92,7 @@ export default function SetPassword() {
 							const size = val.length >= 8
 							const equals =
 								e.target.value !== ''
-									? values.duplicate_password === e.target.value
+									? values.duplicate_password === val
 									: false
 
 							setPasswordValidation(() => ({
@@ -108,6 +115,7 @@ export default function SetPassword() {
 						name='duplicate_password'
 						title='Repite la contraseña'
 						size={1}
+						validateField={() => validateField('duplicate_password')}
 						onChange={(e) => {
 							handleChange(e)
 							const equals =

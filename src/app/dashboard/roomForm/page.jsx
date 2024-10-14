@@ -25,6 +25,8 @@ import TaxesForm from '@/components/TaxesForm'
 import RoomsContext from '@/context/rooms/RoomsContext'
 import RewardsDistribution from '@/components/RewardsDistribution'
 import useUser from '@/hooks/useUser'
+import { validateNoLeftZero } from '@/services/utilFunctions'
+import { bool } from 'prop-types'
 
 export default function RoomForm() {
 	const { getRooms } = useContext(RoomsContext)
@@ -36,6 +38,11 @@ export default function RoomForm() {
 	const [initialValues, setInitialValues] = useState(null)
 	const [updateView, setUpdateView] = useState(false)
 	const [updateMode, setUpdateMode] = useState(false)
+	const [porcenError, setPorcenError] = useState(false)
+	const [rewardsDistError, setRewardsDistError] = useState({
+		error: undefined,
+		bool: false,
+	})
 	const [salaData, setSalaData] = useState({
 		room_id: '',
 		status: '',
@@ -47,23 +54,25 @@ export default function RoomForm() {
 		room_name: '',
 		typeOfGame: '',
 		card_price: '',
-		comision: '',
 		play: '',
-		pote_especial: '',
-		premios: '',
+		comision: 50,
+		pote_especial: 20,
+		premios: 30,
 		min_value: '',
 		taxes: [],
 		carton_full: true,
 		linea_full: true,
 		porcen_premio_asignado_carton: 70,
 		porcen_premio_asignado_linea: 30,
-		cant_cartones_premiados: 1,
-		cant_lineas_premiadas: 5,
 	}
 
 	function handleSubmit(values, setSubmitting, resetForm) {
 		let method = 'post'
 		const formValues = values
+
+		console.log(values)
+
+		if (porcenError || rewardsDistError.bool) return
 
 		if (values.beginsAtDate !== undefined) {
 			let date = values.beginsAtDate.split('T')
@@ -103,7 +112,7 @@ export default function RoomForm() {
 	}
 
 	function handleValidatePorcen(e, values, name) {
-		const { floatValue } = e
+		const { floatValue, value } = e
 		const { comision, pote_especial, premios } = values
 		const sumatoria =
 			(floatValue || 0) +
@@ -112,7 +121,9 @@ export default function RoomForm() {
 			Number(premios || 0) -
 			Number(values[name] || 0)
 
-		return sumatoria <= 100
+		setPorcenError(sumatoria < 100)
+
+		return sumatoria <= 100 && validateNoLeftZero(value)
 	}
 
 	useEffect(() => {
@@ -228,9 +239,9 @@ export default function RoomForm() {
 							validateOnBlur={false}
 							validationSchema={createRoomValidationSchema}
 							initialValues={{ ...initialValues }}
-							onSubmit={async (values, { setSubmitting, resetForm }) => {
+							onSubmit={async (values, { setSubmitting, resetForm }) =>
 								handleSubmit(values, setSubmitting, resetForm)
-							}}
+							}
 						>
 							{({
 								handleSubmit,
@@ -256,9 +267,7 @@ export default function RoomForm() {
 											title='Titulo para la Sala'
 											size={1}
 											readOnly={updateView ? !updateMode : false}
-											validateField={() => {
-												validateField('room_name')
-											}}
+											validateField={() => validateField('room_name')}
 										/>
 										<FormikInputValue
 											placeholder='Tipo de Juego'
@@ -283,8 +292,8 @@ export default function RoomForm() {
 											disabled={updateView ? !updateMode : false}
 											validateField={() => validateField('play')}
 										>
-											<option>Cartón</option>
-											<option>Serie</option>
+											<option value={'carton'}>Cartón</option>
+											<option value={'serie'}>Serie</option>
 										</FormikInputValue>
 										<FieldsPorcenContainer>
 											<PorcenSubHeader $position='top'>
@@ -339,11 +348,30 @@ export default function RoomForm() {
 												La suma de los procentajes debe ser igual a 100%
 											</PorcenSubHeader>
 										</FieldsPorcenContainer>
+										{porcenError && (
+											<p
+												style={{
+													color: theme.dark.colors.red,
+												}}
+											>
+												La suma de los porcentajes es inferior a 100%
+											</p>
+										)}
 										<RewardsDistribution
 											values={values}
 											handleChange={handleChange}
 											setFieldValue={setFieldValue}
+											setError={setRewardsDistError}
 										/>
+										{rewardsDistError.bool && (
+											<p
+												style={{
+													color: theme.dark.colors.red,
+												}}
+											>
+												{rewardsDistError.error}
+											</p>
+										)}
 										<TaxesForm
 											values={values}
 											updateView={updateView}
@@ -357,15 +385,21 @@ export default function RoomForm() {
 											title='Precio de Carton'
 											size={2}
 											simbol='$'
+											isAllowed={({ floatValue, value }) =>
+												(floatValue || 0) <= 1000 && validateNoLeftZero(value)
+											}
 											readOnly={updateView ? !updateMode : false}
 											validateField={() => validateField('card_price')}
 										/>
 										<FormikInputValue
-											placeholder='Cant minima'
+											placeholder='Cant mínima'
 											type='text'
 											inputType='number'
+											isAllowed={({ floatValue, value }) =>
+												(floatValue || 0) <= 4000 && validateNoLeftZero(value)
+											}
 											name='min_value'
-											title='Cantidad minima de cartones/series para inicio de partida'
+											title='Cantidad mínima de cartones/series para inicio de partida'
 											size={2}
 											readOnly={updateView ? !updateMode : false}
 											validateField={() => validateField('min_value')}

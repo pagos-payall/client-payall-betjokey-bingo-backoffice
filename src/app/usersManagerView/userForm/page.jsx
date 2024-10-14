@@ -187,13 +187,15 @@ export default function UserForm() {
 								initialValues &&
 								JSON.stringify(initialValues.names + updateMode)
 							}
+							validateOnChange={false}
+							validateOnBlur={false}
 							validationSchema={createUserValidationSchema}
 							initialValues={{ ...initialValues }}
 							onSubmit={async (values, { setSubmitting }) => {
 								handleSubmit(values, setSubmitting)
 							}}
 						>
-							{({ handleSubmit }) => (
+							{({ handleSubmit, validateField }) => (
 								<FormDiv onSubmit={handleSubmit}>
 									<h3
 										style={{
@@ -201,7 +203,7 @@ export default function UserForm() {
 											fontWeight: 'normal',
 										}}
 									>
-										Datos de Sala
+										Datos del usuario
 									</h3>
 									<FieldsContainer>
 										<FormikInputValue
@@ -211,6 +213,7 @@ export default function UserForm() {
 											title='Nombres'
 											size={2}
 											readOnly={updateView ? !updateMode : false}
+											validateField={() => validateField('names')}
 										/>
 										<FormikInputValue
 											placeholder='Apellidos'
@@ -219,17 +222,20 @@ export default function UserForm() {
 											title='Apellidos'
 											size={2}
 											readOnly={updateView ? !updateMode : false}
+											validateField={() => validateField('lastNames')}
 										/>
 										<FormikInputValue
 											name='role'
 											title='Rol del usuario'
 											type='select'
+											inputType='select'
 											size={2}
 											disabled={updateView ? !updateMode : false}
+											validateField={() => validateField('role')}
 										>
 											<option>admin</option>
 											<option>coordinador</option>
-											<option>supervisor</option>
+											<option>analista</option>
 										</FormikInputValue>
 										<FormikInputValue
 											placeholder='correo@correo.com'
@@ -238,6 +244,7 @@ export default function UserForm() {
 											title='Correo'
 											size={2}
 											readOnly={updateView ? !updateMode : false}
+											validateField={() => validateField('email')}
 										/>
 									</FieldsContainer>
 									{credentials?.username === undefined &&

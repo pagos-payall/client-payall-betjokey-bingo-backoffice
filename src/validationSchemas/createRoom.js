@@ -4,7 +4,7 @@ export const createRoomValidationSchema = yup.object({
 	room_name: yup
 		.string()
 		.matches(
-			/^[a-zA-Z0-9_.,$€£¥₩]+$/,
+			/^[a-zA-Z0-9 _-]+$/,
 			'Solo se permiten letras, números y guiones bajos'
 		)
 		.required('Es requerido un titulo para la sala'),
@@ -30,7 +30,7 @@ export const createRoomValidationSchema = yup.object({
 		.required('Indique el porcentaje de comisión que gana la casa'),
 	play: yup
 		.mixed()
-		.oneOf(['Cartón', 'Serie'], 'Tipo de juego es requerido, escoja una opción')
+		.oneOf(['carton', 'serie'], 'Tipo de juego es requerido, escoja una opción')
 		.required('Selecciones el tipo de jugada permitida'),
 	pote_especial: yup
 		.number()
@@ -58,7 +58,11 @@ export const createRoomValidationSchema = yup.object({
 		yup
 			.object({
 				name: yup.string(),
-				value: yup.number().typeError('Ingrese un valor válido'),
+				value: yup
+					.number()
+					.min(1, 'El valor del impuesto debe ser mayor a 0')
+					.max(100)
+					.typeError('Ingrese un valor válido'),
 			})
 			.optional()
 	),
@@ -74,17 +78,4 @@ export const createRoomValidationSchema = yup.object({
 		.typeError('Ingrese un valor válido')
 		.min(0)
 		.max(100),
-	cant_cartones_premiados: yup
-		.number()
-		.typeError('Ingrese un valor válido')
-		.min(0)
-		.integer()
-		.required('Ingrese la cantidad max de cartones que pueden ganar'),
-	cant_lineas_premiadas: yup
-		.number()
-		.typeError('Ingrese un valor válido')
-		.min(0)
-		.positive()
-		.integer()
-		.required('Ingrese la cantidad max de cartones que pueden ganar'),
 })

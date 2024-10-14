@@ -16,6 +16,9 @@ const RowGridComp = ({ color, data, type }) => {
 	const [modalView, setModalView] = useState(false)
 	const date = new Date(data.date)
 	const username = data.username
+
+	console.log(data)
+
 	const operation =
 		data.operation.charAt(0).toUpperCase() + data.operation.slice(1)
 	const name =

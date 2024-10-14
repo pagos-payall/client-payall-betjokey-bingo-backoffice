@@ -1,14 +1,15 @@
-import FormikInputValue from './FormikInputValue';
-import Button from './Button';
-import { addIcon, deleteIcon } from '@/data/icons';
-import SubHeaderBar from './SubHeaderBar';
-import { FieldArray } from 'formik';
+import FormikInputValue from './FormikInputValue'
+import Button from './Button'
+import { addIcon, deleteIcon } from '@/data/icons'
+import SubHeaderBar from './SubHeaderBar'
+import { FieldArray } from 'formik'
 import {
 	StyledFlex,
 	StyledGrid,
 	GridChild_1,
 	GridChild_2,
-} from './styled/TaxesStyledComps';
+} from './styled/TaxesStyledComps'
+import { validateNoLeftZero } from '@/services/utilFunctions'
 
 const TaxesForm = ({ values, updateView, updateMode }) => {
 	return (
@@ -18,9 +19,7 @@ const TaxesForm = ({ values, updateView, updateMode }) => {
 				<StyledFlex>
 					<StyledGrid>
 						<GridChild_1>
-							<SubHeaderBar tag='h4'>
-								Inpuestos aplicados a premios
-							</SubHeaderBar>
+							<SubHeaderBar tag='h4'>Impuesto aplicados a premios</SubHeaderBar>
 						</GridChild_1>
 						<GridChild_2>
 							{updateView ? (
@@ -62,11 +61,13 @@ const TaxesForm = ({ values, updateView, updateMode }) => {
 									/>
 									<FormikInputValue
 										placeholder='Valor'
-										type='number'
+										type='text'
+										inputType='number'
 										name={`taxes.${index}.value`}
 										title='Valor'
-										min={0}
-										max={100}
+										isAllowed={({ floatValue, value }) =>
+											(floatValue || 0) <= 100 && validateNoLeftZero(value)
+										}
 										size={3}
 										design={2}
 										simbol='%'
@@ -97,7 +98,7 @@ const TaxesForm = ({ values, updateView, updateMode }) => {
 				</StyledFlex>
 			)}
 		/>
-	);
-};
+	)
+}
 
-export default TaxesForm;
+export default TaxesForm
