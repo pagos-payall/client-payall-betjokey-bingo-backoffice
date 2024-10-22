@@ -33,15 +33,27 @@ export default function useFetch() {
 			params: method === 'get' && body,
 		})
 
+		const promise = new Promise((resolve, reject) => {
+			response
+				.then((res) => resolve(res))
+				.catch((e) => {
+					return reject(e?.response?.data?.error || 'Solicitud fallida')
+				})
+		})
+
 		if (notification) {
-			const promise = toast.promise(response, {
+			const promise_toast = toast.promise(promise, {
 				pending: 'Procesando solicitud...',
 				success: 'Operacion exitosa 👌',
-				error: 'Solicitud fallida',
+				error: {
+					render({ data }) {
+						return data
+					},
+				},
 			})
 
 			try {
-				const res = await promise
+				const res = await promise_toast
 				return res.data
 			} catch (e) {
 				const { status } = e.response

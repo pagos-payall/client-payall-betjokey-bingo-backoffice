@@ -1,17 +1,17 @@
 import { ModalContainer, ModalBox } from './ModalStyles'
 import Button from '../Button'
 
-const AlertConfirmModal = ({ method, closeModal }) => (
+const AlertConfirmModal = ({ modalContent, closeModal }) => (
 	<ModalContainer>
 		<ModalBox maxHeight={'300px'}>
-			<h3>¿Estás seguro de que deseas borrar la sala?</h3>
-			<h5>¡Una vez borrada no podrás recuperarla!</h5>
+			<h3 style={{ fontSize: '24px' }}>{modalContent.title}</h3>
+			<h5 style={{ fontSize: '15px' }}>{modalContent.subtitle || ''}</h5>
 			<div style={{ display: 'flex', gap: '5px', width: '90%' }}>
 				<Button color={'red'} w={50} onClick={closeModal}>
-					Cancelar
+					{modalContent.cancelText || 'Cancelar'}
 				</Button>
-				<Button color={'green'} w={50} onClick={method}>
-					Borrar
+				<Button color={'green'} w={50} onClick={modalContent.method}>
+					{modalContent.confirmText || 'Aceptar'}
 				</Button>
 			</div>
 		</ModalBox>

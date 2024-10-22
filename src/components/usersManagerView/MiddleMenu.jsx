@@ -17,6 +17,7 @@ import UserMenuCard from './UsersMenuCard'
 import RoomsContext from '@/context/rooms/RoomsContext'
 import { useDebounce } from '@/services/useDebouncedValue'
 import useFetch from '@/hooks/useFetch'
+import useUser from '@/hooks/useUser'
 
 const MenuOptionsContainer = styled.div`
 	display: flex;
@@ -30,6 +31,7 @@ const MenuOptionsContainer = styled.div`
 
 const MiddleMenu = () => {
 	const { users, getUsers, setUsers } = useContext(RoomsContext)
+	const { username } = useUser()
 	const [displayData, setDisplayData] = useState([])
 	const [displayFilter, setDisplayFilter] = useState('all')
 	const [displayTitle, setDisplayTitle] = useState('Usuarios Activos')
@@ -40,10 +42,15 @@ const MiddleMenu = () => {
 	useEffect(() => {
 		displayFilter === 'all'
 			? setDisplayData(() =>
-					users.filter((users) => users.status !== 'archive')
+					users.filter(
+						(users) => users.status !== 'archive' && users.username !== username
+					)
 			  )
 			: setDisplayData(() =>
-					users.filter((users) => users.status === displayFilter)
+					users.filter(
+						(users) =>
+							users.status === displayFilter && users.username !== username
+					)
 			  )
 	}, [displayFilter, users])
 

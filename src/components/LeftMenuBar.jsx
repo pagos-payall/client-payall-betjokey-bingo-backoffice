@@ -1,23 +1,24 @@
 'use client'
 import { IconComponent } from './SubHeaderBar'
-import {
-	homeIcon,
-	boltIcon,
-	mailIcon,
-	logOutIcon,
-	settingsIcon,
-	manageAccountsIcon,
-} from '../data/icons'
+import { homeIcon, logOutIcon, manageAccountsIcon } from '../data/icons'
 import { useRouter } from 'next/navigation'
 import HeaderTitleComp from './styled/HeaderTitleComp'
 import { MenuComponent, UserHeaderComp } from './styled/MenuComponents'
 import useUser from '@/hooks/useUser.jsx'
 import useFetch from '@/hooks/useFetch'
+import { useState } from 'react'
+import AlertConfirmModal from './modals/AlertConfirmModal'
 
 function LeftMenuBar() {
 	const router = useRouter()
 	const { username, logout } = useUser()
 	const { fetchAPICall } = useFetch()
+	const [modalView, setModalView] = useState(false)
+	const [modalContent, setModalContent] = useState({
+		method: handleLogout,
+		title: '¿Estás seguro que deseas salir?',
+		confirmText: 'Confirmar',
+	})
 
 	function handleLogout() {
 		fetchAPICall('/auth/logout', 'put', { username }).then(() => logout())
@@ -25,6 +26,12 @@ function LeftMenuBar() {
 
 	return (
 		<MenuComponent>
+			{modalView && (
+				<AlertConfirmModal
+					modalContent={modalContent}
+					closeModal={() => setModalView(false)}
+				/>
+			)}
 			<div
 				style={{
 					display: 'flex',
@@ -45,14 +52,16 @@ function LeftMenuBar() {
 					url={homeIcon}
 					onClick={() => router.push('/dashboard/historyLog')}
 				/>
-				{/* <IconComponent size={25} url={mailIcon} />
-				<IconComponent size={25} url={boltIcon} /> */}
 				<IconComponent
 					size={25}
 					url={manageAccountsIcon}
 					onClick={() => router.push('/usersManagerView/historyLog')}
 				/>
-				<IconComponent size={25} url={logOutIcon} onClick={handleLogout} />
+				<IconComponent
+					size={25}
+					url={logOutIcon}
+					onClick={() => setModalView(true)}
+				/>
 			</div>
 			<div
 				style={{

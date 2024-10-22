@@ -80,6 +80,7 @@ const HistoryLogsTable = ({ logsUri, type, origin }) => {
 			<FilterBox
 				initialValues={defaultConfig}
 				fieldHandleChange={fieldHandleChange}
+				cleanAllFields={() => setValuesForm(defaultConfig)}
 				type={type}
 			/>
 			<BoxTable>

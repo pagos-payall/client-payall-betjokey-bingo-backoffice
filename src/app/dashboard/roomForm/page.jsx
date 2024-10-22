@@ -392,12 +392,16 @@ export default function RoomForm() {
 											validateField={() => validateField('card_price')}
 										/>
 										<FormikInputValue
-											placeholder='Cant mínima'
 											type='text'
 											inputType='number'
-											isAllowed={({ floatValue, value }) =>
-												(floatValue || 0) <= 4000 && validateNoLeftZero(value)
-											}
+											isAllowed={({ floatValue, value }) => {
+												let max_cant = values?.typeOfGame.split(' ')
+
+												return (
+													(floatValue || 0) <= (max_cant[1] || 0) &&
+													validateNoLeftZero(value)
+												)
+											}}
 											name='min_value'
 											title='Cantidad mínima de cartones/series para inicio de partida'
 											size={2}

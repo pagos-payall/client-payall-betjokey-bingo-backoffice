@@ -2,12 +2,18 @@ import { Formik } from 'formik'
 import { theme } from '@/data/themes'
 import FormikInputValue from '../FormikInputValue'
 import { InputSearchBar } from '../SearchBar'
+import Button from '../Button'
 
-const FilterBox = ({ fieldHandleChange, initialValues, type }) => {
+const FilterBox = ({
+	fieldHandleChange,
+	cleanAllFields,
+	initialValues,
+	type,
+}) => {
 	return (
 		<div>
 			<Formik initialValues={initialValues}>
-				{({ handleChange, values, setFieldValue }) => (
+				{({ handleChange, values, setFieldValue, resetForm }) => (
 					<form
 						style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
 					>
@@ -134,6 +140,16 @@ const FilterBox = ({ fieldHandleChange, initialValues, type }) => {
 								}}
 								readOnly={values.date_f === ''}
 							/>
+							<Button
+								type='button'
+								color='yellow'
+								onClick={() => {
+									cleanAllFields()
+									resetForm()
+								}}
+							>
+								Limpiar filtros
+							</Button>
 						</div>
 					</form>
 				)}

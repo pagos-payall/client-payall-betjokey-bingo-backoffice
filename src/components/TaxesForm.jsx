@@ -20,6 +20,7 @@ const TaxesForm = ({ values, updateView, updateMode }) => {
 					<StyledGrid>
 						<GridChild_1>
 							<SubHeaderBar tag='h4'>Impuesto aplicados a premios</SubHeaderBar>
+							<p>Los impuestos retenidos son retenciones a los premios</p>
 						</GridChild_1>
 						<GridChild_2>
 							{updateView ? (
