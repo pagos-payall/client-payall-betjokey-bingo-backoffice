@@ -228,7 +228,7 @@ export default function UserForm() {
 											name='role'
 											title='Rol del usuario'
 											type='select'
-											inputType='select'
+											$inputType='select'
 											size={2}
 											disabled={updateView ? !updateMode : false}
 											validateField={() => validateField('role')}

@@ -36,13 +36,13 @@ const RefreshModal = () => {
 
 	const LoggedModal = () => (
 		<ModalContainer>
-			<ModalBox maxHeight={'300px'}>
+			<ModalBox $maxHeight={'300px'}>
 				<h1>¿Desea Mantener su session activa?</h1>
 				<div style={{ display: 'flex', gap: '5px', width: '90%' }}>
-					<Button color={'red'} w={50} onClick={handleLogout}>
+					<Button color={'red'} $w={50} onClick={handleLogout}>
 						Salir
 					</Button>
-					<Button color={'green'} w={50} onClick={handleRefreshToken}>
+					<Button color={'green'} $w={50} onClick={handleRefreshToken}>
 						Mantener
 					</Button>
 				</div>
@@ -52,15 +52,15 @@ const RefreshModal = () => {
 
 	const SessionModal = () => (
 		<ModalContainer>
-			<ModalBox maxHeight={'300px'}>
+			<ModalBox $maxHeight={'300px'}>
 				<h2>
 					Se detecto otra session activa ¿Desea continuar en esta session?
 				</h2>
 				<div style={{ display: 'flex', gap: '5px', width: '90%' }}>
-					<Button color={'red'} w={50} onClick={() => newSession({})}>
+					<Button color={'red'} $w={50} onClick={() => newSession({})}>
 						Cancelar
 					</Button>
-					<Button color={'green'} w={50} onClick={handleNewSession}>
+					<Button color={'green'} $w={50} onClick={handleNewSession}>
 						Login
 					</Button>
 				</div>

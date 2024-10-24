@@ -31,7 +31,7 @@ export const ModalBox = styled.div`
 	color: white;
 	text-align: center;
 	height: ${(props) => props.h ?? '30vh'};
-	max-height: ${(props) => props.maxHeight || 'auto'};
+	max-height: ${(props) => props.$maxHeight || 'auto'};
 `
 
 export const Taxes = styled.div`

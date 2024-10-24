@@ -6,20 +6,18 @@ import HeaderTitleComp from './styled/HeaderTitleComp'
 import { MenuComponent, UserHeaderComp } from './styled/MenuComponents'
 import useUser from '@/hooks/useUser.jsx'
 import useFetch from '@/hooks/useFetch'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import AlertConfirmModal from './modals/AlertConfirmModal'
 
 function LeftMenuBar() {
 	const router = useRouter()
-	const { username, logout } = useUser()
 	const { fetchAPICall } = useFetch()
 	const [modalView, setModalView] = useState(false)
-	const [modalContent, setModalContent] = useState({
-		method: handleLogout,
+	const { username, logout, getUser } = useUser()
+	const [modalContent] = useState({
 		title: '¿Estás seguro que deseas salir?',
 		confirmText: 'Confirmar',
 	})
-
 	function handleLogout() {
 		fetchAPICall('/auth/logout', 'put', { username }).then(() => logout())
 	}
@@ -28,6 +26,7 @@ function LeftMenuBar() {
 		<MenuComponent>
 			{modalView && (
 				<AlertConfirmModal
+					method={handleLogout}
 					modalContent={modalContent}
 					closeModal={() => setModalView(false)}
 				/>

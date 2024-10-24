@@ -33,21 +33,18 @@ export default function useFetch() {
 			params: method === 'get' && body,
 		})
 
-		const promise = new Promise((resolve, reject) => {
-			response
-				.then((res) => resolve(res))
-				.catch((e) => {
-					return reject(e?.response?.data?.error || 'Solicitud fallida')
-				})
-		})
-
 		if (notification) {
-			const promise_toast = toast.promise(promise, {
+			const promise_toast = toast.promise(response, {
 				pending: 'Procesando solicitud...',
-				success: 'Operacion exitosa 👌',
+				success: 'Operación exitosa 👌',
 				error: {
 					render({ data }) {
-						return data
+						let message = data?.response?.data?.error || 'Solicitud fallida' // Mensaje por defecto
+
+						if (data?.response?.status === 304) {
+							message = 'Existe sesión activa'
+						}
+						return message // Muestra el mensaje de error
 					},
 				},
 			})
@@ -56,7 +53,7 @@ export default function useFetch() {
 				const res = await promise_toast
 				return res.data
 			} catch (e) {
-				const { status } = e.response
+				const status = e?.response?.status || null
 				throw await errorHandler(status)
 			}
 		}

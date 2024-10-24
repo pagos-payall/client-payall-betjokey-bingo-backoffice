@@ -21,6 +21,8 @@ export default function useUser() {
 		[setActUsername]
 	)
 
+	const getUser = username
+
 	const logout = useCallback(() => {
 		setActUsername('')
 		setTokenStatus()
@@ -44,9 +46,12 @@ export default function useUser() {
 		[setNewSession]
 	)
 
+	console.log(username)
+
 	return {
 		isLogged: token_status,
 		username,
+		getUser,
 		session,
 		login,
 		logout,

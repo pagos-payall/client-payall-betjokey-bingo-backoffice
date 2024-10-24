@@ -26,7 +26,6 @@ import RoomsContext from '@/context/rooms/RoomsContext'
 import RewardsDistribution from '@/components/RewardsDistribution'
 import useUser from '@/hooks/useUser'
 import { validateNoLeftZero } from '@/services/utilFunctions'
-import { bool } from 'prop-types'
 
 export default function RoomForm() {
 	const { getRooms } = useContext(RoomsContext)
@@ -69,8 +68,6 @@ export default function RoomForm() {
 	function handleSubmit(values, setSubmitting, resetForm) {
 		let method = 'post'
 		const formValues = values
-
-		console.log(values)
 
 		if (porcenError || rewardsDistError.bool) return
 
@@ -273,7 +270,7 @@ export default function RoomForm() {
 											placeholder='Tipo de Juego'
 											name='typeOfGame'
 											title='Tipo de Juego'
-											inputType='select'
+											$inputType='select'
 											type='select'
 											size={2}
 											disabled={updateView ? !updateMode : false}
@@ -287,7 +284,7 @@ export default function RoomForm() {
 											name='play'
 											title='Tipo de jugada'
 											type='select'
-											inputType='select'
+											$inputType='select'
 											size={2}
 											disabled={updateView ? !updateMode : false}
 											validateField={() => validateField('play')}
@@ -302,7 +299,7 @@ export default function RoomForm() {
 											<FormikInputValue
 												placeholder='Comisión del Juego'
 												type='text'
-												inputType='number'
+												$inputType='number'
 												isAllowed={(e) =>
 													handleValidatePorcen(e, values, 'comision')
 												}
@@ -316,7 +313,7 @@ export default function RoomForm() {
 											/>
 											<FormikInputValue
 												placeholder='Acumulado premios'
-												inputType='number'
+												$inputType='number'
 												type='text'
 												name='pote_especial'
 												title='Premios especiales'
@@ -331,7 +328,7 @@ export default function RoomForm() {
 											/>
 											<FormikInputValue
 												placeholder='Porcentaje a repartir'
-												inputType='number'
+												$inputType='number'
 												type='text'
 												name='premios'
 												title='Premios'
@@ -379,7 +376,7 @@ export default function RoomForm() {
 										/>
 										<FormikInputValue
 											placeholder='Precio'
-											inputType='number'
+											$inputType='number'
 											type='text'
 											name='card_price'
 											title='Precio de Carton'
@@ -393,7 +390,7 @@ export default function RoomForm() {
 										/>
 										<FormikInputValue
 											type='text'
-											inputType='number'
+											$inputType='number'
 											isAllowed={({ floatValue, value }) => {
 												let max_cant = values?.typeOfGame.split(' ')
 

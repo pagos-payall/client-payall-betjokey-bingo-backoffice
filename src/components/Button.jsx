@@ -1,6 +1,6 @@
-import styled from 'styled-components';
-import { theme } from '../data/themes';
-import Image from 'next/image';
+import styled from 'styled-components'
+import { theme } from '../data/themes'
+import Image from 'next/image'
 
 const StyledButton = styled.button`
 	background: transparent;
@@ -11,7 +11,7 @@ const StyledButton = styled.button`
 	border: 1px solid
 		${(props) => (props.color ? theme.dark.colors[props.color] : 'white')};
 	border-radius: 10px;
-	width: ${(props) => (props.w ? `${props.w}%` : '100%')};
+	width: ${(props) => (props.$w ? `${props.$w}%` : '100%')};
 	height: min-content;
 	letter-spacing: 1px;
 	gap: 2.35px;
@@ -32,7 +32,7 @@ const StyledButton = styled.button`
 			filter: invert(0);
 		}
 	}
-`;
+`
 
 const ImageContainer = styled.div`
 	filter: ${(props) =>
@@ -40,7 +40,7 @@ const ImageContainer = styled.div`
 	display: flex;
 	align-items: center;
 	transition: 0.25s ease-in-out;
-`;
+`
 
 const Button = ({ children, icoUrl, ...props }) => (
 	<StyledButton {...props}>
@@ -49,6 +49,6 @@ const Button = ({ children, icoUrl, ...props }) => (
 			{icoUrl && <Image src={icoUrl} alt={'ico'} width={20} height={20} />}
 		</ImageContainer>
 	</StyledButton>
-);
+)
 
-export default Button;
+export default Button

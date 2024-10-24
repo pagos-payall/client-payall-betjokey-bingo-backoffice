@@ -43,25 +43,30 @@ const HistoryLogsTable = ({ logsUri, type, origin }) => {
 		white: '',
 	}
 
-	const fieldHandleChange = (values, e) => {
-		const filters = { ...values }
+	const fieldHandleChange = (e) => {
 		setLoading(true)
 
-		e.target.type === 'checkbox'
-			? (filters[e.target.name] = e.target.value !== 'true')
-			: (filters[e.target.name] = e.target.value)
-
-		setValuesForm(filters)
+		setValuesForm((oldValues) => ({
+			...oldValues,
+			[e.target.name]:
+				e.target.type === 'checkbox' ? e.target.checked : e.target.value,
+		}))
 	}
 
 	useEffect(() => {
+		console.log(debouncedSearchTerm)
+
 		if (Object.keys(debouncedSearchTerm).length !== 0) {
 			fetchAPICall(logsUri, 'get', debouncedSearchTerm)
 				.then((data) => {
 					setHistoryData(data.result.reverse())
+					console.log('eo')
+
 					setLoading(false)
 				})
 				.catch(() => {
+					console.log('eo')
+
 					setLoading(false)
 				})
 		} else setValuesForm(defaultConfig)

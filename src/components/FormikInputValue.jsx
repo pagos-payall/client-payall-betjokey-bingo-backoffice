@@ -80,7 +80,7 @@ const InputConstructor = ({
 	onBlur,
 	onFocus,
 }) => {
-	switch (props.inputType) {
+	switch (props.$inputType) {
 		case 'number':
 			return (
 				<NumericFormat

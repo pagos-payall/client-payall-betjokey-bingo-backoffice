@@ -16,5 +16,5 @@ export function middleware(request) {
 
 // Protected routes
 export const config = {
-	matcher: ['/', '/dashboard/', '/usersManagerView/'],
+	matcher: ['/', '/dashboard/:path*', '/usersManagerView/:path*'],
 }

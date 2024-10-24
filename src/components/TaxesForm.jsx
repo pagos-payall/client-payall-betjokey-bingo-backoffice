@@ -63,7 +63,7 @@ const TaxesForm = ({ values, updateView, updateMode }) => {
 									<FormikInputValue
 										placeholder='Valor'
 										type='text'
-										inputType='number'
+										$inputType='number'
 										name={`taxes.${index}.value`}
 										title='Valor'
 										isAllowed={({ floatValue, value }) =>
