@@ -18,6 +18,7 @@ const UsersReducer = (state, action) => {
 			return {
 				...state,
 				username: payload.username,
+				level: payload.level,
 			}
 		case SET_TOKEN_STATUS:
 			return {

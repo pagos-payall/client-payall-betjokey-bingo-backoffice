@@ -6,9 +6,6 @@ import { closeIcon } from '@/data/icons'
 
 const HistoryLogsModal = ({ data, setModalView }) => {
 	let cursor = 1
-
-	console.log(data)
-
 	if (data.operation === 'delete') cursor = 2
 	if (data.operation === 'edit') cursor = 3
 
@@ -29,7 +26,7 @@ const HistoryLogsModal = ({ data, setModalView }) => {
 		: titleContentUsuarios[cursor]
 	return (
 		<ModalContainer>
-			<ModalBox h={'auto'}>
+			<ModalBox $h={'auto'}>
 				{data.operation === 'create' || data.operation === 'edit' ? (
 					<CreateEditTemplate data={data} title={title} />
 				) : (

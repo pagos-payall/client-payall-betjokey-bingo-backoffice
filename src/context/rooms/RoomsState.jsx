@@ -3,9 +3,11 @@ import { useReducer } from 'react'
 import RoomsContext from './RoomsContext'
 import RoomsReducer from './RoomsReducer'
 import useFetch from '@/hooks/useFetch'
+import useUser from '@/hooks/useUser'
 
 const RoomsState = ({ children }) => {
 	const { fetchAPICall } = useFetch()
+	const { level } = useUser()
 	const initialState = {
 		rooms: [],
 		users: [],
@@ -44,9 +46,10 @@ const RoomsState = ({ children }) => {
 				undefined,
 				boolean
 			).then((data) => data.result.reverse())
-		} catch (error) {
-			console.log(error)
 
+			if (level !== 'admin')
+				response = response.filter((user) => user.role !== 'admin')
+		} catch (error) {
 			response = []
 		}
 

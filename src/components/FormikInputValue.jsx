@@ -107,7 +107,7 @@ const InputConstructor = ({
 					onFocus={onFocus}
 					onBlur={onBlur}
 					onChange={onChange}
-					defaultValue={field.value}
+					value={field.value}
 				>
 					{!field.value && <option>Escoge una opcion</option>}
 					{children}
@@ -131,7 +131,7 @@ const InputConstructor = ({
 
 const FormikInputValue = forwardRef(
 	({ children, size, simbol, design, ...props }, ref) => {
-		const [field, meta, helpers] = useField(props)
+		const [field, meta] = useField(props)
 		const [isFocused, setIsFocused] = useState(false)
 		const fieldSize = {
 			1: '100%',
@@ -147,19 +147,19 @@ const FormikInputValue = forwardRef(
 		const handleBlur = useCallback(() => {
 			setIsFocused(false)
 
-			props.validateField && props.validateField()
-		}, [props.validateField])
+			props.$validateField && props.$validateField()
+		}, [props.$validateField])
 
 		const handleChange = useCallback(
 			(e) => {
 				field.onChange(e)
 
 				// if (props.type != 'select')
-				// 	props.validateField && props.validateField()
+				// 	props.$validateField && props.$validateField()
 
 				props.onChange && props.onChange(e)
 			},
-			[props.validateField]
+			[props.$validateField]
 		)
 
 		return (

@@ -30,7 +30,7 @@ export const ModalBox = styled.div`
 	position: relative;
 	color: white;
 	text-align: center;
-	height: ${(props) => props.h ?? '30vh'};
+	height: ${(props) => props.$h ?? '30vh'};
 	max-height: ${(props) => props.$maxHeight || 'auto'};
 `
 
@@ -82,7 +82,7 @@ export const Operation = styled.div`
 	text-align: left;
 `
 
-export const SubItems = styled.div`
+export const SubItems = styled.span`
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-start;

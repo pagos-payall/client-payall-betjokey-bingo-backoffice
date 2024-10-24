@@ -211,7 +211,7 @@ export default function RoomForm() {
 							<UpdateFormHeader
 								name={initialValues.room_name}
 								codigo={salaData.room_id}
-								status={salaData.status}
+								$status={salaData.status}
 								updateMode={updateMode}
 								setUpdateMode={setUpdateMode}
 							/>
@@ -264,7 +264,7 @@ export default function RoomForm() {
 											title='Titulo para la Sala'
 											size={1}
 											readOnly={updateView ? !updateMode : false}
-											validateField={() => validateField('room_name')}
+											$validateField={() => validateField('room_name')}
 										/>
 										<FormikInputValue
 											placeholder='Tipo de Juego'
@@ -274,7 +274,7 @@ export default function RoomForm() {
 											type='select'
 											size={2}
 											disabled={updateView ? !updateMode : false}
-											validateField={() => validateField('typeOfGame')}
+											$validateField={() => validateField('typeOfGame')}
 										>
 											<option>Series 12000</option>
 											<option>Series 4000</option>
@@ -287,7 +287,7 @@ export default function RoomForm() {
 											$inputType='select'
 											size={2}
 											disabled={updateView ? !updateMode : false}
-											validateField={() => validateField('play')}
+											$validateField={() => validateField('play')}
 										>
 											<option value={'carton'}>Cartón</option>
 											<option value={'serie'}>Serie</option>
@@ -309,7 +309,7 @@ export default function RoomForm() {
 												size={3}
 												design={2}
 												readOnly={updateView ? !updateMode : false}
-												validateField={() => validateField('comision')}
+												$validateField={() => validateField('comision')}
 											/>
 											<FormikInputValue
 												placeholder='Acumulado premios'
@@ -324,7 +324,7 @@ export default function RoomForm() {
 													handleValidatePorcen(e, values, 'pote_especial')
 												}
 												readOnly={updateView ? !updateMode : false}
-												validateField={() => validateField('pote_especial')}
+												$validateField={() => validateField('pote_especial')}
 											/>
 											<FormikInputValue
 												placeholder='Porcentaje a repartir'
@@ -339,7 +339,7 @@ export default function RoomForm() {
 													handleValidatePorcen(e, values, 'premios')
 												}
 												readOnly={updateView ? !updateMode : false}
-												validateField={() => validateField('premios')}
+												$validateField={() => validateField('premios')}
 											/>
 											<PorcenSubHeader $position='bottom'>
 												La suma de los procentajes debe ser igual a 100%
@@ -358,6 +358,7 @@ export default function RoomForm() {
 											values={values}
 											handleChange={handleChange}
 											setFieldValue={setFieldValue}
+											readOnly={updateView ? !updateMode : false}
 											setError={setRewardsDistError}
 										/>
 										{rewardsDistError.bool && (
@@ -386,7 +387,7 @@ export default function RoomForm() {
 												(floatValue || 0) <= 1000 && validateNoLeftZero(value)
 											}
 											readOnly={updateView ? !updateMode : false}
-											validateField={() => validateField('card_price')}
+											$validateField={() => validateField('card_price')}
 										/>
 										<FormikInputValue
 											type='text'
@@ -403,10 +404,10 @@ export default function RoomForm() {
 											title='Cantidad mínima de cartones/series para inicio de partida'
 											size={2}
 											readOnly={updateView ? !updateMode : false}
-											validateField={() => validateField('min_value')}
+											$validateField={() => validateField('min_value')}
 										/>
 									</FieldsContainer>
-									<JuegoAsociado value={updateView} status={values.status} />
+									<JuegoAsociado value={updateView} $status={values.status} />
 									{!updateView ? (
 										<Button type='submit' color='green' icoUrl={addIcon}>
 											Crear Sala

@@ -86,6 +86,10 @@ export default function UserForm() {
 		if (searchParams.size === 0) {
 			setInitialValues(fields)
 			setUpdateView(false)
+			setCredentials({
+				username: undefined,
+				password: undefined,
+			})
 		} else {
 			for (const key of searchParams.keys()) {
 				const data = JSON.parse(key)
@@ -169,7 +173,7 @@ export default function UserForm() {
 						) : (
 							<UpdateFormHeader
 								name={userData.username}
-								status={userData.status}
+								$status={userData.status}
 								updateMode={updateMode}
 								setUpdateMode={setUpdateMode}
 								rol={initialValues.role}
@@ -195,7 +199,7 @@ export default function UserForm() {
 								handleSubmit(values, setSubmitting)
 							}}
 						>
-							{({ handleSubmit, validateField }) => (
+							{({ handleSubmit, validateField, values }) => (
 								<FormDiv onSubmit={handleSubmit}>
 									<h3
 										style={{
@@ -213,7 +217,7 @@ export default function UserForm() {
 											title='Nombres'
 											size={2}
 											readOnly={updateView ? !updateMode : false}
-											validateField={() => validateField('names')}
+											$validateField={() => validateField('names')}
 										/>
 										<FormikInputValue
 											placeholder='Apellidos'
@@ -222,7 +226,7 @@ export default function UserForm() {
 											title='Apellidos'
 											size={2}
 											readOnly={updateView ? !updateMode : false}
-											validateField={() => validateField('lastNames')}
+											$validateField={() => validateField('lastNames')}
 										/>
 										<FormikInputValue
 											name='role'
@@ -231,7 +235,7 @@ export default function UserForm() {
 											$inputType='select'
 											size={2}
 											disabled={updateView ? !updateMode : false}
-											validateField={() => validateField('role')}
+											$validateField={() => validateField('role')}
 										>
 											<option>admin</option>
 											<option>coordinador</option>
@@ -244,7 +248,7 @@ export default function UserForm() {
 											title='Correo'
 											size={2}
 											readOnly={updateView ? !updateMode : false}
-											validateField={() => validateField('email')}
+											$validateField={() => validateField('email')}
 										/>
 									</FieldsContainer>
 									{credentials?.username === undefined &&

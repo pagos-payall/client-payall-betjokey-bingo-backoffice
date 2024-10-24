@@ -17,6 +17,7 @@ const RewardsDistribution = ({
 	setFieldValue,
 	handleChange,
 	setError,
+	readOnly,
 }) => {
 	const [fieldValues, setFieldValues] = useState({
 		carton_full: true,
@@ -125,6 +126,7 @@ const RewardsDistribution = ({
 						title='Carton completo'
 						type='checkbox'
 						name='carton_full'
+						disabled={readOnly}
 						onChange={(e) => handleCheckChange(e, 100, 0)}
 					/>
 				</Grid2>
@@ -138,6 +140,7 @@ const RewardsDistribution = ({
 						title='Lineas'
 						type='checkbox'
 						name='linea_full'
+						disabled={readOnly}
 						onChange={(e) => handleCheckChange(e, 0, 100)}
 					/>
 				</Grid3>
@@ -156,7 +159,11 @@ const RewardsDistribution = ({
 						max='100'
 						name='porcen_premio_asignado_carton'
 						disabled={
-							fieldValues.carton_full && fieldValues.linea_full ? false : true
+							readOnly
+								? true
+								: fieldValues.carton_full && fieldValues.linea_full
+								? false
+								: true
 						}
 						onChange={handleRangeChange}
 					/>
@@ -172,7 +179,11 @@ const RewardsDistribution = ({
 						max='100'
 						name='porcen_premio_asignado_linea'
 						disabled={
-							fieldValues.carton_full && fieldValues.linea_full ? false : true
+							readOnly
+								? true
+								: fieldValues.carton_full && fieldValues.linea_full
+								? false
+								: true
 						}
 						onChange={handleRangeChange}
 					/>

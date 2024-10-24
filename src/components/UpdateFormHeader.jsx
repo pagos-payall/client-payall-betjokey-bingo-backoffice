@@ -19,13 +19,13 @@ import AlertConfirmModal from './modals/AlertConfirmModal'
 const UpdateFormHeader = ({
 	name,
 	codigo,
-	status,
+	$status,
 	rol,
 	setUpdateMode,
 	updateMode,
 }) => {
 	const { getRooms, getUsers } = useContext(RoomsContext)
-	const { username } = useUser()
+	const { username, level } = useUser()
 	const { fetchAPICall } = useFetch()
 	const router = useRouter()
 	const path = usePathname()
@@ -40,10 +40,11 @@ const UpdateFormHeader = ({
 	} no podrás recuperarl${user_or_room ? 'o' : 'a'}!`
 
 	const modalTitleA = `¿Estás seguro de que deseas ${
-		status !== 'archive' ? 'archivar' : 'desarchivar'
+		$status !== 'archive' ? 'archivar' : 'desarchivar'
 	} ${user_or_room ? 'el usuario' : 'la sala'}?`
 
 	const [confirmModal, setConfirmModal] = useState(false)
+	const [modalMethod, setModalMethod] = useState(1)
 	const [modalContent, setModelContent] = useState({
 		onConfirm: () => {},
 		title: '',
@@ -53,7 +54,7 @@ const UpdateFormHeader = ({
 	})
 
 	const handleSetUpdate = () => {
-		if (user_or_room === false && status === 'active')
+		if (user_or_room === false && $status === 'active')
 			toast('La sala esta activa sus datos no pueden ser editados')
 		setUpdateMode((value) => {
 			return !value
@@ -64,7 +65,7 @@ const UpdateFormHeader = ({
 	}
 
 	const handleAction = (operation) => {
-		if (status === 'archive') operation = 'unarchive'
+		if ($status === 'archive') operation = 'unarchive'
 
 		const values = {
 			operatorName: username,
@@ -101,12 +102,17 @@ const UpdateFormHeader = ({
 				<AlertConfirmModal
 					modalContent={modalContent}
 					closeModal={() => setConfirmModal(false)}
+					method={
+						modalMethod === 1
+							? () => handleAction('delete')
+							: () => handleAction('archive')
+					}
 				/>
 			)}
 
 			{name + (codigo ? ' - ' + codigo : '')}
-			<StatusLight status={status} size={12.5} />
-			{rol !== 'admin' && (
+			<StatusLight $status={$status} size={12.5} />
+			{(level === 'admin' || level === 'coordinador') && rol !== 'admin' && (
 				<>
 					<div
 						style={{
@@ -121,11 +127,11 @@ const UpdateFormHeader = ({
 							onClick={() => {
 								setConfirmModal(true)
 								setModelContent(() => ({
-									method: () => handleAction('delete'),
 									title: modalTitleB,
 									subtitle: modalSubtitleB,
 									confirmText: 'Borrar',
 								}))
+								setModalMethod(1)
 							}}
 						/>
 						<p>Borrar</p>
@@ -138,17 +144,17 @@ const UpdateFormHeader = ({
 						}}
 					>
 						<IconComponent
-							url={status !== 'archive' ? archiveIcon : unarchiveIcon}
+							url={$status !== 'archive' ? archiveIcon : unarchiveIcon}
 							size={20}
 							onClick={() => {
 								setConfirmModal(true)
 								setModelContent(() => ({
-									method: () => handleAction('archive'),
 									title: modalTitleA,
 								}))
+								setModalMethod(2)
 							}}
 						/>
-						<p>{status !== 'archive' ? 'Archivar' : 'Desarchivar'}</p>
+						<p>{$status !== 'archive' ? 'Archivar' : 'Desarchivar'}</p>
 					</div>
 					<div
 						style={{
@@ -160,7 +166,7 @@ const UpdateFormHeader = ({
 						<IconComponent url={editIcon} size={20} onClick={handleSetUpdate} />
 						<p>{updateMode ? 'Desactivar edición' : 'Editar'}</p>
 					</div>
-					{(status === 'disable' || status === 'active') && (
+					{($status === 'disable' || $status === 'active') && (
 						<div
 							style={{
 								display: 'flex',
@@ -169,14 +175,14 @@ const UpdateFormHeader = ({
 							}}
 						>
 							<IconComponent
-								url={status === 'disable' ? toggle_on : toggle_off}
+								url={$status === 'disable' ? toggle_on : toggle_off}
 								size={20}
 								onClick={() =>
-									handleAction(status === 'disable' ? 'active' : 'disable')
+									handleAction($status === 'disable' ? 'active' : 'disable')
 								}
-								color={status === 'disable' ? 'green' : 'red'}
+								color={$status === 'disable' ? 'green' : 'red'}
 							/>
-							<p>{status === 'disable' ? 'Activar' : 'Desactivar'}</p>
+							<p>{$status === 'disable' ? 'Activar' : 'Desactivar'}</p>
 						</div>
 					)}
 				</>

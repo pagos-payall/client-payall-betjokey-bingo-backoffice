@@ -12,22 +12,22 @@ const ObjItem = ({ itemName, value }) => {
 
 	return (
 		<>
-			<p>
-				<strong>{itemName}: </strong>
+			<div>
+				<p style={{ fontWeight: 'bold' }}>{itemName}: </p>
 				<SubItems>
 					{array.map(([key, value], index) => {
 						if (typeof value === 'object' || Array.isArray(value))
-							return <ObjItem itemName={key} value={value} />
+							return <ObjItem itemName={key} value={value} key={`item${key}`} />
 						else
 							return (
-								<p key={index}>
-									<strong>{key}: </strong>
-									{value}
-								</p>
+								<div key={index} style={{ display: 'flex', gap: '2px' }}>
+									<p style={{ fontWeight: 'bold' }}>{key}: </p>
+									<p>{value}</p>
+								</div>
 							)
 					})}
 				</SubItems>
-			</p>
+			</div>
 		</>
 	)
 }

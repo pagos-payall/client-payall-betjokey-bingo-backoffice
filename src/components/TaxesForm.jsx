@@ -18,9 +18,16 @@ const TaxesForm = ({ values, updateView, updateMode }) => {
 			render={(arrayHelpers) => (
 				<StyledFlex>
 					<StyledGrid>
-						<GridChild_1>
+						<GridChild_1
+							style={{
+								flexDirection: 'column',
+								alignItems: 'left',
+							}}
+						>
 							<SubHeaderBar tag='h4'>Impuesto aplicados a premios</SubHeaderBar>
-							<p>Los impuestos retenidos son retenciones a los premios</p>
+							<SubHeaderBar tag='h6'>
+								Los impuestos retenidos son retenciones a los premios
+							</SubHeaderBar>
 						</GridChild_1>
 						<GridChild_2>
 							{updateView ? (

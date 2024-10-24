@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 export default function useUser() {
 	const {
 		username,
+		level,
 		session,
 		setTokenStatus,
 		token_status,
@@ -14,8 +15,8 @@ export default function useUser() {
 	const router = useRouter()
 
 	const login = useCallback(
-		(user) => {
-			setActUsername(user)
+		(user, level) => {
+			setActUsername(user, level)
 			setTokenStatus(true)
 		},
 		[setActUsername]
@@ -46,11 +47,10 @@ export default function useUser() {
 		[setNewSession]
 	)
 
-	console.log(username)
-
 	return {
 		isLogged: token_status,
 		username,
+		level,
 		getUser,
 		session,
 		login,

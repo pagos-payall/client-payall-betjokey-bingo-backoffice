@@ -82,7 +82,7 @@ export default function SetPassword() {
 						name='new_password'
 						title='Nueva contraseña'
 						size={1}
-						validateField={() => validateField('new_password')}
+						$validateField={() => validateField('new_password')}
 						onChange={(e) => {
 							handleChange(e)
 							const val = e.target.value
@@ -115,7 +115,7 @@ export default function SetPassword() {
 						name='duplicate_password'
 						title='Repite la contraseña'
 						size={1}
-						validateField={() => validateField('duplicate_password')}
+						$validateField={() => validateField('duplicate_password')}
 						onChange={(e) => {
 							handleChange(e)
 							const equals =

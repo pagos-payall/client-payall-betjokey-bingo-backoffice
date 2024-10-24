@@ -54,21 +54,11 @@ const HistoryLogsTable = ({ logsUri, type, origin }) => {
 	}
 
 	useEffect(() => {
-		console.log(debouncedSearchTerm)
-
 		if (Object.keys(debouncedSearchTerm).length !== 0) {
-			fetchAPICall(logsUri, 'get', debouncedSearchTerm)
-				.then((data) => {
-					setHistoryData(data.result.reverse())
-					console.log('eo')
-
-					setLoading(false)
-				})
-				.catch(() => {
-					console.log('eo')
-
-					setLoading(false)
-				})
+			fetchAPICall(logsUri, 'get', debouncedSearchTerm).then((data) => {
+				setHistoryData(data.result.reverse())
+			})
+			setLoading(false)
 		} else setValuesForm(defaultConfig)
 	}, [debouncedSearchTerm])
 

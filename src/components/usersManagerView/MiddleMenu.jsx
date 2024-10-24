@@ -31,7 +31,7 @@ const MenuOptionsContainer = styled.div`
 
 const MiddleMenu = () => {
 	const { users, getUsers, setUsers } = useContext(RoomsContext)
-	const { username } = useUser()
+	const { username, level } = useUser()
 	const [displayData, setDisplayData] = useState([])
 	const [displayFilter, setDisplayFilter] = useState('all')
 	const [displayTitle, setDisplayTitle] = useState('Usuarios Activos')
@@ -85,7 +85,7 @@ const MiddleMenu = () => {
 					path='/usersManagerView/userForm'
 				/>
 				<MenuOption
-					title='Usuarios Activos'
+					title='Usuarios Activos y innactivos'
 					icoUrl={boltIcon}
 					onClick={() => {
 						setDisplayFilter('all')

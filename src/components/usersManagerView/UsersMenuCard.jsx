@@ -1,8 +1,8 @@
-import Link from 'next/link';
-import { theme } from '@/data/themes';
-import StatusLight from '../StatusLight';
-import styled from 'styled-components';
-import Separator from '../Separator';
+import Link from 'next/link'
+import { theme } from '@/data/themes'
+import StatusLight from '../StatusLight'
+import styled from 'styled-components'
+import Separator from '../Separator'
 
 const UserStyle = styled.div`
 	display: flex;
@@ -17,19 +17,19 @@ const UserStyle = styled.div`
 	&:hover {
 		filter: invert(10%);
 	}
-`;
+`
 
 const CardHeader = styled.div`
 	display: flex;
 	justify-content: space-between;
 	flex-wrap: no-wrap;
-`;
+`
 
 const DescriptionItemStyle = styled.div`
 	display: flex;
 	gap: 2px;
 	justify-content: space-between;
-`;
+`
 
 const DescriptionItem = ({ title, children }) => (
 	<DescriptionItemStyle>
@@ -44,7 +44,7 @@ const DescriptionItem = ({ title, children }) => (
 			{children}
 		</p>
 	</DescriptionItemStyle>
-);
+)
 
 const UserMenuCard = ({ data }) => (
 	<Link
@@ -73,7 +73,7 @@ const UserMenuCard = ({ data }) => (
 					>
 						{data.status}
 					</p>
-					<StatusLight status={data.status} />
+					<StatusLight $status={data.status} />
 				</div>
 			</CardHeader>
 			<Separator width={100} color={theme.dark.borders.secundary} />
@@ -92,6 +92,6 @@ const UserMenuCard = ({ data }) => (
 			</div>
 		</UserStyle>
 	</Link>
-);
+)
 
-export default UserMenuCard;
+export default UserMenuCard

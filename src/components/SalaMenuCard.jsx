@@ -1,8 +1,8 @@
-import Separator from './Separator';
-import { theme } from '../data/themes';
-import styled from 'styled-components';
-import StatusLight from './StatusLight';
-import Link from 'next/link';
+import Separator from './Separator'
+import { theme } from '../data/themes'
+import styled from 'styled-components'
+import StatusLight from './StatusLight'
+import Link from 'next/link'
 
 const SalaStyle = styled.div`
 	display: flex;
@@ -17,24 +17,24 @@ const SalaStyle = styled.div`
 	&:hover {
 		filter: invert(10%);
 	}
-`;
+`
 
 const CardHeader = styled.div`
 	display: flex;
 	justify-content: space-between;
 	flex-wrap: no-wrap;
-`;
+`
 
 const DescriptionItemStyle = styled.div`
 	display: flex;
 	gap: 2px;
 	justify-content: space-between;
-`;
+`
 
 const DescriptionItem = ({ title, children }) => {
 	if (title.includes('Hora')) {
-		let date = new Date(children);
-		children = date.toString();
+		let date = new Date(children)
+		children = date.toString()
 	}
 
 	return (
@@ -50,8 +50,8 @@ const DescriptionItem = ({ title, children }) => {
 				{children}
 			</p>
 		</DescriptionItemStyle>
-	);
-};
+	)
+}
 
 const SalaMenuCard = ({ data }) => {
 	return (
@@ -81,7 +81,7 @@ const SalaMenuCard = ({ data }) => {
 						>
 							{data.status}
 						</p>
-						<StatusLight status={data.status} />
+						<StatusLight $status={data.status} />
 					</div>
 				</CardHeader>
 				<Separator width={100} color={theme.dark.borders.secundary} />
@@ -109,7 +109,7 @@ const SalaMenuCard = ({ data }) => {
 				</div>
 			</SalaStyle>
 		</Link>
-	);
-};
+	)
+}
 
-export default SalaMenuCard;
+export default SalaMenuCard

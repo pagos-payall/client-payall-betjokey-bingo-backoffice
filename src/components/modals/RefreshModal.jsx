@@ -29,7 +29,7 @@ const RefreshModal = () => {
 	function handleNewSession() {
 		fetchAPICall('/auth', 'put', session).then(() => {
 			newSession({})
-			setTimeout(router.push('/dashboard'), 2000)
+			setTimeout(router.push('/dashboard/historyLog'), 2000)
 			login(session.username)
 		})
 	}

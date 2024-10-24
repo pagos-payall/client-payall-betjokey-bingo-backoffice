@@ -28,11 +28,11 @@ const LoginForm = () => {
 		}
 		values = obj
 		fetchAPICall('/auth/', 'post', values)
-			.then(({ res }) => {
+			.then((res) => {
 				if (res.resetPassword)
 					router.push(`/login/setpassword?username=${values.username}`)
 				else {
-					login(values.username)
+					login(values.username, res.level)
 					setTimeout(router.push('/dashboard/historyLog'), 2000)
 				}
 			})

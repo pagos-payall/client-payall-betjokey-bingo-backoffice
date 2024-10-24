@@ -6,7 +6,7 @@ import HeaderTitleComp from './styled/HeaderTitleComp'
 import { MenuComponent, UserHeaderComp } from './styled/MenuComponents'
 import useUser from '@/hooks/useUser.jsx'
 import useFetch from '@/hooks/useFetch'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import AlertConfirmModal from './modals/AlertConfirmModal'
 
 function LeftMenuBar() {

@@ -7,6 +7,7 @@ import Cookies from 'js-cookie'
 const UsersState = ({ children }) => {
 	const initialState = {
 		username: '',
+		level: '',
 		token_status: undefined, // active, expired, undefined
 		session: {
 			username: undefined,
@@ -16,9 +17,14 @@ const UsersState = ({ children }) => {
 
 	const [state, dispatch] = useReducer(UsersReducer, initialState)
 
-	const setActUsername = async (username) => {
+	const setActUsername = async (username ,level) => {
 		if (!username) {
 			Cookies.remove('username', {
+				expires: 0.29,
+				path: '/',
+				sameSite: 'strict',
+			})
+			Cookies.remove('level', {
 				expires: 0.29,
 				path: '/',
 				sameSite: 'strict',
@@ -29,12 +35,18 @@ const UsersState = ({ children }) => {
 				path: '/',
 				sameSite: 'strict',
 			})
+			Cookies.set('level', level, {
+				expires: 0.29,
+				path: '/',
+				sameSite: 'strict',
+			})
 		}
 
 		dispatch({
 			type: 'SET_ACT_USERNAME',
 			payload: {
 				username,
+				level
 			},
 		})
 	}
@@ -67,6 +79,11 @@ const UsersState = ({ children }) => {
 				expires: 0.29,
 				path: '/',
 				sameSite: 'Strict',
+			}) || undefined,
+			Cookies.get('level', {
+				expires: 0.29,
+				path: '/',
+				sameSite: 'Strict',
 			}) || undefined
 		)
 	}, [])
@@ -75,6 +92,7 @@ const UsersState = ({ children }) => {
 		<UsersContext.Provider
 			value={{
 				username: state.username,
+				level: state.level,
 				token_status: state.token_status,
 				session: state.session,
 				setActUsername,
