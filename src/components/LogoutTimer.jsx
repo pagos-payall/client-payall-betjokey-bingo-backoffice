@@ -3,14 +3,14 @@ import { useEffect, useState, useRef } from 'react'
 import useUser from '@/hooks/useUser'
 import useFetch from '@/hooks/useFetch'
 
-const LogoutTimer = ({ logoutTime = 300000 }) => {
-	const [timeLeft, setTimeLeft] = useState(logoutTime)
+const LogoutTimer = ({ logoutTime = 700000 }) => {
+	const [_, setTimeLeft] = useState(logoutTime)
 	const timeoutRef = useRef(null)
 	const { logout, isLogged, username } = useUser()
 	const { fetchAPICall } = useFetch()
 
 	const handleLogout = () =>
-		fetchAPICall('/auth/logout', 'put', { username }).then(() => logout())
+		fetchAPICall('/auth/logout', 'put', { username }).finally(() => logout())
 
 	const resetTimeout = () => {
 		if (timeoutRef.current) {
@@ -22,6 +22,7 @@ const LogoutTimer = ({ logoutTime = 300000 }) => {
 
 	useEffect(() => {
 		const events = ['click', 'mousemove', 'keydown']
+
 		if (isLogged) {
 			events.forEach((event) => window.addEventListener(event, resetTimeout))
 

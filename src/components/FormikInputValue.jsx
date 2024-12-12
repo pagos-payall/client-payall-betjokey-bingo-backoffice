@@ -4,6 +4,8 @@ import styled from 'styled-components'
 import { useField } from 'formik'
 import { theme } from '@/data/themes'
 import { NumericFormat } from 'react-number-format'
+import { visibility, visibility_off } from '@/data/icons'
+import { IconComponent } from './SubHeaderBar'
 
 export const Input = styled.input`
 	padding: 10px;
@@ -18,8 +20,20 @@ export const Input = styled.input`
 				? theme.dark.borders.secundary
 				: theme.dark.borders.primary};
 	border-radius: 10px;
-	color: ${theme.dark.fonts.subHeaders_text};
+	color: ${(props) =>
+		props?.$simbolColor
+			? props?.$simbolColor
+			: theme.dark.fonts.subHeaders_text};
 	width: 100%;
+
+	/* Estilo para el ícono del calendario en navegadores WebKit (Chrome, Safari, etc.) */
+	&::-webkit-calendar-picker-indicator {
+		color: #fff;
+		background: #fff;
+	} /* Estilo para el ícono del calendario en navegadores Edge */
+	&::-ms-clear {
+		display: none;
+	}
 `
 
 const InputContainer = styled.div`
@@ -79,6 +93,7 @@ const InputConstructor = ({
 	onChange,
 	onBlur,
 	onFocus,
+	showPassword,
 }) => {
 	switch (props.$inputType) {
 		case 'number':
@@ -113,6 +128,20 @@ const InputConstructor = ({
 					{children}
 				</Select>
 			)
+		case 'password':
+			return (
+				<Input
+					{...props}
+					{...field}
+					type={showPassword ? 'text' : 'password'}
+					$design={design}
+					onChange={onChange}
+					onBlur={onBlur}
+					onFocus={onFocus}
+					ref={ref}
+					error={error}
+				/>
+			)
 		default:
 			return (
 				<Input
@@ -128,6 +157,77 @@ const InputConstructor = ({
 			)
 	}
 }
+
+export const FormikPassInput = forwardRef(
+	({ children, size, simbol, design, ...props }, ref) => {
+		const [showPassword, setShowPassword] = useState(false)
+		const [field, meta] = useField(props)
+		const [isFocused, setIsFocused] = useState(false)
+		const fieldSize = {
+			1: '100%',
+			2: '49%',
+			3: '32.6%',
+			6: '15%',
+		}
+
+		const handleFocus = useCallback(() => {
+			setIsFocused(true)
+		}, [])
+
+		const handleBlur = useCallback(() => {
+			setIsFocused(false)
+
+			props.$validateField && props.$validateField()
+		}, [props.$validateField])
+
+		const handleChange = useCallback(
+			(e) => {
+				field.onChange(e)
+
+				props.onChange && props.onChange(e)
+			},
+			[props.$validateField]
+		)
+
+		const handleToggleClick = () => {
+			setShowPassword((prevShowPassword) => !prevShowPassword)
+		}
+
+		return (
+			<FieldStyled
+				$size={fieldSize[size]}
+				$flexdirection={props.type === 'checkbox' ? 'true' : 'false'}
+			>
+				<Label htmlFor={props.name} $isfocused={isFocused.toString()}>
+					{props.title}
+				</Label>
+				<InputContainer $w={'100%'}>
+					{InputConstructor({
+						props,
+						ref,
+						field,
+						children,
+						showPassword,
+						error: meta.error,
+						design: design,
+						onChange: handleChange,
+						onBlur: handleBlur,
+						onFocus: handleFocus,
+					})}
+					<IconComponent
+						size={20}
+						url={showPassword ? visibility : visibility_off}
+						onClick={handleToggleClick}
+						interactiveBackOff={true}
+					/>
+				</InputContainer>
+				{meta.error && (
+					<p style={{ color: theme.dark.colors.red }}>{meta.error}</p>
+				)}
+			</FieldStyled>
+		)
+	}
+)
 
 const FormikInputValue = forwardRef(
 	({ children, size, simbol, design, ...props }, ref) => {

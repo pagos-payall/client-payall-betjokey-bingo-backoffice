@@ -4,7 +4,9 @@ import { useEffect, useState } from 'react'
 import InputRequirement from '@/components/login/InputRequirement'
 import Button from '@/components/Button'
 import { FormDiv } from '@/components/styled/roomForm'
-import FormikInputValue from '@/components/FormikInputValue'
+import FormikInputValue, {
+	FormikPassInput,
+} from '@/components/FormikInputValue'
 import { Formik } from 'formik'
 import { theme } from '@/data/themes'
 import { saveChangeIcon, refreshIcon } from '@/data/icons'
@@ -75,9 +77,11 @@ export default function SetPassword() {
 							fontWeight: 'normal',
 						}}
 					>
-						Su clave temporal a expirado. Debe crear un contraseña permanente
+						Su clave temporal ha expirado. Debe crear un contraseña permanente
 					</h4>
-					<FormikInputValue
+
+					<FormikPassInput
+						$inputType='password'
 						type='password'
 						name='new_password'
 						title='Nueva contraseña'
@@ -110,7 +114,8 @@ export default function SetPassword() {
 							})
 						}}
 					/>
-					<FormikInputValue
+					<FormikPassInput
+						$inputType='password'
 						type='password'
 						name='duplicate_password'
 						title='Repite la contraseña'
@@ -154,7 +159,7 @@ export default function SetPassword() {
 							boolean={passwordValidation.size}
 						/>
 						<InputRequirement
-							text='Debe contener al menos una mayuscula, un caracter especial y un caracter numerico'
+							text='Debe contener al menos una mayúscula, un carácter especial y un carácter numérico'
 							boolean={
 								passwordValidation.mayuscula === true &&
 								passwordValidation.especial === true &&

@@ -94,18 +94,24 @@ export default function RoomForm() {
 			method = 'patch'
 		}
 
+		values.taxes = values.taxes.filter(
+			(tax) => tax.name !== '' && tax.value !== 0
+		)
+
+		console.log(values)
+
 		values['operatorName'] = username
 
-		fetchAPICall('bingo/rooms', method, values).then(() => {
-			setSubmitting(false)
-			getRooms()
-			if (!updateView) resetForm()
-			else {
-				delete values.room_id
-				setUpdateMode(false)
-				setInitialValues(formValues)
-			}
-		})
+		// fetchAPICall('bingo/rooms', method, values).then(() => {
+		// 	setSubmitting(false)
+		// 	getRooms()
+		// 	if (!updateView) resetForm()
+		// 	else {
+		// 		delete values.room_id
+		// 		setUpdateMode(false)
+		// 		setInitialValues(formValues)
+		// 	}
+		// })
 	}
 
 	function handleValidatePorcen(e, values, name) {
@@ -203,7 +209,7 @@ export default function RoomForm() {
 						tag='h2'
 						icon={closeIcon}
 						size={20}
-						onClick={() => router.push('/dashboard')}
+						onClick={() => router.push('/dashboard/historyLog')}
 					>
 						{!updateView ? (
 							'Creación de Salas'
@@ -289,7 +295,7 @@ export default function RoomForm() {
 											disabled={updateView ? !updateMode : false}
 											$validateField={() => validateField('play')}
 										>
-											<option value={'carton'}>Cartón</option>
+											<option value={'carton - serie'}>cartón - serie</option>
 											<option value={'serie'}>Serie</option>
 										</FormikInputValue>
 										<FieldsPorcenContainer>
@@ -380,7 +386,7 @@ export default function RoomForm() {
 											$inputType='number'
 											type='text'
 											name='card_price'
-											title='Precio de Carton'
+											title='Precio de Cartón'
 											size={2}
 											simbol='$'
 											isAllowed={({ floatValue, value }) =>
@@ -390,6 +396,7 @@ export default function RoomForm() {
 											$validateField={() => validateField('card_price')}
 										/>
 										<FormikInputValue
+											placeholder='Cantidad mínima'
 											type='text'
 											$inputType='number'
 											isAllowed={({ floatValue, value }) => {

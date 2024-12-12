@@ -98,8 +98,8 @@ const RecoveryPassword = ({ setView, view }) => {
 						}}
 					>
 						{!recovery
-							? 'Procesor de recuperacion de contraseña, ingrese su usuario o correo.'
-							: `Ingresa el codigo unico que fue enviado su correo ${refEmail}.`}
+							? 'Para recuperar su contraseña, ingrese usuario o correo'
+							: `Ingresa el código único que fue enviado su correo ${refEmail}.`}
 					</h4>
 					{!recovery ? (
 						<Formik

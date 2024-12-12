@@ -16,8 +16,24 @@ const RowGridComp = ({ color, data, type }) => {
 	const [modalView, setModalView] = useState(false)
 	const date = new Date(data.date)
 	const username = data.username
-	const operation =
-		data.operation.charAt(0).toUpperCase() + data.operation.slice(1)
+	const operation = (op) => {
+		switch (op) {
+			case 'delete':
+				return 'Borrado'
+			case 'archive':
+				return 'Archivado'
+			case 'unarchive':
+				return 'Desarchivado'
+			case 'create':
+				return 'Creado'
+			case 'edit':
+				return 'Editado'
+			case 'active':
+				return 'Activado'
+			case 'disable':
+				return 'Desactivado'
+		}
+	}
 	const name =
 		type === 'room' ? data.room_name : data.operationDetails.target_username
 
@@ -33,7 +49,7 @@ const RowGridComp = ({ color, data, type }) => {
 				<ChildGrid_1>
 					<GridCell>
 						<ActionTitle color={theme.dark.colors[color]}>
-							{operation}:
+							{operation(data.operation)}:
 						</ActionTitle>
 						<RoomTitle>{name}</RoomTitle>
 					</GridCell>

@@ -29,3 +29,7 @@ export const toggle_on =
 	'/icons/toggle_on_24dp_000_FILL0_wght400_GRAD0_opsz24.svg'
 export const toggle_off =
 	'/icons/toggle_off_24dp_000_FILL0_wght400_GRAD0_opsz24.svg'
+export const visibility =
+	'/icons/visibility_24dp_000_FILL0_wght400_GRAD0_opsz24.png'
+export const visibility_off =
+	'/icons/visibility_off_24dp_000_FILL0_wght400_GRAD0_opsz24.png'

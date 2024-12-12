@@ -123,7 +123,7 @@ const RewardsDistribution = ({
 				>
 					<FormikInputValue
 						size={1}
-						title='Carton completo'
+						title='Cartón completo'
 						type='checkbox'
 						name='carton_full'
 						disabled={readOnly}

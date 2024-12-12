@@ -79,7 +79,7 @@ const HistoryLogsTable = ({ logsUri, type, origin }) => {
 				type={type}
 			/>
 			<BoxTable>
-				<TableHeader col1='Operation' col2='Fecha' col3='Usuario' />
+				<TableHeader col1='Operación' col2='Fecha' col3='Usuario' />
 				{/* body */}
 				<div
 					style={{

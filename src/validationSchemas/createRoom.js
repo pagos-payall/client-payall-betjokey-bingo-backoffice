@@ -5,7 +5,7 @@ export const createRoomValidationSchema = yup.object({
 		.string()
 		.matches(
 			/^[a-zA-Z0-9 _-]+$/,
-			'Solo se permiten letras, números y guiones bajos'
+			'Solo se permiten letras, números y guiones'
 		)
 		.required('Es requerido un titulo para la sala'),
 	typeOfGame: yup
@@ -19,7 +19,7 @@ export const createRoomValidationSchema = yup.object({
 		.number()
 		.typeError('Ingrese un valor válido')
 		.min(0, 'El precio del cartón no puede ser negativo')
-		.max(200, 'El precio del cartón no puede superar los 200')
+		.max(1000, 'El precio del cartón no puede superar los 1000')
 		.positive('El valor debe ser positivo')
 		.required('Es requerido precio para el cartón'),
 	comision: yup
@@ -30,27 +30,27 @@ export const createRoomValidationSchema = yup.object({
 		.required('Indique el porcentaje de comisión que gana la casa'),
 	play: yup
 		.mixed()
-		.oneOf(['carton', 'serie'], 'Tipo de juego es requerido, escoja una opción')
+		.oneOf(
+			['carton - serie', 'serie'],
+			'Tipo de juego es requerido, escoja una opción'
+		)
 		.required('Selecciones el tipo de jugada permitida'),
 	pote_especial: yup
 		.number()
 		.typeError('Ingrese un valor válido')
 		.min(0)
 		.max(100)
-		.positive()
 		.required('Indique el porcentaje que se guarda para premios'),
 	premios: yup
 		.number()
 		.typeError('Ingrese un valor válido')
 		.min(0)
 		.max(100)
-		.positive()
 		.required('Indique el porcentaje que se reparte en premios'),
 	min_value: yup
 		.number()
 		.typeError('Ingrese un valor válido')
-		.positive()
-		.min(0)
+		.min(1, 'El valor minimo debe ser mayor a cero')
 		.required(
 			'Ingrese la cantidad minima recaudada para dar inicio a una partida'
 		),
@@ -60,7 +60,7 @@ export const createRoomValidationSchema = yup.object({
 				name: yup.string(),
 				value: yup
 					.number()
-					.min(1, 'El valor del impuesto debe ser mayor a 0')
+					.min(0, 'El valor del impuesto debe ser mayor a 0')
 					.max(100)
 					.typeError('Ingrese un valor válido'),
 			})

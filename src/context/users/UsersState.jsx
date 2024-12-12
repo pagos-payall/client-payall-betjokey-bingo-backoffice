@@ -8,7 +8,12 @@ const UsersState = ({ children }) => {
 	const initialState = {
 		username: '',
 		level: '',
-		token_status: undefined, // active, expired, undefined
+		token_status:
+			Cookies.get('username', {
+				expires: 0.29,
+				path: '/',
+				sameSite: 'Strict',
+			}) && 'active', // active, expired, undefined
 		session: {
 			username: undefined,
 			password: undefined,
@@ -17,7 +22,7 @@ const UsersState = ({ children }) => {
 
 	const [state, dispatch] = useReducer(UsersReducer, initialState)
 
-	const setActUsername = async (username ,level) => {
+	const setActUsername = async (username, level) => {
 		if (!username) {
 			Cookies.remove('username', {
 				expires: 0.29,
@@ -46,7 +51,7 @@ const UsersState = ({ children }) => {
 			type: 'SET_ACT_USERNAME',
 			payload: {
 				username,
-				level
+				level,
 			},
 		})
 	}

@@ -52,7 +52,11 @@ const MiddleMenu = () => {
 				'get',
 				{ value: debouncedSearchTerm },
 				true
-			).then((data) => setRooms(data.result.reverse()))
+			).then((data) => {
+				console.log(data)
+
+				setRooms(data.result.reverse())
+			})
 		}
 	}, [debouncedSearchTerm])
 

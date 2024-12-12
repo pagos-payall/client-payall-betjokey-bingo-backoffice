@@ -18,10 +18,10 @@ export default function RootLayout({ children }) {
 		<html lang='en'>
 			<body className={inter.className}>
 				<UsersState>
-					<LogoutTimer />
-					<RefreshModal />
-					<Toastbox />
-					<RoomsState>{children}</RoomsState>
+						<LogoutTimer />
+						<RefreshModal />
+						<Toastbox />
+						<RoomsState>{children}</RoomsState>
 				</UsersState>
 			</body>
 		</html>

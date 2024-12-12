@@ -108,6 +108,9 @@ const FilterBox = ({
 								$inputType='date'
 								type='date'
 								name='date_i'
+								$simbolColor='#fff'
+								min='2020-01-01'
+								max={new Date().toISOString().split('T')[0]}
 								onChange={(e) => {
 									handleChange(e)
 									fieldHandleChange(e)
@@ -119,6 +122,9 @@ const FilterBox = ({
 								size={2}
 								title='Fecha final'
 								$inputType='date'
+								$simbolColor='#fff'
+								min='2020-01-01'
+								max={new Date().toISOString().split('T')[0]}
 								type='date'
 								name='date_f'
 								onChange={(e) => {

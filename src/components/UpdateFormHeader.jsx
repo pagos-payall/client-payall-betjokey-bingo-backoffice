@@ -32,26 +32,26 @@ const UpdateFormHeader = ({
 	const user_or_room = path.includes('user')
 	const url = user_or_room ? '/backOffice' : 'bingo/rooms'
 	const fetchMethod = user_or_room ? 'patch' : 'put'
-	const modalTitleB = `¿Estás seguro de que deseas borrar ${
+	const modalTitleB = `¿Estás seguro que deseas borrar ${
 		user_or_room ? 'el usuario' : 'la sala'
 	}?`
 	const modalSubtitleB = `¡Una vez borrad${
 		user_or_room ? 'o' : 'a'
 	} no podrás recuperarl${user_or_room ? 'o' : 'a'}!`
 
-	const modalTitleA = `¿Estás seguro de que deseas ${
+	const modalTitleA = `¿Estás seguro que deseas ${
 		$status !== 'archive' ? 'archivar' : 'desarchivar'
 	} ${user_or_room ? 'el usuario' : 'la sala'}?`
 
 	const [confirmModal, setConfirmModal] = useState(false)
-	const [modalMethod, setModalMethod] = useState(1)
 	const [modalContent, setModelContent] = useState({
-		onConfirm: () => {},
+		type: '',
 		title: '',
 		subtitle: '',
 		confirmText: 'Aceptar',
 		cancelText: 'Cancelar',
 	})
+	const [func, setFunc] = useState(() => {})
 
 	const handleSetUpdate = () => {
 		if (user_or_room === false && $status === 'active')
@@ -65,7 +65,8 @@ const UpdateFormHeader = ({
 	}
 
 	const handleAction = (operation) => {
-		if ($status === 'archive') operation = 'unarchive'
+		if ($status === 'archive' && operation === 'archive')
+			operation = 'unarchive'
 
 		const values = {
 			operatorName: username,
@@ -102,11 +103,7 @@ const UpdateFormHeader = ({
 				<AlertConfirmModal
 					modalContent={modalContent}
 					closeModal={() => setConfirmModal(false)}
-					method={
-						modalMethod === 1
-							? () => handleAction('delete')
-							: () => handleAction('archive')
-					}
+					method={handleAction}
 				/>
 			)}
 
@@ -127,11 +124,11 @@ const UpdateFormHeader = ({
 							onClick={() => {
 								setConfirmModal(true)
 								setModelContent(() => ({
+									type: 'delete',
 									title: modalTitleB,
 									subtitle: modalSubtitleB,
 									confirmText: 'Borrar',
 								}))
-								setModalMethod(1)
 							}}
 						/>
 						<p>Borrar</p>
@@ -149,9 +146,9 @@ const UpdateFormHeader = ({
 							onClick={() => {
 								setConfirmModal(true)
 								setModelContent(() => ({
+									type: 'archive',
 									title: modalTitleA,
 								}))
-								setModalMethod(2)
 							}}
 						/>
 						<p>{$status !== 'archive' ? 'Archivar' : 'Desarchivar'}</p>

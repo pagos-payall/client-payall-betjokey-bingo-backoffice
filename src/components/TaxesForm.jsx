@@ -10,8 +10,28 @@ import {
 	GridChild_2,
 } from './styled/TaxesStyledComps'
 import { validateNoLeftZero } from '@/services/utilFunctions'
+import { useState } from 'react'
+import { theme } from '@/data/themes'
 
 const TaxesForm = ({ values, updateView, updateMode }) => {
+	const [errorMsg, setErrorMsg] = useState(false)
+	const handleValidateField = (e, fieldIndex) => {
+		const { floatValue, value } = e
+		const { taxes } = values
+		let sumatoria = 0
+
+		taxes.forEach(({ name, value }, index) => {
+			if (e.floatValue === undefined) e.floatValue = 0
+			sumatoria += index === fieldIndex ? e.floatValue : +value
+		})
+
+		setErrorMsg(sumatoria >= 100)
+
+		return (
+			sumatoria <= 100 && (floatValue || 0) <= 100 && validateNoLeftZero(value)
+		)
+	}
+
 	return (
 		<FieldArray
 			name='taxes'
@@ -26,7 +46,8 @@ const TaxesForm = ({ values, updateView, updateMode }) => {
 						>
 							<SubHeaderBar tag='h4'>Impuesto aplicados a premios</SubHeaderBar>
 							<SubHeaderBar tag='h6'>
-								Los impuestos retenidos son retenciones a los premios
+								Retenciones que se aplican a los premios por concepto de
+								impuestos
 							</SubHeaderBar>
 						</GridChild_1>
 						<GridChild_2>
@@ -59,7 +80,7 @@ const TaxesForm = ({ values, updateView, updateMode }) => {
 							<StyledGrid key={index}>
 								<GridChild_1>
 									<FormikInputValue
-										placeholder='Nombre del Inpuesto'
+										placeholder='Nombre del Impuesto'
 										type='text'
 										name={`taxes.${index}.name`}
 										title='Nombre'
@@ -73,9 +94,7 @@ const TaxesForm = ({ values, updateView, updateMode }) => {
 										$inputType='number'
 										name={`taxes.${index}.value`}
 										title='Valor'
-										isAllowed={({ floatValue, value }) =>
-											(floatValue || 0) <= 100 && validateNoLeftZero(value)
-										}
+										isAllowed={(e) => handleValidateField(e, index)}
 										size={3}
 										design={2}
 										simbol='%'
@@ -103,6 +122,16 @@ const TaxesForm = ({ values, updateView, updateMode }) => {
 								</GridChild_2>
 							</StyledGrid>
 						))}
+					{errorMsg && (
+						<p
+							style={{
+								color: theme.dark.colors.red,
+								padding: '10px 0 0 10px',
+							}}
+						>
+							La suma de los porcentajes es inferior a 100%
+						</p>
+					)}
 				</StyledFlex>
 			)}
 		/>

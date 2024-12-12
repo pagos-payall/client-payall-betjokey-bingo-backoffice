@@ -2,7 +2,7 @@ import { Formik } from 'formik'
 import { useRouter } from 'next/navigation'
 import Button from '../Button'
 import { FormDiv } from '../styled/roomForm'
-import FormikInputValue from '../FormikInputValue'
+import FormikInputValue, { FormikPassInput } from '../FormikInputValue'
 import { logInIcon, refreshIcon } from '@/data/icons'
 import useFetch from '@/hooks/useFetch'
 import useUser from '@/hooks/useUser'
@@ -32,7 +32,9 @@ const LoginForm = () => {
 				if (res.resetPassword)
 					router.push(`/login/setpassword?username=${values.username}`)
 				else {
-					login(values.username, res.level)
+					obj.level = res.level
+
+					login(obj)
 					setTimeout(router.push('/dashboard/historyLog'), 2000)
 				}
 			})
@@ -64,11 +66,18 @@ const LoginForm = () => {
 							title='Usuario'
 							size={1}
 						/>
-						<FormikInputValue
+						{/* <FormikInputValue
 							type='password'
 							name='password'
 							title='Contraseña'
 							size={1}
+						/> */}
+						<FormikPassInput
+							type='password'
+							name='password'
+							title='Contraseña'
+							size={1}
+							$inputType='password'
 						/>
 						<Button
 							type='submit'

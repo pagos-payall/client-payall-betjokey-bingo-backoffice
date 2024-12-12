@@ -83,6 +83,7 @@ export default function UserForm() {
 	}
 
 	useEffect(() => {
+		credentials?.username !== undefined && setCredentials()
 		if (searchParams.size === 0) {
 			setInitialValues(fields)
 			setUpdateView(false)

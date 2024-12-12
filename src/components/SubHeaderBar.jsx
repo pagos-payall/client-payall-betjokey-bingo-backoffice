@@ -36,6 +36,17 @@ const H_Title = styled.h3`
 	color: ${theme.dark.fonts.title_headers};
 `
 
+const BarToggleButton = styled.button`
+	position: absolute;
+	right: 10px;
+	top: 50%;
+	transform: translateY(-50%);
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0;
+`
+
 const SubHeaderBar = ({ children, tag = 'h3', ...props }) => {
 	H_Title.target = tag
 
@@ -66,19 +77,40 @@ const SubHeaderBar = ({ children, tag = 'h3', ...props }) => {
 	)
 }
 
-export const IconComponent = ({ size, url, onClick, style, ...props }) => (
-	<IconStyled onClick={onClick} {...props}>
-		<Image
-			src={url}
-			alt='ico'
-			width={size}
-			height={size}
-			style={{
-				filter: 'invert(100%)',
-				...style,
-			}}
-		/>
-	</IconStyled>
-)
+export const IconComponent = ({
+	size,
+	url,
+	onClick,
+	style,
+	interactiveBackOff,
+	...props
+}) =>
+	!interactiveBackOff ? (
+		<IconStyled onClick={onClick} {...props}>
+			<Image
+				src={url}
+				alt='ico'
+				width={size}
+				height={size}
+				style={{
+					filter: 'invert(100%)',
+					...style,
+				}}
+			/>
+		</IconStyled>
+	) : (
+		<BarToggleButton onClick={onClick} {...props} type='button'>
+			<Image
+				src={url}
+				alt='ico'
+				width={size}
+				height={size}
+				style={{
+					filter: 'invert(80%)',
+					...style,
+				}}
+			/>
+		</BarToggleButton>
+	)
 
 export default SubHeaderBar

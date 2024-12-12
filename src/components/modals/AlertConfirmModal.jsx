@@ -10,7 +10,11 @@ const AlertConfirmModal = ({ modalContent, closeModal, method }) => (
 				<Button color={'red'} $w={50} onClick={closeModal}>
 					{modalContent.cancelText || 'Cancelar'}
 				</Button>
-				<Button color={'green'} $w={50} onClick={method}>
+				<Button
+					color={'green'}
+					$w={50}
+					onClick={modalContent.type ? () => method(modalContent.type) : method}
+				>
 					{modalContent.confirmText || 'Aceptar'}
 				</Button>
 			</div>

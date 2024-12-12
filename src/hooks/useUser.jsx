@@ -15,8 +15,8 @@ export default function useUser() {
 	const router = useRouter()
 
 	const login = useCallback(
-		(user, level) => {
-			setActUsername(user, level)
+		async (data) => {
+			await setActUsername(data.username, data.level)
 			setTokenStatus(true)
 		},
 		[setActUsername]

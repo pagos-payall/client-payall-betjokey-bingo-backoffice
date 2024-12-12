@@ -19,7 +19,7 @@ const RefreshModal = () => {
 	const router = useRouter()
 
 	function handleLogout() {
-		fetchAPICall('/auth/logout', 'put', { username }).then(() => logout())
+		fetchAPICall('/auth/logout', 'put', { username }).finally(() => logout())
 	}
 
 	function handleRefreshToken() {
@@ -27,10 +27,13 @@ const RefreshModal = () => {
 	}
 
 	function handleNewSession() {
-		fetchAPICall('/auth', 'put', session).then(() => {
+		fetchAPICall('/auth', 'put', session).then(({ result }) => {
 			newSession({})
 			setTimeout(router.push('/dashboard/historyLog'), 2000)
-			login(session.username)
+			login({
+				username: result.username,
+				level: result.level,
+			})
 		})
 	}
 

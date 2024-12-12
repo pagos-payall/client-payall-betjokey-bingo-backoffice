@@ -1,9 +1,11 @@
 import { toast } from 'react-toastify'
 import useUser from './useUser'
 import instance from '@/config/axiosConfig.js'
+import { useRouter } from 'next/navigation'
 
 export default function useFetch() {
-	const { logout, refreshToken, username } = useUser()
+	const { logout, refreshToken, username, isLogged } = useUser()
+	const router = useRouter()
 
 	const errorHandler = async (status) => {
 		if (status === 498) {
@@ -32,6 +34,8 @@ export default function useFetch() {
 			data: body,
 			params: method === 'get' && body,
 		})
+
+		if (isLogged !== 'active' && method !== 'head') router.push('/login')
 
 		if (notification) {
 			const promise_toast = toast.promise(response, {

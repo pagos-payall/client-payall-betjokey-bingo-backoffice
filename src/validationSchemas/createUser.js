@@ -11,7 +11,7 @@ export const createUserValidationSchema = yup.object({
 		.required('El apellido es requerido'),
 	role: yup
 		.string()
-		.oneOf(['admin', 'coordinador', 'supervisor'])
+		.oneOf(['admin', 'coordinador', 'analista'], 'Escoja una de las opciones')
 		.required('El rol del usuario es requerido'),
 	email: yup
 		.string()
