@@ -1,9 +1,9 @@
-import { useRouter, usePathname } from 'next/navigation'
-import { useContext, useState } from 'react'
-import StatusLight from './StatusLight'
-import { IconComponent } from './SubHeaderBar'
-import { toast } from 'react-toastify'
-import RoomsContext from '@/context/rooms/RoomsContext'
+import { useRouter, usePathname } from 'next/navigation';
+import { useContext, useState } from 'react';
+import StatusLight from './StatusLight';
+import { IconComponent } from './SubHeaderBar';
+import { toast } from 'react-toastify';
+import RoomsContext from '@/context/rooms/RoomsContext';
 import {
 	deleteIcon,
 	editIcon,
@@ -11,10 +11,10 @@ import {
 	unarchiveIcon,
 	toggle_on,
 	toggle_off,
-} from '@/data/icons'
-import useUser from '@/hooks/useUser'
-import useFetch from '@/hooks/useFetch'
-import AlertConfirmModal from './modals/AlertConfirmModal'
+} from '@/data/icons';
+import useUser from '@/hooks/useUser';
+import useFetch from '@/hooks/useFetch';
+import AlertConfirmModal from './modals/AlertConfirmModal';
 
 const UpdateFormHeader = ({
 	name,
@@ -24,72 +24,72 @@ const UpdateFormHeader = ({
 	setUpdateMode,
 	updateMode,
 }) => {
-	const { getRooms, getUsers } = useContext(RoomsContext)
-	const { username, level } = useUser()
-	const { fetchAPICall } = useFetch()
-	const router = useRouter()
-	const path = usePathname()
-	const user_or_room = path.includes('user')
-	const url = user_or_room ? '/backOffice' : 'bingo/rooms'
-	const fetchMethod = user_or_room ? 'patch' : 'put'
+	const { getRooms, getUsers } = useContext(RoomsContext);
+	const { username, level } = useUser();
+	const { fetchAPICall } = useFetch();
+	const router = useRouter();
+	const path = usePathname();
+	const user_or_room = path.includes('user');
+	const url = user_or_room ? '/backOffice' : 'bingo/rooms';
+	const fetchMethod = user_or_room ? 'patch' : 'put';
 	const modalTitleB = `¿Estás seguro que deseas borrar ${
 		user_or_room ? 'el usuario' : 'la sala'
-	}?`
+	}?`;
 	const modalSubtitleB = `¡Una vez borrad${
 		user_or_room ? 'o' : 'a'
-	} no podrás recuperarl${user_or_room ? 'o' : 'a'}!`
+	} no podrás recuperarl${user_or_room ? 'o' : 'a'}!`;
 
 	const modalTitleA = `¿Estás seguro que deseas ${
 		$status !== 'archive' ? 'archivar' : 'desarchivar'
-	} ${user_or_room ? 'el usuario' : 'la sala'}?`
+	} ${user_or_room ? 'el usuario' : 'la sala'}?`;
 
-	const [confirmModal, setConfirmModal] = useState(false)
+	const [confirmModal, setConfirmModal] = useState(false);
 	const [modalContent, setModelContent] = useState({
 		type: '',
 		title: '',
 		subtitle: '',
 		confirmText: 'Aceptar',
 		cancelText: 'Cancelar',
-	})
-	const [func, setFunc] = useState(() => {})
+	});
+	const [func, setFunc] = useState(() => {});
 
 	const handleSetUpdate = () => {
 		if (user_or_room === false && $status === 'active')
-			toast('La sala esta activa sus datos no pueden ser editados')
+			toast('La sala esta activa sus datos no pueden ser editados');
 		setUpdateMode((value) => {
-			return !value
-		})
+			return !value;
+		});
 
-		if (updateMode) toast('Modo de edicion desactivado')
-		else toast('Modo de edicion activo')
-	}
+		if (updateMode) toast('Modo de edicion desactivado');
+		else toast('Modo de edicion activo');
+	};
 
 	const handleAction = (operation) => {
 		if ($status === 'archive' && operation === 'archive')
-			operation = 'unarchive'
+			operation = 'unarchive';
 
 		const values = {
 			operatorName: username,
 			operation,
-		}
+		};
 
 		path.includes('user')
 			? (values['username'] = name)
-			: (values['room_id'] = codigo)
+			: (values['room_id'] = codigo);
 
-		const method = fetchMethod
+		const method = fetchMethod;
 		const thenFunction = () => {
 			if (!path.includes('user')) {
-				getRooms()
-				router.push('/dashboard/historyLog')
+				getRooms();
+				router.push('/dashboard');
 			} else {
-				getUsers()
-				router.push('/usersManagerView/historyLog')
+				getUsers();
+				router.push('/usersManagerView/historyLog');
 			}
-		}
+		};
 
-		fetchAPICall(url, method, values).then(thenFunction)
-	}
+		fetchAPICall(url, method, values).then(thenFunction);
+	};
 
 	return (
 		<div
@@ -122,13 +122,13 @@ const UpdateFormHeader = ({
 							url={deleteIcon}
 							size={20}
 							onClick={() => {
-								setConfirmModal(true)
+								setConfirmModal(true);
 								setModelContent(() => ({
 									type: 'delete',
 									title: modalTitleB,
 									subtitle: modalSubtitleB,
 									confirmText: 'Borrar',
-								}))
+								}));
 							}}
 						/>
 						<p>Borrar</p>
@@ -144,11 +144,11 @@ const UpdateFormHeader = ({
 							url={$status !== 'archive' ? archiveIcon : unarchiveIcon}
 							size={20}
 							onClick={() => {
-								setConfirmModal(true)
+								setConfirmModal(true);
 								setModelContent(() => ({
 									type: 'archive',
 									title: modalTitleA,
-								}))
+								}));
 							}}
 						/>
 						<p>{$status !== 'archive' ? 'Archivar' : 'Desarchivar'}</p>
@@ -185,7 +185,7 @@ const UpdateFormHeader = ({
 				</>
 			)}
 		</div>
-	)
-}
+	);
+};
 
-export default UpdateFormHeader
+export default UpdateFormHeader;

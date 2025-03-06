@@ -383,7 +383,7 @@ const GameAnalyticsPanel = () => {
 						<NumberCell
 							key={index}
 							highlighted={
-								item.frecuencia >
+								item.frecuencia >=
 								(gameData.distribucion_numeros.top.masFrecuentes[4]
 									?.frecuencia || 0)
 							}

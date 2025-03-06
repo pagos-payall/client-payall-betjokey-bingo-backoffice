@@ -1,9 +1,9 @@
-'use client'
-import Button from '../Button'
-import useUser from '@/hooks/useUser.jsx'
-import useFetch from '@/hooks/useFetch'
-import { useRouter } from 'next/navigation'
-import { ModalContainer, ModalBox } from './ModalStyles'
+'use client';
+import Button from '../Button';
+import useUser from '@/hooks/useUser.jsx';
+import useFetch from '@/hooks/useFetch';
+import { useRouter } from 'next/navigation';
+import { ModalContainer, ModalBox } from './ModalStyles';
 
 const RefreshModal = () => {
 	const {
@@ -14,27 +14,27 @@ const RefreshModal = () => {
 		session,
 		newSession,
 		login,
-	} = useUser()
-	const { fetchAPICall } = useFetch()
-	const router = useRouter()
+	} = useUser();
+	const { fetchAPICall } = useFetch();
+	const router = useRouter();
 
 	function handleLogout() {
-		fetchAPICall('/auth/logout', 'put', { username }).finally(() => logout())
+		fetchAPICall('/auth/logout', 'put', { username }).finally(() => logout());
 	}
 
 	function handleRefreshToken() {
-		fetchAPICall('/auth', 'head').then(() => refreshToken())
+		fetchAPICall('/auth', 'head').then(() => refreshToken());
 	}
 
 	function handleNewSession() {
 		fetchAPICall('/auth', 'put', session).then(({ result }) => {
-			newSession({})
-			setTimeout(router.push('/dashboard/historyLog'), 2000)
+			newSession({});
+			setTimeout(router.push('/dashboard'), 2000);
 			login({
 				username: result.username,
 				level: result.level,
-			})
-		})
+			});
+		});
 	}
 
 	const LoggedModal = () => (
@@ -51,7 +51,7 @@ const RefreshModal = () => {
 				</div>
 			</ModalBox>
 		</ModalContainer>
-	)
+	);
 
 	const SessionModal = () => (
 		<ModalContainer>
@@ -69,13 +69,13 @@ const RefreshModal = () => {
 				</div>
 			</ModalBox>
 		</ModalContainer>
-	)
+	);
 
 	return session.username ? (
 		<SessionModal />
 	) : (
 		isLogged === 'expired' && <LoggedModal />
-	)
-}
+	);
+};
 
-export default RefreshModal
+export default RefreshModal;

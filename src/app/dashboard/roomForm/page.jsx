@@ -207,7 +207,7 @@ export default function RoomForm() {
 						tag='h2'
 						icon={closeIcon}
 						size={20}
-						onClick={() => router.push('/dashboard/historyLog')}
+						onClick={() => router.push('/dashboard')}
 					>
 						{!updateView ? (
 							'Creación de Salas'

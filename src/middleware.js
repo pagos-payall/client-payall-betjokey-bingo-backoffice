@@ -8,7 +8,7 @@ export function middleware(request) {
 		url.pathname = '/login'
 		return NextResponse.redirect(url)
 	} else if (refreshToken?.value && url.pathname === '/') {
-		url.pathname = '/dashboard/historyLog'
+		url.pathname = '/dashboard'
 		return NextResponse.redirect(url)
 	}
 	return NextResponse.next()

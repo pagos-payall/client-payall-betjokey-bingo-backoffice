@@ -1,50 +1,50 @@
-import { Formik } from 'formik'
-import { useRouter } from 'next/navigation'
-import Button from '../Button'
-import { FormDiv } from '../styled/roomForm'
-import FormikInputValue, { FormikPassInput } from '../FormikInputValue'
-import { logInIcon, refreshIcon } from '@/data/icons'
-import useFetch from '@/hooks/useFetch'
-import useUser from '@/hooks/useUser'
-import loginValidate from '@/validationSchemas/login'
+import { Formik } from 'formik';
+import { useRouter } from 'next/navigation';
+import Button from '../Button';
+import { FormDiv } from '../styled/roomForm';
+import FormikInputValue, { FormikPassInput } from '../FormikInputValue';
+import { logInIcon, refreshIcon } from '@/data/icons';
+import useFetch from '@/hooks/useFetch';
+import useUser from '@/hooks/useUser';
+import loginValidate from '@/validationSchemas/login';
 
 const LoginForm = () => {
-	const router = useRouter()
-	const { login, newSession } = useUser()
-	const { fetchAPICall } = useFetch()
+	const router = useRouter();
+	const { login, newSession } = useUser();
+	const { fetchAPICall } = useFetch();
 	const initialValues = {
 		username: '',
 		password: '',
 		new_password: '',
 		duplicate_password: '',
-	}
+	};
 
 	const handleSubmit = (values, resetForm) => {
-		const array = Object.entries(values)
-		const obj = new Object()
+		const array = Object.entries(values);
+		const obj = new Object();
 
 		for (const val of array) {
-			if (initialValues[val[0]] !== val[1]) obj[val[0]] = val[1]
+			if (initialValues[val[0]] !== val[1]) obj[val[0]] = val[1];
 		}
-		values = obj
+		values = obj;
 		fetchAPICall('/auth/', 'post', values)
 			.then((res) => {
 				if (res.resetPassword)
-					router.push(`/login/setpassword?username=${values.username}`)
+					router.push(`/login/setpassword?username=${values.username}`);
 				else {
-					obj.level = res.level
+					obj.level = res.level;
 
-					login(obj)
-					setTimeout(router.push('/dashboard/historyLog'), 2000)
+					login(obj);
+					setTimeout(router.push('/dashboard/historyLog'), 2000);
 				}
 			})
 			.catch((error) => {
 				if (error.status === 304) {
-					newSession(values)
+					newSession(values);
 				}
-				resetForm()
-			})
-	}
+				resetForm();
+			});
+	};
 
 	return (
 		<>
@@ -53,9 +53,9 @@ const LoginForm = () => {
 				validationSchema={loginValidate}
 				initialValues={initialValues}
 				onSubmit={(values, { setSubmitting, resetForm }) => {
-					setSubmitting(true)
-					handleSubmit(values, resetForm)
-					setSubmitting(false)
+					setSubmitting(true);
+					handleSubmit(values, resetForm);
+					setSubmitting(false);
 				}}
 			>
 				{({ isSubmitting, handleSubmit }) => (
@@ -91,7 +91,7 @@ const LoginForm = () => {
 				)}
 			</Formik>
 		</>
-	)
-}
+	);
+};
 
-export default LoginForm
+export default LoginForm;
