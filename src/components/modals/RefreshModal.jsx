@@ -23,18 +23,22 @@ const RefreshModal = () => {
 	}
 
 	function handleRefreshToken() {
-		fetchAPICall('/auth', 'head').then(() => refreshToken());
+		fetchAPICall('/auth', 'head', null, false, true).then(() => refreshToken());
 	}
 
 	function handleNewSession() {
-		fetchAPICall('/auth', 'put', session).then(({ result }) => {
-			newSession({});
-			setTimeout(router.push('/dashboard'), 2000);
-			login({
-				username: result.username,
-				level: result.level,
+		fetchAPICall('/auth', 'put', session, true, true)
+			.then(({ result }) => {
+				newSession({});
+				setTimeout(router.push('/dashboard'), 2000);
+				login({
+					username: result.username,
+					level: result.level,
+				});
+			})
+			.catch(() => {
+				newSession({});
 			});
-		});
 	}
 
 	const LoggedModal = () => (

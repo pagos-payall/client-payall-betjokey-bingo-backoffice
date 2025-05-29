@@ -1,63 +1,63 @@
-'use client'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import InputRequirement from '@/components/login/InputRequirement'
-import Button from '@/components/Button'
-import { FormDiv } from '@/components/styled/roomForm'
+'use client';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import InputRequirement from '@/components/login/InputRequirement';
+import Button from '@/components/Button';
+import { FormDiv } from '@/components/styled/roomForm';
 import FormikInputValue, {
 	FormikPassInput,
-} from '@/components/FormikInputValue'
-import { Formik } from 'formik'
-import { theme } from '@/data/themes'
-import { saveChangeIcon, refreshIcon } from '@/data/icons'
-import useFetch from '@/hooks/useFetch'
+} from '@/components/FormikInputValue';
+import { Formik } from 'formik';
+import { theme } from '@/data/themes';
+import { saveChangeIcon, refreshIcon } from '@/data/icons';
+import useFetch from '@/hooks/useFetch';
 
 export default function SetPassword() {
-	const router = useRouter()
-	const searchParams = useSearchParams()
-	const [username, setUsername] = useState(undefined)
-	const { fetchAPICall } = useFetch()
-	const [validateDisabled, setValidateDisabled] = useState(true)
+	const router = useRouter();
+	const searchParams = useSearchParams();
+	const [username, setUsername] = useState(undefined);
+	const { fetchAPICall } = useFetch();
+	const [validateDisabled, setValidateDisabled] = useState(true);
 	const [passwordValidation, setPasswordValidation] = useState({
 		mayuscula: false,
 		especial: false,
 		numerico: false,
 		size: false,
 		equals: false,
-	})
+	});
 	const initialValues = {
 		new_password: '',
 		duplicate_password: '',
-	}
+	};
 
 	const handleSubmit = (values, resetForm) => {
 		const obj = {
 			username,
 			new_password: values.new_password,
-		}
-		fetchAPICall('auth', 'post', obj)
+		};
+		fetchAPICall('auth', 'post', obj, true, true)
 			.then(() => {
-				router.push('/login')
+				router.push('/login');
 			})
 			.catch(() => {
-				resetForm()
-			})
-	}
+				resetForm();
+			});
+	};
 
 	useEffect(() => {
 		for (const key of searchParams.values()) {
-			setUsername(key)
+			setUsername(key);
 		}
-	}, [])
+	}, []);
 
 	return (
 		<Formik
 			key='resetPassword'
 			initialValues={initialValues}
 			onSubmit={(values, { setSubmitting, resetForm }) => {
-				setSubmitting(true)
-				handleSubmit(values, resetForm)
-				setSubmitting(false)
+				setSubmitting(true);
+				handleSubmit(values, resetForm);
+				setSubmitting(false);
 			}}
 		>
 			{({
@@ -88,16 +88,16 @@ export default function SetPassword() {
 						size={1}
 						$validateField={() => validateField('new_password')}
 						onChange={(e) => {
-							handleChange(e)
-							const val = e.target.value
-							const mayuscula = /(?=.*[A-Z]).+$/.test(val)
-							const numerico = /(?=.*\d).+$/.test(val)
-							const especial = /(?=.*[-+_!@#$%^&*.,?]).+$/.test(val)
-							const size = val.length >= 8
+							handleChange(e);
+							const val = e.target.value;
+							const mayuscula = /(?=.*[A-Z]).+$/.test(val);
+							const numerico = /(?=.*\d).+$/.test(val);
+							const especial = /(?=.*[-+_!@#$%^&*.,?]).+$/.test(val);
+							const size = val.length >= 8;
 							const equals =
 								e.target.value !== ''
 									? values.duplicate_password === val
-									: false
+									: false;
 
 							setPasswordValidation(() => ({
 								mayuscula,
@@ -105,13 +105,13 @@ export default function SetPassword() {
 								especial,
 								size,
 								equals,
-							}))
+							}));
 							setValidateDisabled(() => {
 								const boolean =
-									mayuscula && numerico && especial && size && equals
+									mayuscula && numerico && especial && size && equals;
 
-								return !boolean
-							})
+								return !boolean;
+							});
 						}}
 					/>
 					<FormikPassInput
@@ -122,25 +122,25 @@ export default function SetPassword() {
 						size={1}
 						$validateField={() => validateField('duplicate_password')}
 						onChange={(e) => {
-							handleChange(e)
+							handleChange(e);
 							const equals =
 								e.target.value !== ''
 									? values.new_password === e.target.value
-									: false
+									: false;
 
 							setPasswordValidation((old) => ({
 								...old,
 								equals,
-							}))
+							}));
 
 							setValidateDisabled(() => {
 								const { mayuscula, numerico, especial, size } =
-									passwordValidation
+									passwordValidation;
 								const boolean =
-									mayuscula && numerico && especial && size && equals
+									mayuscula && numerico && especial && size && equals;
 
-								return !boolean
-							})
+								return !boolean;
+							});
 						}}
 					/>
 					<div
@@ -178,5 +178,5 @@ export default function SetPassword() {
 				</FormDiv>
 			)}
 		</Formik>
-	)
+	);
 }

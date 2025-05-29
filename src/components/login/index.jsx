@@ -27,7 +27,8 @@ const LoginForm = () => {
 			if (initialValues[val[0]] !== val[1]) obj[val[0]] = val[1];
 		}
 		values = obj;
-		fetchAPICall('/auth/', 'post', values)
+
+		fetchAPICall('/auth/', 'post', values, true, true)
 			.then((res) => {
 				if (res.resetPassword)
 					router.push(`/login/setpassword?username=${values.username}`);
@@ -35,7 +36,7 @@ const LoginForm = () => {
 					obj.level = res.level;
 
 					login(obj);
-					setTimeout(router.push('/dashboard/historyLog'), 2000);
+					setTimeout(router.push('/dashboard'), 2000);
 				}
 			})
 			.catch((error) => {
