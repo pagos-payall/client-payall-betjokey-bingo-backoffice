@@ -1,6 +1,6 @@
 'use client';
 import { IconComponent } from './SubHeaderBar';
-import { homeIcon, logOutIcon, manageAccountsIcon } from '../data/icons';
+import { homeIcon, logOutIcon, manageAccountsIcon, archiveStorageIcon } from '../data/icons';
 import { useRouter } from 'next/navigation';
 import HeaderTitleComp from './styled/HeaderTitleComp';
 import { MenuComponent, UserHeaderComp } from './styled/MenuComponents';
@@ -55,6 +55,11 @@ function LeftMenuBar() {
 					size={25}
 					url={manageAccountsIcon}
 					onClick={() => router.push('/usersManagerView/historyLog')}
+				/>
+				<IconComponent
+					size={25}
+					url={archiveStorageIcon}
+					onClick={() => router.push('/reports')}
 				/>
 				<IconComponent
 					size={25}

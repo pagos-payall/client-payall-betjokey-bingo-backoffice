@@ -4,6 +4,7 @@
 	"private": true,
 	"scripts": {
 		"dev": "next dev",
+		"dev:custom": "PORT=3006 HOSTNAME=170.10.10.1 next dev",
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint"
