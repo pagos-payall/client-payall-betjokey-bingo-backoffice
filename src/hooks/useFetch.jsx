@@ -30,7 +30,7 @@ class FetchError extends Error {
 }
 
 export default function useFetch() {
-	const { logout, refreshToken, username, isLogged } = useUser();
+	const { logout, refreshToken, username, isLogged, isExpired } = useUser();
 	const router = useRouter();
 
 	/**
@@ -174,14 +174,16 @@ export default function useFetch() {
 		notification = true,
 		auth = false
 	) => {
-		console.log('hola 0', auth, route);
 
 		// Validación de usuario autenticado
-		if (isLogged !== 'active' && method !== 'head' && !auth) {
-			console.log('chao');
-
+		if (!isLogged && !isExpired && method !== 'head' && !auth) {
 			router.push('/login');
 			throw new FetchError('Usuario no autenticado', 401, null);
+		}
+
+		// Si el token está expirado, no hacer peticiones (excepto auth)
+		if (isExpired && method !== 'head' && !auth) {
+			throw new FetchError('Token expirado, refresh requerido', 401, null);
 		}
 
 		// Configuración de la petición

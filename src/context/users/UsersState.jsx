@@ -60,12 +60,16 @@ const UsersState = ({ children }) => {
 		const token_status =
 			status === undefined ? undefined : status ? 'active' : 'expired'
 
-		dispatch({
-			type: 'SET_TOKEN_STATUS',
-			payload: {
-				token_status,
-			},
-		})
+		// Only dispatch if status actually changed to prevent infinite loops
+		if (state.token_status !== token_status) {
+			console.log('🔄 Token status changing from', state.token_status, 'to', token_status);
+			dispatch({
+				type: 'SET_TOKEN_STATUS',
+				payload: {
+					token_status,
+				},
+			})
+		}
 	}
 
 	const setNewSession = ({ username, password }) => {

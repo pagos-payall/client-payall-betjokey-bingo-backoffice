@@ -7,7 +7,7 @@ import { ModalContainer, ModalBox } from './ModalStyles';
 
 const RefreshModal = () => {
 	const {
-		isLogged,
+		isExpired,
 		logout,
 		refreshToken,
 		username,
@@ -22,8 +22,30 @@ const RefreshModal = () => {
 		fetchAPICall('/auth/logout', 'put', { username }).finally(() => logout());
 	}
 
-	function handleRefreshToken() {
-		fetchAPICall('/auth', 'head', null, false, true).then(() => refreshToken());
+	async function handleRefreshToken() {
+		try {
+			// Call internal refresh endpoint directly
+			const response = await fetch('/api/auth', {
+				method: 'HEAD',
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+
+			if (response.ok) {
+				// Refresh successful, update token status
+				await refreshToken();
+				// Force page reload to clear expired state
+				window.location.reload();
+			} else {
+				// Refresh failed, logout
+				handleLogout();
+			}
+		} catch (error) {
+			console.error('Token refresh failed:', error);
+			handleLogout();
+		}
 	}
 
 	function handleNewSession() {
@@ -75,11 +97,7 @@ const RefreshModal = () => {
 		</ModalContainer>
 	);
 
-	return session.username ? (
-		<SessionModal />
-	) : (
-		isLogged === 'expired' && <LoggedModal />
-	);
+	return session.username ? <SessionModal /> : isExpired && <LoggedModal />;
 };
 
 export default RefreshModal;

@@ -25,7 +25,7 @@ const UpdateFormHeader = ({
 	updateMode,
 }) => {
 	const { getRooms, getUsers } = useContext(RoomsContext);
-	const { username, level } = useUser();
+	const { username, level, hasPermission } = useUser();
 	const { fetchAPICall } = useFetch();
 	const router = useRouter();
 	const path = usePathname();
@@ -109,7 +109,7 @@ const UpdateFormHeader = ({
 
 			{name + (codigo ? ' - ' + codigo : '')}
 			<StatusLight $status={$status} size={12.5} />
-			{(level === 'admin' || level === 'coordinador') && rol !== 'admin' && (
+			{hasPermission('delete', user_or_room ? 'users' : 'rooms') && rol !== 'admin' && (
 				<>
 					<div
 						style={{

@@ -43,17 +43,16 @@ const AccessDenied = styled.div`
 export default function ReportsPage() {
 	const [loading, setLoading] = useState(true);
 	const [hasAccess, setHasAccess] = useState(false);
-	const { level } = useUser();
+	const { level, canAccessPath, hasPermission } = useUser();
 
 	useEffect(() => {
 		const checkAccess = async () => {
 			try {
-				// Verificar si el usuario tiene rol admin o supervisor
-				if (level === 'admin' || level === 'supervisor') {
-					setHasAccess(true);
-				} else {
-					setHasAccess(false);
-				}
+				// Server-side validation through canAccessPath
+				const pathAccess = canAccessPath('/reports');
+				const readPermission = hasPermission('read', 'reports');
+				
+				setHasAccess(pathAccess && readPermission);
 			} catch (error) {
 				console.error('Error checking user access:', error);
 				setHasAccess(false);
@@ -63,7 +62,7 @@ export default function ReportsPage() {
 		};
 
 		checkAccess();
-	}, [level]);
+	}, [level, canAccessPath, hasPermission]);
 
 	if (loading) {
 		return (

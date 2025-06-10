@@ -1,6 +1,7 @@
-import UsersContext from '@/context/users/UsersContext'
-import { useContext, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import UsersContext from '@/context/users/UsersContext';
+import { useContext, useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import axios from '@/config/axiosConfig';
 
 export default function useUser() {
 	const {
@@ -11,51 +12,141 @@ export default function useUser() {
 		token_status,
 		setActUsername,
 		setNewSession,
-	} = useContext(UsersContext)
-	const router = useRouter()
+	} = useContext(UsersContext);
+	const router = useRouter();
+	const [isValidating, setIsValidating] = useState(false);
 
 	const login = useCallback(
 		async (data) => {
-			await setActUsername(data.username, data.level)
-			setTokenStatus(true)
+			try {
+				// Server-side validation will be handled by API
+				await setActUsername(data.username, data.level);
+				setTokenStatus(true);
+				return { success: true };
+			} catch (error) {
+				console.error('Login failed:', error);
+				return { success: false, error: error.message };
+			}
 		},
-		[setActUsername]
-	)
+		[setActUsername, setTokenStatus]
+	);
 
-	const getUser = username
+	const getUser = username;
 
-	const logout = useCallback(() => {
-		setActUsername('')
-		setTokenStatus()
-		router.push('/')
-	}, [setActUsername])
-
-	const refreshToken = useCallback(
-		(boolean = false) => {
-			setTokenStatus(!boolean)
+	const logout = useCallback(
+		async (logoutAllDevices = false) => {
+			try {
+				if (logoutAllDevices) {
+					// Call API to invalidate all sessions
+					await axios.post('/auth/logout-all');
+				} else {
+					// Call API to invalidate current session
+					await axios.post('/auth/logout');
+				}
+			} catch (error) {
+				console.error('Logout API call failed:', error);
+			} finally {
+				// Always clear local state
+				setActUsername('');
+				setTokenStatus();
+				router.push('/login');
+			}
 		},
-		[setTokenStatus]
-	)
+		[setActUsername, setTokenStatus, router]
+	);
+
+	const refreshToken = useCallback(async () => {
+		setIsValidating(true);
+		try {
+			const response = await axios.head('/auth');
+			if (response.data.success) {
+				setTokenStatus(true);
+				return { success: true };
+			} else {
+				throw new Error('Token refresh failed');
+			}
+		} catch (error) {
+			console.error('Token refresh failed:', error);
+			setTokenStatus(false);
+			router.push('/login');
+			return { success: false, error: error.message };
+		} finally {
+			setIsValidating(false);
+		}
+	}, [setTokenStatus, router]);
 
 	const newSession = useCallback(
 		(data) => {
 			setNewSession({
 				username: data.username || undefined,
 				password: data.password || undefined,
-			})
+			});
 		},
 		[setNewSession]
-	)
+	);
+
+	// Validate permissions for specific actions
+	const hasPermission = useCallback(
+		(action, resource) => {
+			if (!level) return false;
+
+			const rolePermissions = {
+				admin: ['create', 'read', 'update', 'delete', 'archive'],
+				supervisor: ['create', 'read', 'update'],
+				coordinador: ['create', 'read', 'update'],
+				operador: ['read'],
+			};
+
+			return rolePermissions[level]?.includes(action) || false;
+		},
+		[level]
+	);
+
+	// Check if user can access specific paths
+	const canAccessPath = useCallback(
+		(path) => {
+			if (!level) return false;
+
+			const rolePaths = {
+				admin: ['dashboard', 'usersManagerView', 'reports'],
+				supervisor: ['dashboard', 'reports'],
+				coordinador: ['dashboard', 'usersManagerView'],
+				operador: ['dashboard'],
+			};
+
+			return (
+				rolePaths[level]?.some((allowedPath) => path.includes(allowedPath)) ||
+				false
+			);
+		},
+		[level]
+	);
+
+	// DISABLED: Auto-refresh token to prevent conflicts with modal-based refresh
+	// useEffect(() => {
+	// 	if (token_status === 'active') {
+	// 		const interval = setInterval(() => {
+	// 			refreshToken()
+	// 		}, 14 * 60 * 1000) // Refresh every 14 minutes
+	//
+	// 		return () => clearInterval(interval)
+	// 	}
+	// }, [token_status, refreshToken])
 
 	return {
-		isLogged: token_status,
+		isLogged: token_status === 'active',
+		isExpired: token_status === 'expired',
+		token_status,
 		username,
 		level,
 		getUser,
 		session,
+		isValidating,
 		login,
 		logout,
 		refreshToken,
 		newSession,
-	}
+		hasPermission,
+		canAccessPath,
+	};
 }
