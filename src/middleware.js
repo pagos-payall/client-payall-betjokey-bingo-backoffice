@@ -40,13 +40,16 @@ export async function middleware(request) {
 
 		// Check if access token is present and valid
 		let accessTokenValid = false;
+		let accessTokenExpiry = null;
 		if (accessToken?.value) {
 			try {
 				const ACCESS_SECRET = new TextEncoder().encode(
 					process.env.ACCESS_JWT_SECRET || 'your-secret-key'
 				);
-				await jwtVerify(accessToken.value, ACCESS_SECRET);
+				const { payload: accessPayload } = await jwtVerify(accessToken.value, ACCESS_SECRET);
 				accessTokenValid = true;
+				// Get expiry time in milliseconds
+				accessTokenExpiry = (accessPayload.exp || 0) * 1000;
 			} catch (accessError) {
 				console.log('🔑 Access token expired, triggering modal');
 				accessTokenValid = false;
@@ -60,6 +63,7 @@ export async function middleware(request) {
 			response.headers.set('x-user-id', payload.sub || payload.userId || '');
 			response.headers.set('x-user-role', userRole || '');
 			response.headers.set('x-username', payload.username || '');
+			response.headers.set('x-token-expiry', '0');
 			return response;
 		}
 
@@ -79,6 +83,7 @@ export async function middleware(request) {
 		response.headers.set('x-user-id', payload.sub || payload.userId || '');
 		response.headers.set('x-user-role', userRole || '');
 		response.headers.set('x-username', payload.username || '');
+		response.headers.set('x-token-expiry', accessTokenExpiry ? accessTokenExpiry.toString() : '0');
 
 		return response;
 	} catch (error) {

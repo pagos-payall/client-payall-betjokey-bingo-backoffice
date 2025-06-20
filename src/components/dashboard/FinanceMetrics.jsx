@@ -68,10 +68,12 @@ const FinancialPanel = () => {
 	const [financialData, setFinancialData] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
+	const [retryCount, setRetryCount] = useState(0);
 	const [filters, setFilters] = useState({
 		startDate: (() => {
 			const date = new Date();
-			date.setDate(date.getDate() - 30);
+			date.setMonth(date.getMonth() - 1);
+			date.setHours(0, 0, 0, 0);
 			return date;
 		})(),
 		endDate: new Date(),
@@ -111,11 +113,16 @@ const FinancialPanel = () => {
 		};
 
 		loadData();
-	}, [filters]);
+	}, [filters, retryCount]);
 
 	// Handle filter changes
 	const handleApplyFilters = (newFilters) => {
 		setFilters(newFilters);
+	};
+
+	// Handle retry
+	const handleRetry = () => {
+		setRetryCount(prev => prev + 1);
 	};
 
 	// Prepare chart data
@@ -148,6 +155,8 @@ const FinancialPanel = () => {
 					onApplyFilters={handleApplyFilters}
 					showDateRange={true}
 					showGranularity={true}
+					initialStartDate={filters.startDate}
+					initialEndDate={filters.endDate}
 				/>
 				<LoadingState type='skeleton' />
 			</div>
@@ -162,11 +171,13 @@ const FinancialPanel = () => {
 					onApplyFilters={handleApplyFilters}
 					showDateRange={true}
 					showGranularity={true}
+					initialStartDate={filters.startDate}
+					initialEndDate={filters.endDate}
 				/>
 				<ErrorState
 					message='Error al cargar los datos financieros'
 					details={error}
-					onRetry={() => handleApplyFilters(filters)}
+					onRetry={handleRetry}
 				/>
 			</div>
 		);
@@ -180,11 +191,13 @@ const FinancialPanel = () => {
 					onApplyFilters={handleApplyFilters}
 					showDateRange={true}
 					showGranularity={true}
+					initialStartDate={filters.startDate}
+					initialEndDate={filters.endDate}
 				/>
 				<ErrorState
 					message='No hay datos financieros disponibles'
 					details='Intente cambiar el rango de fechas o verifique la conexión.'
-					onRetry={() => handleApplyFilters(filters)}
+					onRetry={handleRetry}
 				/>
 			</div>
 		);
@@ -196,6 +209,8 @@ const FinancialPanel = () => {
 				onApplyFilters={handleApplyFilters}
 				showDateRange={true}
 				showGranularity={true}
+				initialStartDate={filters.startDate}
+				initialEndDate={filters.endDate}
 			/>
 
 			{/* KPI Cards */}

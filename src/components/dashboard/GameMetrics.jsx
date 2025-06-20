@@ -139,10 +139,12 @@ const GameAnalyticsPanel = () => {
 	const [gameData, setGameData] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
+	const [retryCount, setRetryCount] = useState(0);
 	const [filters, setFilters] = useState({
 		startDate: (() => {
 			const date = new Date();
-			date.setDate(date.getDate() - 30);
+			date.setMonth(date.getMonth() - 1);
+			date.setHours(0, 0, 0, 0);
 			return date;
 		})(),
 		endDate: new Date(),
@@ -182,11 +184,16 @@ const GameAnalyticsPanel = () => {
 		};
 
 		loadData();
-	}, [filters]);
+	}, [filters, retryCount]);
 
 	// Handle filter changes
 	const handleApplyFilters = (newFilters) => {
 		setFilters(newFilters);
+	};
+
+	// Handle retry
+	const handleRetry = () => {
+		setRetryCount(prev => prev + 1);
 	};
 
 	// Prepare data for number distribution chart
@@ -214,6 +221,8 @@ const GameAnalyticsPanel = () => {
 					onApplyFilters={handleApplyFilters}
 					showDateRange={true}
 					showRoomFilter={true}
+					initialStartDate={filters.startDate}
+					initialEndDate={filters.endDate}
 				/>
 				<LoadingState type='skeleton' />
 			</div>
@@ -228,11 +237,13 @@ const GameAnalyticsPanel = () => {
 					onApplyFilters={handleApplyFilters}
 					showDateRange={true}
 					showRoomFilter={true}
+					initialStartDate={filters.startDate}
+					initialEndDate={filters.endDate}
 				/>
 				<ErrorState
 					message='Error al cargar los datos de análisis de juego'
 					details={error}
-					onRetry={() => handleApplyFilters(filters)}
+					onRetry={handleRetry}
 				/>
 			</div>
 		);
@@ -246,11 +257,13 @@ const GameAnalyticsPanel = () => {
 					onApplyFilters={handleApplyFilters}
 					showDateRange={true}
 					showRoomFilter={true}
+					initialStartDate={filters.startDate}
+					initialEndDate={filters.endDate}
 				/>
 				<ErrorState
 					message='No hay datos de análisis de juego disponibles'
 					details='Intente cambiar el rango de fechas o verifique la conexión.'
-					onRetry={() => handleApplyFilters(filters)}
+					onRetry={handleRetry}
 				/>
 			</div>
 		);
@@ -262,6 +275,8 @@ const GameAnalyticsPanel = () => {
 				onApplyFilters={handleApplyFilters}
 				showDateRange={true}
 				showRoomFilter={true}
+				initialStartDate={filters.startDate}
+				initialEndDate={filters.endDate}
 			/>
 
 			{/* KPI Cards */}

@@ -24,7 +24,18 @@ const useReports = () => {
 			return response;
 		} catch (error) {
 			console.error('Error checking service health:', error);
-			toast.error('Error al verificar el servicio de reportes');
+			// Intentar obtener el mensaje de error de la API
+			const apiMessage =
+				error.response?.data?.message ||
+				error.response?.data?.error ||
+				error.response?.data?.detail ||
+				error.response?.data;
+
+			if (apiMessage && typeof apiMessage === 'string') {
+				toast.error(apiMessage);
+			} else {
+				toast.error('Error al verificar el servicio de reportes');
+			}
 			setHealthStatus(null);
 			return null;
 		} finally {
@@ -83,39 +94,55 @@ const useReports = () => {
 			toast.dismiss('generating');
 			// NOTA: Si totalRecords es null, es probable que sea por restricciones CORS
 			// El backend debe exponer los headers con Access-Control-Expose-Headers
-			const recordsMessage = result.totalRecords 
-				? `(${result.totalRecords} registros)` 
+			const recordsMessage = result.totalRecords
+				? `(${result.totalRecords} registros)`
 				: '';
-			toast.success(
-				`Reporte generado exitosamente ${recordsMessage}`
-			);
+			toast.success(`Reporte generado exitosamente ${recordsMessage}`);
 			return true;
 		} catch (error) {
 			console.error('Error generating report:', error);
 			toast.dismiss('generating');
 
+			console.log(error.message, error.status);
+
 			// Manejar errores específicos
 			if (error.response) {
-				switch (error.response.status) {
-					case 400:
-						toast.error('Datos de solicitud inválidos');
-						break;
-					case 401:
-						toast.error('Sesión expirada. Por favor, inicia sesión nuevamente');
-						break;
-					case 403:
-						toast.error('No tienes permisos para generar reportes');
-						break;
-					case 404:
-						toast.warning(
-							'No se encontraron datos para el período especificado'
-						);
-						break;
-					case 500:
-						toast.error('Error en el servidor. Por favor, intenta más tarde');
-						break;
-					default:
-						toast.error(error.message || 'Error al generar el reporte');
+				// Intentar obtener el mensaje de error de la API
+				const apiMessage =
+					error.response.data?.message ||
+					error.response.data?.error ||
+					error.response.data?.detail ||
+					error.response.data;
+
+				// Si hay un mensaje de la API, usarlo
+				if (apiMessage && typeof apiMessage === 'string') {
+					toast.error(apiMessage);
+				} else {
+					// Fallback a mensajes por código de estado
+
+					switch (error.response.status) {
+						case 400:
+							toast.error('Datos de solicitud inválidos');
+							break;
+						case 401:
+							toast.error(
+								'Sesión expirada. Por favor, inicia sesión nuevamente'
+							);
+							break;
+						case 403:
+							toast.error('No tienes permisos para generar reportes');
+							break;
+						case 404:
+							toast.warning(
+								'No se encontraron datos para el período especificado'
+							);
+							break;
+						case 500:
+							toast.error('Error en el servidor. Por favor, intenta más tarde');
+							break;
+						default:
+							toast.error(error.message || 'Error al generar el reporte');
+					}
 				}
 			} else {
 				toast.error('Error de conexión. Verifica tu conexión a internet');

@@ -117,10 +117,12 @@ const RoomPerformancePanel = () => {
 	const [roomData, setRoomData] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
+	const [retryCount, setRetryCount] = useState(0);
 	const [filters, setFilters] = useState({
 		startDate: (() => {
 			const date = new Date();
-			date.setDate(date.getDate() - 7);
+			date.setMonth(date.getMonth() - 1);
+			date.setHours(0, 0, 0, 0);
 			return date;
 		})(),
 		endDate: new Date(),
@@ -160,11 +162,16 @@ const RoomPerformancePanel = () => {
 		};
 
 		loadData();
-	}, [filters]);
+	}, [filters, retryCount]);
 
 	// Handle filter changes
 	const handleApplyFilters = (newFilters) => {
 		setFilters(newFilters);
+	};
+
+	// Handle retry
+	const handleRetry = () => {
+		setRetryCount(prev => prev + 1);
 	};
 
 	// If loading, show loading state
@@ -175,6 +182,8 @@ const RoomPerformancePanel = () => {
 					onApplyFilters={handleApplyFilters}
 					showDateRange={true}
 					showRoomFilter={true}
+					initialStartDate={filters.startDate}
+					initialEndDate={filters.endDate}
 				/>
 				<LoadingState type='skeleton' />
 			</div>
@@ -189,11 +198,13 @@ const RoomPerformancePanel = () => {
 					onApplyFilters={handleApplyFilters}
 					showDateRange={true}
 					showRoomFilter={true}
+					initialStartDate={filters.startDate}
+					initialEndDate={filters.endDate}
 				/>
 				<ErrorState
 					message='Error al cargar los datos de rendimiento de salas'
 					details={error}
-					onRetry={() => handleApplyFilters(filters)}
+					onRetry={handleRetry}
 				/>
 			</div>
 		);
@@ -207,11 +218,13 @@ const RoomPerformancePanel = () => {
 					onApplyFilters={handleApplyFilters}
 					showDateRange={true}
 					showRoomFilter={true}
+					initialStartDate={filters.startDate}
+					initialEndDate={filters.endDate}
 				/>
 				<ErrorState
 					message='No hay datos de rendimiento de salas disponibles'
 					details='Intente cambiar el rango de fechas o verifique la conexión.'
-					onRetry={() => handleApplyFilters(filters)}
+					onRetry={handleRetry}
 				/>
 			</div>
 		);
@@ -223,6 +236,8 @@ const RoomPerformancePanel = () => {
 				onApplyFilters={handleApplyFilters}
 				showDateRange={true}
 				showRoomFilter={true}
+				initialStartDate={filters.startDate}
+				initialEndDate={filters.endDate}
 			/>
 
 			{/* KPI Cards */}

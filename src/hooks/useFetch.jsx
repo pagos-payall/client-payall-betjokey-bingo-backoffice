@@ -2,6 +2,7 @@ import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import useUser from './useUser';
 import instance from '@/config/axiosConfig.js';
+import { processApiError, formatErrorForToast } from '@/utils/errorHandler';
 
 // Constantes para códigos de estado HTTP
 const HTTP_STATUS = {
@@ -30,7 +31,7 @@ class FetchError extends Error {
 }
 
 export default function useFetch() {
-	const { logout, refreshToken, username, isLogged, isExpired } = useUser();
+	const { logout, isLogged, isExpired } = useUser();
 	const router = useRouter();
 
 	/**
@@ -42,41 +43,28 @@ export default function useFetch() {
 	const handleErrorByStatus = async (status, originalError) => {
 		switch (status) {
 			case HTTP_STATUS.TOKEN_EXPIRED: {
-				try {
-					await instance({
-						method: 'put',
-						url: '/auth/logout',
-						data: { username },
-					});
-				} catch (logoutError) {
-					console.error('Error during logout:', logoutError);
-				}
-				// Ejecutar logout y lanzar error apropiado
-				logout();
+				// Token expired errors are now handled by axios interceptor
+				// which will automatically retry after refresh
 				throw new FetchError('Token expirado', status, originalError);
 			}
 
 			case HTTP_STATUS.UNAUTHORIZED: {
-				// Ejecutar logout y lanzar error apropiado
-				logout();
+				// 401 errors are handled by axios interceptor
+				// Only logout if refresh also failed
+				if (originalError?.config?._retry) {
+					// Refresh already failed, do logout
+					logout();
+				}
 				throw new FetchError('No autorizado', status, originalError);
 			}
 
 			case HTTP_STATUS.FORBIDDEN: {
-				// Intentar refresh token
-				try {
-					await refreshToken(true);
-					// Si el refresh es exitoso, podríamos reintentar la petición original
-					// Por ahora, lanzamos el error para mantener compatibilidad
-					throw new FetchError(
-						'Acceso prohibido - Token actualizado',
-						status,
-						originalError
-					);
-				} catch (refreshError) {
-					// Si el refresh falla, lanzar error
-					throw new FetchError('Acceso prohibido', status, originalError);
-				}
+				// 403 can mean token expired - trigger token status update
+				console.log('🚫 403 Forbidden received in useFetch');
+
+				// The axios interceptor will handle updating token status
+				// Just throw the error to be handled by the component
+				throw new FetchError('Sesión expirada', status, originalError);
 			}
 
 			case HTTP_STATUS.NOT_MODIFIED: {
@@ -103,12 +91,19 @@ export default function useFetch() {
 	 * @returns {string} Mensaje de error formateado
 	 */
 	const extractErrorMessage = (errorData) => {
+
 		// Manejo específico para status 304
 		if (errorData?.response?.status === HTTP_STATUS.NOT_MODIFIED) {
 			return ERROR_MESSAGES.SESSION_ACTIVE;
 		}
 
-		// Intentar extraer mensaje de diferentes fuentes
+		// Try to process structured API errors first
+		const processedError = processApiError(errorData);
+		if (processedError.code !== 'UNKNOWN_ERROR') {
+			return formatErrorForToast(processedError);
+		}
+
+		// Fallback to generic error extraction
 		const message =
 			errorData?.response?.data?.error ||
 			errorData?.response?.data?.message ||
@@ -174,17 +169,13 @@ export default function useFetch() {
 		notification = true,
 		auth = false
 	) => {
-
 		// Validación de usuario autenticado
 		if (!isLogged && !isExpired && method !== 'head' && !auth) {
 			router.push('/login');
 			throw new FetchError('Usuario no autenticado', 401, null);
 		}
 
-		// Si el token está expirado, no hacer peticiones (excepto auth)
-		if (isExpired && method !== 'head' && !auth) {
-			throw new FetchError('Token expirado, refresh requerido', 401, null);
-		}
+		// Token refresh will be handled by RefreshModal and TokenStatusWatcher
 
 		// Configuración de la petición
 		const requestConfig = {

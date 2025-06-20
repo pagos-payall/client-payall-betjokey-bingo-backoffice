@@ -7,7 +7,6 @@ import RoomsContext from '@/context/rooms/RoomsContext';
 import {
 	deleteIcon,
 	editIcon,
-	archiveIcon,
 	unarchiveIcon,
 	toggle_on,
 	toggle_off,
@@ -15,6 +14,7 @@ import {
 import useUser from '@/hooks/useUser';
 import useFetch from '@/hooks/useFetch';
 import AlertConfirmModal from './modals/AlertConfirmModal';
+import { roomService } from '@/services/roomService';
 
 const UpdateFormHeader = ({
 	name,
@@ -23,15 +23,16 @@ const UpdateFormHeader = ({
 	rol,
 	setUpdateMode,
 	updateMode,
+	room,
 }) => {
 	const { getRooms, getUsers } = useContext(RoomsContext);
-	const { username, level, hasPermission } = useUser();
+	const { username, hasPermission } = useUser();
 	const { fetchAPICall } = useFetch();
 	const router = useRouter();
 	const path = usePathname();
 	const user_or_room = path.includes('user');
-	const url = user_or_room ? '/backOffice' : 'bingo/rooms';
-	const fetchMethod = user_or_room ? 'patch' : 'put';
+	const url = '/backOffice';
+	const fetchMethod = 'patch';
 	const modalTitleB = `¿Estás seguro que deseas borrar ${
 		user_or_room ? 'el usuario' : 'la sala'
 	}?`;
@@ -39,9 +40,6 @@ const UpdateFormHeader = ({
 		user_or_room ? 'o' : 'a'
 	} no podrás recuperarl${user_or_room ? 'o' : 'a'}!`;
 
-	const modalTitleA = `¿Estás seguro que deseas ${
-		$status !== 'archive' ? 'archivar' : 'desarchivar'
-	} ${user_or_room ? 'el usuario' : 'la sala'}?`;
 
 	const [confirmModal, setConfirmModal] = useState(false);
 	const [modalContent, setModelContent] = useState({
@@ -54,41 +52,67 @@ const UpdateFormHeader = ({
 	const [func, setFunc] = useState(() => {});
 
 	const handleSetUpdate = () => {
-		if (user_or_room === false && $status === 'active')
-			toast('La sala esta activa sus datos no pueden ser editados');
+		// Para salas, validar que solo se pueda editar si está DISPONIBLE o ARCHIVADA
+		if (!user_or_room) {
+			// Solo permitir edición si está archivada o es active sin juego (DISPONIBLE)
+			const canEdit = $status === 'archive' || ($status === 'active' && !room?.game);
+			
+			if (!canEdit) {
+				toast.error('Solo se puede editar salas disponibles o archivadas');
+				return;
+			}
+		}
+		
 		setUpdateMode((value) => {
-			return !value;
+			const newValue = !value;
+			toast.info(newValue ? 'Modo de edición activo' : 'Modo de edición desactivado');
+			return newValue;
 		});
-
-		if (updateMode) toast('Modo de edicion desactivado');
-		else toast('Modo de edicion activo');
 	};
 
-	const handleAction = (operation) => {
-		if ($status === 'archive' && operation === 'archive')
-			operation = 'unarchive';
+	const handleAction = async (operation) => {
+		try {
+			let apiConfig;
 
-		const values = {
-			operatorName: username,
-			operation,
-		};
-
-		path.includes('user')
-			? (values['username'] = name)
-			: (values['room_id'] = codigo);
-
-		const method = fetchMethod;
-		const thenFunction = () => {
 			if (!path.includes('user')) {
+				// Room operations using roomService
+				switch (operation) {
+					case 'archive':
+						apiConfig = await roomService.archiveRoom(codigo, username);
+						break;
+					case 'unarchive':
+						apiConfig = await roomService.unarchiveRoom(codigo, username);
+						break;
+					case 'disable':
+						apiConfig = await roomService.scheduleDeactivation(codigo, username);
+						break;
+					case 'active':
+						apiConfig = await roomService.updateRoomState(codigo, 'active');
+						break;
+					case 'delete':
+						apiConfig = await roomService.deleteRoom(codigo, username);
+						break;
+					default:
+						apiConfig = await roomService.legacyOperation(codigo, operation, username);
+						break;
+				}
+				await fetchAPICall(apiConfig.url, apiConfig.method, apiConfig.data);
 				getRooms();
 				router.push('/dashboard');
 			} else {
+				// User operations
+				const values = {
+					operatorName: username,
+					operation,
+					username: name
+				};
+				await fetchAPICall(url, fetchMethod, values);
 				getUsers();
 				router.push('/usersManagerView/historyLog');
 			}
-		};
-
-		fetchAPICall(url, method, values).then(thenFunction);
+		} catch (error) {
+			console.error('Action failed:', error);
+		}
 	};
 
 	return (
@@ -109,7 +133,7 @@ const UpdateFormHeader = ({
 
 			{name + (codigo ? ' - ' + codigo : '')}
 			<StatusLight $status={$status} size={12.5} />
-			{hasPermission('delete', user_or_room ? 'users' : 'rooms') && rol !== 'admin' && (
+			{hasPermission('delete', user_or_room ? 'users' : 'rooms') && (
 				<>
 					<div
 						style={{
@@ -133,26 +157,29 @@ const UpdateFormHeader = ({
 						/>
 						<p>Borrar</p>
 					</div>
-					<div
-						style={{
-							display: 'flex',
-							flexDirection: 'column',
-							alignItems: 'center',
-						}}
-					>
-						<IconComponent
-							url={$status !== 'archive' ? archiveIcon : unarchiveIcon}
-							size={20}
-							onClick={() => {
-								setConfirmModal(true);
-								setModelContent(() => ({
-									type: 'archive',
-									title: modalTitleA,
-								}));
+					{$status === 'archive' && (
+						<div
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								alignItems: 'center',
 							}}
-						/>
-						<p>{$status !== 'archive' ? 'Archivar' : 'Desarchivar'}</p>
-					</div>
+						>
+							<IconComponent
+								url={unarchiveIcon}
+								size={20}
+								onClick={() => {
+									setConfirmModal(true);
+									setModelContent(() => ({
+										type: 'unarchive',
+										title: '¿Estás seguro que deseas desarchivar la sala?',
+										confirmText: 'Desarchivar',
+									}));
+								}}
+							/>
+							<p>Desarchivar</p>
+						</div>
+					)}
 					<div
 						style={{
 							display: 'flex',
@@ -163,7 +190,7 @@ const UpdateFormHeader = ({
 						<IconComponent url={editIcon} size={20} onClick={handleSetUpdate} />
 						<p>{updateMode ? 'Desactivar edición' : 'Editar'}</p>
 					</div>
-					{($status === 'disable' || $status === 'active') && (
+					{($status === 'disable' || $status === 'active' || $status === 'waiting' || $status === 'off') && (
 						<div
 							style={{
 								display: 'flex',

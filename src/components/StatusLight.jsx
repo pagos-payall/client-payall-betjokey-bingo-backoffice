@@ -3,10 +3,10 @@ import { theme } from '../data/themes';
 
 const statusColors = {
 	active: theme.dark.colors.green,
-	archive: theme.dark.colors.yellow,
+	archive: theme.dark.colors.purple,
 	waiting: theme.dark.colors.yellow,
-	off: theme.dark.colors.gray,
-	disable: theme.dark.colors.purple,
+	off: theme.dark.colors.purple, // Usar purple para 'off' como DISPONIBLE
+	disable: theme.dark.colors.red,
 	blocked: theme.dark.colors.red,
 };
 
@@ -24,8 +24,6 @@ const CompStyle = styled.div`
 		${(props) => props.color || theme.dark.colors.transparent};
 `;
 
-const StatusLight = (props) => (
-	<CompStyle color={statusColors[props.$status]} {...props} />
-);
+const StatusLight = (props) => <CompStyle color={statusColors[props.$status] || props.$color} size={props.size} />;
 
 export default StatusLight;

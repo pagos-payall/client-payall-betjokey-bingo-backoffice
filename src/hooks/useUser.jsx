@@ -55,20 +55,29 @@ export default function useUser() {
 		[setActUsername, setTokenStatus, router]
 	);
 
-	const refreshToken = useCallback(async () => {
+	const refreshToken = useCallback(async (forceRefresh = true) => {
 		setIsValidating(true);
 		try {
-			const response = await axios.head('/auth');
-			if (response.data.success) {
-				setTokenStatus(true);
-				return { success: true };
+			if (forceRefresh) {
+				const response = await axios.head('/auth');
+				if (response.data.success) {
+					setTokenStatus(true);
+					return { success: true };
+				} else {
+					throw new Error('Token refresh failed');
+				}
 			} else {
-				throw new Error('Token refresh failed');
+				// Solo marcar como expirado sin hacer refresh
+				setTokenStatus(false);
+				return { success: false };
 			}
 		} catch (error) {
 			console.error('Token refresh failed:', error);
 			setTokenStatus(false);
-			router.push('/login');
+			// Solo redirigir si forceRefresh es true
+			if (forceRefresh) {
+				router.push('/login');
+			}
 			return { success: false, error: error.message };
 		} finally {
 			setIsValidating(false);
@@ -90,6 +99,17 @@ export default function useUser() {
 		(action, resource) => {
 			if (!level) return false;
 
+			// Map common action aliases to actual permissions
+			const actionMapping = {
+				edit: 'update',
+				modify: 'update',
+				remove: 'delete',
+				view: 'read',
+			};
+
+			// Use mapped action or original if no mapping exists
+			const actualAction = actionMapping[action] || action;
+
 			const rolePermissions = {
 				admin: ['create', 'read', 'update', 'delete', 'archive'],
 				supervisor: ['create', 'read', 'update'],
@@ -97,7 +117,7 @@ export default function useUser() {
 				operador: ['read'],
 			};
 
-			return rolePermissions[level]?.includes(action) || false;
+			return rolePermissions[level]?.includes(actualAction) || false;
 		},
 		[level]
 	);

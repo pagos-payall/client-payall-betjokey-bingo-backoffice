@@ -132,10 +132,12 @@ const UserMetricsPanel = () => {
 	const [userData, setUserData] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
+	const [retryCount, setRetryCount] = useState(0);
 	const [filters, setFilters] = useState({
 		startDate: (() => {
 			const date = new Date();
-			date.setDate(date.getDate() - 7);
+			date.setMonth(date.getMonth() - 1);
+			date.setHours(0, 0, 0, 0);
 			return date;
 		})(),
 		endDate: new Date(),
@@ -175,7 +177,7 @@ const UserMetricsPanel = () => {
 		};
 
 		loadData();
-	}, [filters]);
+	}, [filters, retryCount]);
 
 	// Handle filter changes
 	const handleApplyFilters = (newFilters) => {
@@ -183,6 +185,11 @@ const UserMetricsPanel = () => {
 			...newFilters,
 			interval: newFilters.granularity || 'hour',
 		});
+	};
+
+	// Handle retry
+	const handleRetry = () => {
+		setRetryCount(prev => prev + 1);
 	};
 
 	// Find the maximum value in the heatmap for scaling
@@ -212,6 +219,8 @@ const UserMetricsPanel = () => {
 					onApplyFilters={handleApplyFilters}
 					showDateRange={true}
 					showGranularity={true}
+					initialStartDate={filters.startDate}
+					initialEndDate={filters.endDate}
 				/>
 				<LoadingState type='skeleton' />
 			</div>
@@ -226,11 +235,13 @@ const UserMetricsPanel = () => {
 					onApplyFilters={handleApplyFilters}
 					showDateRange={true}
 					showGranularity={true}
+					initialStartDate={filters.startDate}
+					initialEndDate={filters.endDate}
 				/>
 				<ErrorState
 					message='Error al cargar los datos de usuarios'
 					details={error}
-					onRetry={() => handleApplyFilters(filters)}
+					onRetry={handleRetry}
 				/>
 			</div>
 		);
@@ -244,11 +255,13 @@ const UserMetricsPanel = () => {
 					onApplyFilters={handleApplyFilters}
 					showDateRange={true}
 					showGranularity={true}
+					initialStartDate={filters.startDate}
+					initialEndDate={filters.endDate}
 				/>
 				<ErrorState
 					message='No hay datos de usuarios disponibles'
 					details='Intente cambiar el rango de fechas o verifique la conexión.'
-					onRetry={() => handleApplyFilters(filters)}
+					onRetry={handleRetry}
 				/>
 			</div>
 		);
@@ -270,6 +283,8 @@ const UserMetricsPanel = () => {
 				onApplyFilters={handleApplyFilters}
 				showDateRange={true}
 				showGranularity={true}
+				initialStartDate={filters.startDate}
+				initialEndDate={filters.endDate}
 			/>
 
 			{/* KPI Cards */}

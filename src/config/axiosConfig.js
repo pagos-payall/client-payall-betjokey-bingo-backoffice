@@ -39,17 +39,58 @@ instance.interceptors.response.use(
 		return response;
 	},
 	async (error) => {
-		// For 401 errors, don't auto-refresh - let the modal handle it
-		if (error.response?.status === 401) {
-			console.log('🔑 401 detected, letting modal handle refresh');
-			// Don't redirect automatically, let RefreshModal handle this
+		const originalRequest = error.config;
+
+		// Log structured errors for debugging
+		if (error.response?.data?.data?.code) {
+			console.log('🚨 API Error:', {
+				code: error.response.data.data.code,
+				message: error.response.data.error,
+				restrictions: error.response.data.data.restrictions,
+			});
+		}
+
+		// Handle 401 errors with automatic retry (but not for auth endpoints)
+		if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url.includes('/auth')) {
+			console.log('🔑 401 detected, attempting token refresh');
+			originalRequest._retry = true;
+
+			// For now, just reject to avoid circular dependency
+			// The RefreshModal will handle the token refresh
 			return Promise.reject(error);
 		}
 
-		// For 403 errors, just log and let component handle it
-		if (error.response?.status === 403) {
-			console.error('Access denied:', error.response.data?.message);
-			// Don't redirect automatically - let components handle 403 errors
+		// Handle 498 Token Expired errors (but not for auth endpoints)
+		if (error.response?.status === 498 && !originalRequest._retry && !originalRequest.url.includes('/auth')) {
+			console.log('⏰ 498 Token expired, attempting refresh');
+			originalRequest._retry = true;
+
+			// For now, just reject to avoid circular dependency
+			// The RefreshModal will handle the token refresh
+			return Promise.reject(error);
+		}
+
+		// Handle 403 errors - often means token is expired
+		if (error.response?.status === 403 && !originalRequest._retry && !originalRequest.url.includes('/auth')) {
+			console.log('🚫 403 Forbidden - Token may be expired');
+			originalRequest._retry = true;
+			
+			// Import tokenManager dynamically to avoid circular dependency
+			import('@/services/tokenManager').then(({ default: tokenManager }) => {
+				// Notify token manager that token is expired
+				tokenManager.notifySubscribers({ status: 'expired' });
+			});
+			
+			// Also update the meta tag
+			const tokenStatusMeta = document.querySelector('meta[name="token-status"]');
+			if (tokenStatusMeta) {
+				tokenStatusMeta.setAttribute('content', 'expired');
+			}
+			
+			// Dispatch a custom event to notify TokenStatusWatcher
+			window.dispatchEvent(new Event('token-expired'));
+			
+			return Promise.reject(error);
 		}
 
 		return Promise.reject(error);

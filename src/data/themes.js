@@ -26,6 +26,9 @@ export const theme = {
 			yellow: '#F2AF5C',
 			purple: '#884dff',
 			transparent: 'rgba(110,110,110,0.75)',
+			gray: '#808080',
+			blue: '#007BFF',
+			text: '#FFFFFF',
 		},
 		filters: {
 			green:

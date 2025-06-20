@@ -1,43 +1,43 @@
-'use client'
-import { useReducer } from 'react'
-import RoomsContext from './RoomsContext'
-import RoomsReducer from './RoomsReducer'
-import useFetch from '@/hooks/useFetch'
-import useUser from '@/hooks/useUser'
+'use client';
+import { useReducer } from 'react';
+import RoomsContext from './RoomsContext';
+import RoomsReducer from './RoomsReducer';
+import useFetch from '@/hooks/useFetch';
+import useUser from '@/hooks/useUser';
 
 const RoomsState = ({ children }) => {
-	const { fetchAPICall } = useFetch()
-	const { level } = useUser()
+	const { fetchAPICall } = useFetch();
+	const { level } = useUser();
 	const initialState = {
 		rooms: [],
 		users: [],
-	}
-	const [state, dispatch] = useReducer(RoomsReducer, initialState)
+	};
+	const [state, dispatch] = useReducer(RoomsReducer, initialState);
 
 	const getRooms = async (notification) => {
-		let response
-		let boolean = notification ? notification : false
+		let response;
+		let boolean = notification ? notification : false;
 
 		try {
 			response = await fetchAPICall(
-				'bingo/rooms',
+				'/bingo/rooms',
 				'get',
 				undefined,
 				boolean
-			).then((data) => data.result.reverse())
+			).then((data) => data.result.reverse());
 		} catch (error) {
-			response = []
+			response = [];
 		}
 
 		dispatch({
 			type: 'GET_ROOMS',
 			payload: response,
-		})
-	}
+		});
+	};
 
 	const getUsers = async (notification) => {
-		let response
-		let boolean = notification ? notification : false
+		let response;
+		let boolean = notification ? notification : false;
 
 		try {
 			response = await fetchAPICall(
@@ -45,33 +45,33 @@ const RoomsState = ({ children }) => {
 				'get',
 				undefined,
 				boolean
-			).then((data) => data.result.reverse())
+			).then((data) => data.result.reverse());
 
 			if (level !== 'admin')
-				response = response.filter((user) => user.role !== 'admin')
+				response = response.filter((user) => user.role !== 'admin');
 		} catch (error) {
-			response = []
+			response = [];
 		}
 
 		dispatch({
 			type: 'GET_USERS',
 			payload: response,
-		})
-	}
+		});
+	};
 
 	const setRooms = (data) => {
 		dispatch({
 			type: 'GET_ROOMS',
 			payload: data,
-		})
-	}
+		});
+	};
 
 	const setUsers = async (data) => {
 		dispatch({
 			type: 'GET_USERS',
 			payload: data,
-		})
-	}
+		});
+	};
 
 	return (
 		<RoomsContext.Provider
@@ -86,7 +86,7 @@ const RoomsState = ({ children }) => {
 		>
 			{children}
 		</RoomsContext.Provider>
-	)
-}
+	);
+};
 
-export default RoomsState
+export default RoomsState;

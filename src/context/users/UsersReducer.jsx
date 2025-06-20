@@ -33,6 +33,8 @@ const UsersReducer = (state, action) => {
 					password: payload.password,
 				},
 			}
+		default:
+			return state
 	}
 }
 

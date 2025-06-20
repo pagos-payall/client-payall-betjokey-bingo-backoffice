@@ -85,10 +85,22 @@ const FilterControls = ({
 	showGranularity = false,
 	showRoomFilter = false,
 	dateFormat = 'YYYY-MM-DD',
+	initialStartDate,
+	initialEndDate,
 }) => {
-	// Default to 30 days ago for start date
-	const defaultStartDate = new Date();
-	defaultStartDate.setDate(defaultStartDate.getDate() - 30);
+	// Default to 1 month ago for start date
+	const getDefaultStartDate = () => {
+		if (initialStartDate) return initialStartDate;
+		const date = new Date();
+		date.setMonth(date.getMonth() - 1);
+		date.setHours(0, 0, 0, 0);
+		return date;
+	};
+	
+	const getDefaultEndDate = () => {
+		if (initialEndDate) return initialEndDate;
+		return new Date();
+	};
 
 	// Format date to YYYY-MM-DD for input fields
 	const formatDateForInput = (date) => {
@@ -100,9 +112,9 @@ const FilterControls = ({
 
 	// State for filter values
 	const [startDate, setStartDate] = useState(
-		formatDateForInput(defaultStartDate)
+		formatDateForInput(getDefaultStartDate())
 	);
-	const [endDate, setEndDate] = useState(formatDateForInput(new Date()));
+	const [endDate, setEndDate] = useState(formatDateForInput(getDefaultEndDate()));
 	const [granularity, setGranularity] = useState('day');
 	const [roomId, setRoomId] = useState('');
 

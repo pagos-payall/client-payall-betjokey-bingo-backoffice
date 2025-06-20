@@ -1,3 +1,4 @@
+import TestComponents from '@/app/test-components/page';
 import axios from '@/config/axiosConfig';
 
 const reportsService = {
@@ -77,14 +78,20 @@ const reportsService = {
 			// Si la respuesta es un blob de error, convertirlo a texto
 			if (error.response && error.response.data instanceof Blob) {
 				const text = await error.response.data.text();
-				try {
-					const errorData = JSON.parse(text);
-					throw new Error(errorData.message || 'Error al generar el reporte');
-				} catch {
-					throw new Error('Error al generar el reporte');
-				}
+
+				const errorData = JSON.parse(text);
+
+				// Crear un nuevo error con la estructura esperada
+				const customError = new Error(
+					errorData.message || errorData.error || 'Error al generar el reporte'
+				);
+				customError.response = {
+					...error.response,
+					data: errorData,
+				};
+
+				throw customError;
 			}
-			throw error;
 		}
 	},
 
@@ -175,14 +182,30 @@ const reportsService = {
 
 			if (!response.ok) {
 				const contentType = response.headers.get('content-type');
-				if (contentType && contentType.includes('application/json')) {
-					const errorData = await response.json();
-					throw new Error(
-						errorData.message || `Error HTTP: ${response.status}`
-					);
-				} else {
-					throw new Error(`Error HTTP: ${response.status}`);
+				let errorMessage = `Error HTTP: ${response.status}`;
+
+				try {
+					if (contentType && contentType.includes('application/json')) {
+						const errorData = await response.json();
+						errorMessage = errorData.message || errorData.error || errorMessage;
+					} else {
+						// Intentar leer como texto
+						const errorText = await response.text();
+						if (errorText) {
+							errorMessage = errorText;
+						}
+					}
+				} catch (parseError) {
+					// Si falla el parseo, usar el mensaje por defecto
+					console.error('Error parsing error response:', parseError);
 				}
+
+				const customError = new Error(errorMessage);
+				customError.response = {
+					status: response.status,
+					data: { message: errorMessage },
+				};
+				throw customError;
 			}
 
 			// Extraer headers antes de consumir el body

@@ -13,8 +13,8 @@ import FormikInputValue, { Input } from '@/components/FormikInputValue';
 import SubHeaderBar from '@/components/SubHeaderBar';
 import LoadingCircle from '@/components/LoadingCircle';
 import { isoShortDate } from '@/services/getISODate';
-import UpdateFormHeader from '@/components/UpdateFormHeader';
-import JuegoAsociado from '@/components/dashboard/JuegoAsociado';
+import UpdateFormHeaderEnhanced from '@/components/UpdateFormHeaderEnhanced';
+import { roomService } from '@/services/roomService';
 import {
 	FormDiv,
 	FieldsContainer,
@@ -47,6 +47,8 @@ export default function RoomForm() {
 		status: '',
 		createAt: '',
 		ref: '',
+		game: null,
+		users: null,
 	});
 	let fields = {
 		host_username: 'test',
@@ -65,7 +67,7 @@ export default function RoomForm() {
 		porcen_premio_asignado_linea: 30,
 	};
 
-	function handleSubmit(values, setSubmitting, resetForm) {
+	async function handleSubmit(values, setSubmitting, resetForm) {
 		let method = 'post';
 		const formValues = values;
 
@@ -100,7 +102,14 @@ export default function RoomForm() {
 
 		values['operatorName'] = username;
 
-		fetchAPICall('bingo/rooms', method, values).then(() => {
+		let apiConfig;
+		if (method === 'post') {
+			apiConfig = await roomService.createRoom(values);
+		} else {
+			apiConfig = await roomService.updateRoom(values.room_id, values);
+		}
+
+		fetchAPICall(apiConfig.url, apiConfig.method, apiConfig.data).then(() => {
 			setSubmitting(false);
 			getRooms();
 			if (!updateView) resetForm();
@@ -134,10 +143,12 @@ export default function RoomForm() {
 		} else {
 			for (const key of searchParams.keys()) {
 				const data = JSON.parse(key);
+				console.log('Room data received:', data);
 				const array = Object.entries(data);
 
 				array.forEach((entrie) => {
 					const [key, value] = entrie;
+					console.log('Processing entry:', key, value);
 
 					if (Array.isArray(value)) {
 						const obj = new Object();
@@ -156,15 +167,42 @@ export default function RoomForm() {
 						setInitialValues((oldValues) => ({ ...oldValues, ...obj }));
 					}
 
-					if (salaData[key] !== undefined) {
+					if (
+						salaData[key] !== undefined ||
+						key === 'game' ||
+						key === 'users'
+					) {
 						const obj = new Object();
 						obj[key] = value;
-						return setSalaData((oldValues) => ({ ...oldValues, ...obj }));
+
+						console.log('obj', obj);
+
+						setSalaData((oldValues) => ({ ...oldValues, ...obj }));
 					}
 					if (fields[key] === undefined && typeof value !== 'object') return;
-					if (typeof value === 'object') {
-						const array_2 = Object.entries(value);
+					if (typeof value === 'object' && !Array.isArray(value)) {
+						// Special handling for game object
+						if (key === 'game' && value) {
+							// Extract game fields that match our form fields
+							console.log('object game:', value);
 
+							const gameFields = [
+								'typeOfGame',
+								'card_price',
+								'play',
+								'min_value',
+							];
+							gameFields.forEach((field) => {
+								if (value[field] !== undefined) {
+									const obj = {};
+									obj[field] = value[field];
+									setInitialValues((oldValues) => ({ ...oldValues, ...obj }));
+								}
+							});
+							return;
+						}
+
+						const array_2 = Object.entries(value);
 						return array_2.forEach((entrie_2) => {
 							const [key_2, value_2] = entrie_2;
 
@@ -182,6 +220,17 @@ export default function RoomForm() {
 					setInitialValues((oldValues) => ({ ...oldValues, ...obj }));
 					setUpdateView(true);
 					setUpdateMode(false);
+				});
+
+				// Also check if game fields are at root level
+				const gameFields = ['typeOfGame', 'card_price', 'play', 'min_value'];
+				gameFields.forEach((field) => {
+					if (data[field] !== undefined && fields[field] !== undefined) {
+						setInitialValues((oldValues) => ({
+							...oldValues,
+							[field]: data[field],
+						}));
+					}
 				});
 			}
 		}
@@ -212,12 +261,13 @@ export default function RoomForm() {
 						{!updateView ? (
 							'Creación de Salas'
 						) : (
-							<UpdateFormHeader
+							<UpdateFormHeaderEnhanced
 								name={initialValues.room_name}
 								codigo={salaData.room_id}
 								$status={salaData.status}
 								updateMode={updateMode}
 								setUpdateMode={setUpdateMode}
+								room={salaData}
 							/>
 						)}
 					</SubHeaderBar>
@@ -412,7 +462,6 @@ export default function RoomForm() {
 											$validateField={() => validateField('min_value')}
 										/>
 									</FieldsContainer>
-									<JuegoAsociado value={updateView} $status={values.status} />
 									{!updateView ? (
 										<Button type='submit' color='green' icoUrl={addIcon}>
 											Crear Sala
