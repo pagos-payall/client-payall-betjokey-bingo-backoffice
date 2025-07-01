@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Informativo de Sala - Wireframe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #0a0a0a;
+            color: #ffffff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header con botones de acción */
+        .header {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 24px;
+        }
+
+        .room-title {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .room-name {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .room-code {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-edit {
+            background: #6366f1;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #5558dd;
+        }
+
+        .btn-deactivate {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-deactivate:hover {
+            background: #d97706;
+        }
+
+        /* Panel principal */
+        .main-panel {
+            background: #1a1a1a;
+            border-radius: 10px;
+            padding: 24px;
+        }
+
+        /* Card de estado */
+        .status-card {
+            background: #0f0f0f;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #10b981;
+        }
+
+        .status-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: #10b981;
+        }
+
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .status-active {
+            background: #10b981;
+            color: white;
+        }
+
+        .game-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #10b981;
+        }
+
+        .status-icon {
+            width: 20px;
+            height: 20px;
+            background: currentColor;
+            border-radius: 50%;
+        }
+
+        /* Alerta de desactivación pendiente */
+        .deactivation-alert {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+            padding: 12px 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .alert-icon {
+            color: #f59e0b;
+            font-size: 20px;
+        }
+
+        /* Grid de métricas */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background: #0f0f0f;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #333;
+        }
+
+        .metric-label {
+            color: #999;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .metric-subtitle {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .metric-trend {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: #10b981;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        /* Sección de requisitos */
+        .requirements-section {
+            background: #0f0f0f;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 1px solid #333;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #fff;
+        }
+
+        .progress-bar-container {
+            margin-bottom: 16px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .progress-label {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .progress-values {
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            background: #333;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            background: #10b981;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.warning {
+            background: #f59e0b;
+        }
+
+        .progress-fill.danger {
+            background: #ef4444;
+        }
+
+        /* Sección de configuración */
+        .config-section {
+            background: #0f0f0f;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #333;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .config-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .config-label {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .config-value {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Mini dashboard de estadísticas */
+        .stats-dashboard {
+            margin-top: 24px;
+            background: #0f0f0f;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #333;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #6366f1;
+        }
+
+        .stat-label {
+            color: #999;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        /* Responsividad */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header con navegación -->
+        <div class="header">
+            <div class="header-left">
+                <button class="back-button">←</button>
+                <div class="room-title">
+                    <h1 class="room-name">Sala Principal Bingo</h1>
+                    <span class="room-code">ID: ROOM-2025-001</span>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-edit">✏️ Editar Sala</button>
+                <button class="btn btn-deactivate">⚡ Desactivar</button>
+            </div>
+        </div>
+
+        <!-- Panel principal -->
+        <div class="main-panel">
+            <!-- Card de estado -->
+            <div class="status-card">
+                <div class="status-header">
+                    <div>
+                        <span class="status-badge status-active">
+                            <span class="status-icon"></span>
+                            PARTIDA ACTIVA
+                        </span>
+                    </div>
+                    <div class="game-status">
+                        <span>🎮 Juego en progreso</span>
+                        <span style="color: #999;">ID: GAME-456</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alerta de desactivación pendiente -->
+            <div class="deactivation-alert">
+                <span class="alert-icon">⏰</span>
+                <div>
+                    <strong>Desactivación programada</strong>
+                    <div style="font-size: 12px; margin-top: 4px;">
+                        La sala se desactivará automáticamente después del juego actual
+                        <br>Motivo: Mantenimiento programado - Solicitado por admin_user
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid de métricas principales -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Usuarios Conectados</div>
+                    <div class="metric-value">127</div>
+                    <div class="metric-subtitle">de 500 máximo</div>
+                    <div class="metric-trend">↑ 15% vs hora anterior</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Cartones Vendidos</div>
+                    <div class="metric-value">3,456</div>
+                    <div class="metric-subtitle">de 12,000 disponibles</div>
+                    <div class="metric-trend">28.8% vendidos</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Recaudación Actual</div>
+                    <div class="metric-value">$34,560</div>
+                    <div class="metric-subtitle">Precio: $10 por cartón</div>
+                    <div class="metric-trend">↑ $5,430 última hora</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Tiempo de Juego</div>
+                    <div class="metric-value">15:42</div>
+                    <div class="metric-subtitle">Iniciado hace 15 minutos</div>
+                    <div class="metric-trend">Promedio: 25 min</div>
+                </div>
+            </div>
+
+            <!-- Sección de requisitos mínimos -->
+            <div class="requirements-section">
+                <h3 class="section-title">📊 Requisitos Mínimos para Iniciar Partida</h3>
+                
+                <div class="progress-bar-container">
+                    <div class="progress-info">
+                        <span class="progress-label">Jugadores mínimos</span>
+                        <span class="progress-values">127 / 2</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <div class="progress-bar-container">
+                    <div class="progress-info">
+                        <span class="progress-label">Valor mínimo de venta</span>
+                        <span class="progress-values">$34,560 / $1,000</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuración de la sala -->
+            <div class="config-section">
+                <h3 class="section-title">⚙️ Configuración de la Sala</h3>
+                <div class="config-grid">
+                    <div class="config-item">
+                        <span class="config-label">Tipo de Juego</span>
+                        <span class="config-value">Series 12000</span>
+                    </div>
+                    <div class="config-item">
+                        <span class="config-label">Tipo de Jugada</span>
+                        <span class="config-value">Cartón - Serie</span>
+                    </div>
+                    <div class="config-item">
+                        <span class="config-label">Administrador</span>
+                        <span class="config-value">admin_user</span>
+                    </div>
+                    <div class="config-item">
+                        <span class="config-label">Creada</span>
+                        <span class="config-value">27/01/2025 10:30</span>
+                    </div>
+                    <div class="config-item">
+                        <span class="config-label">Comisión</span>
+                        <span class="config-value">50%</span>
+                    </div>
+                    <div class="config-item">
+                        <span class="config-label">Premios</span>
+                        <span class="config-value">30%</span>
+                    </div>
+                    <div class="config-item">
+                        <span class="config-label">Premios Especiales</span>
+                        <span class="config-value">20%</span>
+                    </div>
+                    <div class="config-item">
+                        <span class="config-label">Impuestos</span>
+                        <span class="config-value">IVA: 15%, Municipal: 5%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mini dashboard de estadísticas -->
+            <div class="stats-dashboard">
+                <h3 class="section-title">📈 Estadísticas del Día</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">Partidas Completadas</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">$125,430</div>
+                        <div class="stat-label">Recaudación Total</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">85</div>
+                        <div class="stat-label">Promedio Jugadores</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

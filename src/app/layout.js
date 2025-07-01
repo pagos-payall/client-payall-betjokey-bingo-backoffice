@@ -9,6 +9,7 @@ import LogoutTimer from '@/components/LogoutTimer'
 import TokenStatusWatcher from '@/components/TokenStatusWatcher'
 import InactivityWarning from '@/components/InactivityWarning'
 import { headers } from 'next/headers'
+import StyledComponentsProvider from '@/components/StyledComponentsProvider'
 
 const inter = Inter({ subsets: ['latin'] })
 export const metadata = {
@@ -28,14 +29,16 @@ export default function RootLayout({ children }) {
 				<meta name="token-expiry" content={tokenExpiry} />
 			</head>
 			<body className={inter.className}>
-				<UsersState>
-						<TokenStatusWatcher />
-						<LogoutTimer />
-						<InactivityWarning sessionTime={600000} />
-						<RefreshModal />
-						<Toastbox />
-						<RoomsState>{children}</RoomsState>
-				</UsersState>
+				<StyledComponentsProvider>
+					<UsersState>
+							<TokenStatusWatcher />
+							<LogoutTimer />
+							<InactivityWarning sessionTime={600000} />
+							<RefreshModal />
+							<Toastbox />
+							<RoomsState>{children}</RoomsState>
+					</UsersState>
+				</StyledComponentsProvider>
 			</body>
 		</html>
 	)

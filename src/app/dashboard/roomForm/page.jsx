@@ -26,6 +26,7 @@ import RoomsContext from '@/context/rooms/RoomsContext';
 import RewardsDistribution from '@/components/RewardsDistribution';
 import useUser from '@/hooks/useUser';
 import { validateNoLeftZero } from '@/services/utilFunctions';
+import RoomInfoPanel from '@/components/RoomInfoPanel';
 
 export default function RoomForm() {
 	const { getRooms } = useContext(RoomsContext);
@@ -271,6 +272,13 @@ export default function RoomForm() {
 							/>
 						)}
 					</SubHeaderBar>
+					{updateView && !updateMode ? (
+						<RoomInfoPanel 
+							room={salaData}
+							initialValues={initialValues}
+							onEditClick={() => setUpdateMode(true)}
+						/>
+					) : (
 					<div
 						style={{
 							background: theme.dark.background.secundary,
@@ -477,6 +485,7 @@ export default function RoomForm() {
 							)}
 						</Formik>
 					</div>
+					)}
 				</div>
 			)}
 		</Suspense>

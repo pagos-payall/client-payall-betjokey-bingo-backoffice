@@ -42,6 +42,7 @@
 		"yup": "^1.4.0"
 	},
 	"devDependencies": {
-		"@babel/plugin-proposal-do-expressions": "^7.24.7"
+		"@babel/plugin-proposal-do-expressions": "^7.24.7",
+		"babel-plugin-styled-components": "^2.1.4"
 	}
 }
