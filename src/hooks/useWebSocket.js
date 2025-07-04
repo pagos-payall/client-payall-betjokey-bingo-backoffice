@@ -347,6 +347,20 @@ export function useWebSocket(showToasts = false) {
         setLastUpdate(update);
       }
     };
+    
+    const handleRoomInfo = (roomInfo) => {
+      console.log(`🏠 [useWebSocket] ${instanceId.current} - handleRoomInfo:`, roomInfo);
+      
+      if (mountedRef.current && roomInfo) {
+        const update = {
+          type: 'room:info:update',
+          data: roomInfo,
+          timestamp: Date.now()
+        };
+        console.log('  - Setting lastUpdate with room info');
+        setLastUpdate(update);
+      }
+    };
 
     // Registrar event listeners
     websocketService.on('connected', handleConnected);
@@ -366,6 +380,7 @@ export function useWebSocket(showToasts = false) {
     websocketService.on('gameStateUpdated', handleGameStateUpdated);
     websocketService.on('cardsSoldUpdated', handleCardsSoldUpdated);
     websocketService.on('roomsList', handleRoomsList);
+    websocketService.on('roomInfo', handleRoomInfo);
 
     // Cleanup
     return () => {
@@ -389,6 +404,7 @@ export function useWebSocket(showToasts = false) {
       websocketService.off('gameStateUpdated', handleGameStateUpdated);
       websocketService.off('cardsSoldUpdated', handleCardsSoldUpdated);
       websocketService.off('roomsList', handleRoomsList);
+      websocketService.off('roomInfo', handleRoomInfo);
       
       // No desconectar aquí porque otros componentes pueden estar usando el servicio
     };
@@ -501,6 +517,7 @@ export function useWebSocket(showToasts = false) {
     deactivateRoom,
     scheduleDeactivation,
     getRoomsList,
+    getRoomInfo: websocketService.getRoomInfo.bind(websocketService),
     monitorRoom,
     unmonitorRoom,
     getRoomStatus,

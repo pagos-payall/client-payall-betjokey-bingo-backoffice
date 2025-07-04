@@ -210,6 +210,18 @@ class WebSocketService extends EventEmitter {
       console.log('  - Timestamp:', new Date().toISOString());
       this.emit('roomsList', rooms);
     });
+    
+    // Evento para información individual de sala
+    this.socket.on('server:roomInfo', (roomInfo) => {
+      console.log('🏠 [WebSocket] Información de sala recibida:', roomInfo);
+      if (roomInfo && roomInfo.host) {
+        console.log('  - Room Name:', roomInfo.host.name);
+        console.log('  - Room ID:', roomInfo.host.gameURI?.split('/').pop());
+        console.log('  - Users:', roomInfo.host.users?.length || 0);
+        console.log('  - Game Status:', roomInfo.game?.status);
+      }
+      this.emit('roomInfo', roomInfo);
+    });
 
     // Eventos de estado de juegos
     this.socket.on('game:state:updated', (data) => {
@@ -514,6 +526,39 @@ class WebSocketService extends EventEmitter {
           resolve(status);
         } else {
           reject(new Error('No se pudo obtener el estado de la sala'));
+        }
+      });
+    });
+  }
+  
+  getRoomInfo(roomId) {
+    return new Promise((resolve, reject) => {
+      if (!roomId) {
+        reject(new Error('roomId es requerido'));
+        return;
+      }
+      
+      if (!this.socket || !this.connected) {
+        reject(new Error('WebSocket no conectado'));
+        return;
+      }
+
+      console.log(`📋 [WebSocketService] getRoomInfo - Requesting info for room ${roomId}`);
+
+      const timeout = setTimeout(() => {
+        reject(new Error('Timeout obteniendo información de sala'));
+      }, 5000);
+
+      // Try server:getRoomInfo based on the log you provided
+      this.socket.emit('server:getRoomInfo', roomId, (response) => {
+        clearTimeout(timeout);
+        
+        console.log(`📥 [WebSocketService] getRoomInfo response:`, response);
+        
+        if (response) {
+          resolve(response);
+        } else {
+          reject(new Error('No se pudo obtener información de la sala'));
         }
       });
     });
