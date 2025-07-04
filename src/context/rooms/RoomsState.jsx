@@ -125,10 +125,22 @@ const RoomsState = ({ children }) => {
 					break;
 				
 				case 'game:state:updated':
-					// También refrescar en cambios de juego
-					console.log('🎮 [RoomsState] Game update detected:', update.type);
+				case 'cards:sold:updated':
+					// También refrescar en cambios de juego o venta de cartones
+					console.log('🎮 [RoomsState] Game/Cards update detected:', update.type);
 					console.log('  - Calling getRooms(true)...');
 					getRooms(true);
+					break;
+					
+				case 'rooms:list:full':
+					// Lista completa de salas recibida del WebSocket
+					console.log('📋 [RoomsState] Full rooms list received:', update.data.rooms?.length || 0, 'rooms');
+					if (update.data.rooms) {
+						dispatch({
+							type: 'GET_ROOMS',
+							payload: update.data.rooms
+						});
+					}
 					break;
 				
 				default:

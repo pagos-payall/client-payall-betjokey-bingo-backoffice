@@ -311,6 +311,43 @@ export function useWebSocket(showToasts = false) {
       }
     };
 
+    const handleCardsSoldUpdated = (data) => {
+      console.log(`💳 [useWebSocket] ${instanceId.current} - handleCardsSoldUpdated:`, data);
+      
+      if (mountedRef.current) {
+        const update = {
+          type: 'cards:sold:updated',
+          data,
+          timestamp: Date.now()
+        };
+        console.log('  - Setting lastUpdate:', update);
+        setLastUpdate(update);
+        
+        if (showToasts && data.cards?.sold) {
+          console.log(`🍞 [useWebSocket] ${instanceId.current} - Mostrando toast venta cartones`);
+          toast.info(`💳 Sala ${data.roomName || data.roomId}: ${data.cards.sold} cartones vendidos`, {
+            position: 'top-right',
+            autoClose: 3000,
+            toastId: `cards-sold-${data.roomId || data.room_id}-${Date.now()}`
+          });
+        }
+      }
+    };
+    
+    const handleRoomsList = (rooms) => {
+      console.log(`📋 [useWebSocket] ${instanceId.current} - handleRoomsList:`, rooms?.length || 0, 'salas');
+      
+      if (mountedRef.current && Array.isArray(rooms)) {
+        const update = {
+          type: 'rooms:list:full',
+          data: { rooms },
+          timestamp: Date.now()
+        };
+        console.log('  - Setting lastUpdate with full rooms data');
+        setLastUpdate(update);
+      }
+    };
+
     // Registrar event listeners
     websocketService.on('connected', handleConnected);
     websocketService.on('disconnected', handleDisconnected);
@@ -327,6 +364,8 @@ export function useWebSocket(showToasts = false) {
     websocketService.on('roomArchived', handleRoomArchived);
     websocketService.on('roomsListUpdated', handleRoomsListUpdated);
     websocketService.on('gameStateUpdated', handleGameStateUpdated);
+    websocketService.on('cardsSoldUpdated', handleCardsSoldUpdated);
+    websocketService.on('roomsList', handleRoomsList);
 
     // Cleanup
     return () => {
@@ -348,6 +387,8 @@ export function useWebSocket(showToasts = false) {
       websocketService.off('roomArchived', handleRoomArchived);
       websocketService.off('roomsListUpdated', handleRoomsListUpdated);
       websocketService.off('gameStateUpdated', handleGameStateUpdated);
+      websocketService.off('cardsSoldUpdated', handleCardsSoldUpdated);
+      websocketService.off('roomsList', handleRoomsList);
       
       // No desconectar aquí porque otros componentes pueden estar usando el servicio
     };

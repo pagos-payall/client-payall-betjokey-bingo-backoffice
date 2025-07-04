@@ -184,12 +184,10 @@ const SalaMenuCardEnhanced = ({ data, isScheduledForDeactivation = false }) => {
             <InfoValue>{data.host_username}</InfoValue>
           </InfoRow>
 
-          {data.game?.ref && (
-            <InfoRow>
-              <InfoLabel>Última actualización:</InfoLabel>
-              <InfoValue>{formatDate(data.updatedAt || data.createdAt)}</InfoValue>
-            </InfoRow>
-          )}
+          <InfoRow>
+            <InfoLabel>Última actualización:</InfoLabel>
+            <InfoValue>{formatDate(data.updatedAt || data.updated_at || data.createdAt || data.created_at || data.createAt)}</InfoValue>
+          </InfoRow>
         </InfoSection>
 
         {/* Game statistics if available */}

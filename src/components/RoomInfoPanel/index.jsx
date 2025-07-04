@@ -41,6 +41,7 @@ import Button from '@/components/Button';
 import { closeIcon } from '@/data/icons';
 import RoomStatsPanel from '@/components/RoomStatsPanel';
 import { useFormattedStatistics } from '@/hooks/useRoomStatistics';
+import { useWebSocketStatistics } from '@/hooks/useWebSocketStatistics';
 
 const RoomInfoPanel = ({ room, initialValues, onEditClick, onRoomUpdate }) => {
 	const { fetchAPICall } = useFetch();
@@ -66,22 +67,56 @@ const RoomInfoPanel = ({ room, initialValues, onEditClick, onRoomUpdate }) => {
 
 	const statusInfo = getStatusMapping(room.status);
 
-	// Get statistics from API
-	const { statistics, loading: statsLoading, error: statsError } = useFormattedStatistics(
-		room?.room_id,
-		{
-			autoRefresh: true,
-			refreshInterval: 30000,
-			includeHistory: false,
-			enabled: !!room?.room_id
-		}
-	);
+	// Get statistics from WebSocket instead of API
+	const { statistics: wsStatistics, loading: wsLoading, error: wsError, refresh: wsRefresh } = useWebSocketStatistics(room?.room_id);
+	
+	// Fallback to API statistics if needed (commented out for now)
+	// const { statistics: apiStatistics, loading: apiLoading, error: apiError } = useFormattedStatistics(
+	//	room?.room_id,
+	//	{
+	//		autoRefresh: false,
+	//		enabled: false // Disabled by default
+	//	}
+	// );
+	
+	// Use WebSocket statistics
+	const statistics = wsStatistics;
+	const statsLoading = wsLoading;
+	const statsError = wsError;
 
-	// Use API data or fallback to empty values
-	const currentMetrics = statistics?.current_metrics || {};
+	// Debug log
+	console.log('🎯 [RoomInfoPanel] WebSocket Statistics:', {
+		roomId: room?.room_id,
+		loading: wsLoading,
+		error: wsError,
+		statistics: wsStatistics,
+		room: room
+	});
+
+	// Use API data or fallback to room data
+	const currentMetrics = statistics?.current_metrics || {
+		// Fallback to room data if statistics API fails
+		connected_users: room.users?.users_ids?.length || 0,
+		sold_cards: room.game?.cards?.sold || 0,
+		total_cards: room.game?.cards?.total || 0,
+		revenue: (room.game?.cards?.sold || 0) * (initialValues?.card_price || 0),
+		game_status: room.game?.status || null,
+		occupancy_percentage: room.game?.cards?.total > 0 
+			? ((room.game?.cards?.sold || 0) / room.game.cards.total) * 100 
+			: 0
+	};
+	
 	const dailyStats = statistics?.daily_stats || {};
 	const financialBreakdown = statistics?.financial_breakdown || {};
-	const requirementsStatus = statistics?.requirements_status || {};
+	const requirementsStatus = statistics?.requirements_status || {
+		// Fallback requirements
+		minimum_cards: initialValues?.min_value || 0,
+		current_cards: room.game?.cards?.sold || 0,
+		can_start_game: (room.game?.cards?.sold || 0) >= (initialValues?.min_value || 0),
+		percentage_complete: initialValues?.min_value > 0 
+			? ((room.game?.cards?.sold || 0) / initialValues.min_value) * 100 
+			: 0
+	};
 
 
 	const getProgressBarColor = (percentage) => {
@@ -216,14 +251,34 @@ const RoomInfoPanel = ({ room, initialValues, onEditClick, onRoomUpdate }) => {
 				</DeactivationAlert>
 			)}
 
+			{/* Botón de actualización manual */}
+			{wsError && (
+				<div style={{ textAlign: 'center', marginBottom: '16px' }}>
+					<Button 
+						type="button" 
+						color="blue" 
+						onClick={wsRefresh}
+						style={{ padding: '8px 16px', fontSize: '12px' }}
+					>
+						🔄 Actualizar estadísticas
+					</Button>
+				</div>
+			)}
+
 			{/* Grid de Métricas */}
 			<MetricsGrid>
 				<MetricCard>
 					<MetricLabel>Usuarios Conectados</MetricLabel>
 					<MetricValue>
-						{statsLoading ? '...' : formatNumber(currentMetrics.connected_users || 0)}
+						{statsLoading ? '...' : statsError ? 'Error' : formatNumber(currentMetrics.connected_users || 0)}
 					</MetricValue>
-					<MetricSubtitle>de {formatNumber(500)} máximo</MetricSubtitle>
+					<MetricSubtitle>
+						{statsError ? (
+							<span style={{ color: '#ff4444', fontSize: '11px' }}>{statsError.message || 'Error al cargar'}</span>
+						) : (
+							`de ${formatNumber(500)} máximo`
+						)}
+					</MetricSubtitle>
 					<MetricTrend $positive={currentMetrics.connected_users > 0}>
 						{currentMetrics.connected_users > 0 ? '🟢 En línea' : '⚫ Sin usuarios'}
 					</MetricTrend>
@@ -238,14 +293,14 @@ const RoomInfoPanel = ({ room, initialValues, onEditClick, onRoomUpdate }) => {
 						de {formatNumber(currentMetrics.total_cards || 0)} disponibles
 					</MetricSubtitle>
 					<MetricTrend>
-						{currentMetrics.occupancy_formatted || '0%'}
+						{currentMetrics.occupancy_formatted || `${Math.round(currentMetrics.occupancy_percentage || 0)}%`}
 					</MetricTrend>
 				</MetricCard>
 
 				<MetricCard>
 					<MetricLabel>Recaudación Actual</MetricLabel>
 					<MetricValue>
-						{statsLoading ? '...' : (currentMetrics.revenue_formatted || formatCurrency(0))}
+						{statsLoading ? '...' : (currentMetrics.revenue_formatted || formatCurrency(currentMetrics.revenue || 0))}
 					</MetricValue>
 					<MetricSubtitle>
 						Precio: {formatCurrency(initialValues?.card_price || 0)} por cartón

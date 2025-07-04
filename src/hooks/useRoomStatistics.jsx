@@ -44,9 +44,12 @@ export function useRoomStatistics(roomId, options = {}) {
         period
       });
 
+      console.log(`📈 [useRoomStatistics] Received data for room ${roomId}:`, data);
+
       if (mountedRef.current) {
         setStatistics(data);
         setLastUpdated(new Date());
+        console.log(`📈 [useRoomStatistics] Statistics state updated for room ${roomId}`);
       }
     } catch (err) {
       if (mountedRef.current) {

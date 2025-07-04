@@ -62,12 +62,14 @@ class WebSocketService extends EventEmitter {
         console.log('📥 Respuesta backoffice:init:', response);
       });
       
-      // Solicitar lista de salas inicial
-      console.log('📤 Solicitando lista de salas inicial');
-      this.socket.emit('server:getRoomsList', (rooms) => {
-        console.log('📥 Lista de salas recibida:', rooms ? rooms.length : 0, 'salas');
-        if (rooms) {
-          this.emit('roomsList', rooms);
+      // Solicitar lista de salas inicial usando client:roomsList
+      console.log('📤 Solicitando lista de salas inicial con client:roomsList');
+      this.socket.emit('client:roomsList', (response) => {
+        if (response && response.success && response.rooms) {
+          console.log('📥 Lista de salas recibida:', response.rooms.length, 'salas');
+          this.emit('roomsList', response.rooms);
+        } else {
+          console.warn('⚠️ Respuesta inesperada de client:roomsList:', response);
         }
       });
     });
@@ -85,6 +87,14 @@ class WebSocketService extends EventEmitter {
       
       // Solicitar sincronización completa
       this.socket.emit('backoffice:resync');
+      
+      // Solicitar lista de salas actualizada
+      this.socket.emit('client:roomsList', (response) => {
+        if (response && response.success && response.rooms) {
+          console.log('📥 Lista de salas recibida tras reconexión:', response.rooms.length, 'salas');
+          this.emit('roomsList', response.rooms);
+        }
+      });
     });
 
     this.socket.on('reconnect_attempt', (attemptNumber) => {
@@ -222,14 +232,33 @@ class WebSocketService extends EventEmitter {
         reject(new Error('Timeout obteniendo lista de salas'));
       }, 5000);
 
-      this.socket.emit('server:getRoomsList', (rooms) => {
+      // Usar client:roomsList según el documento
+      this.socket.emit('client:roomsList', (response) => {
         clearTimeout(timeout);
-        if (Array.isArray(rooms)) {
-          resolve(rooms);
+        if (response && response.success && Array.isArray(response.rooms)) {
+          resolve(response.rooms);
+        } else if (Array.isArray(response)) {
+          // Fallback si la respuesta es directamente un array
+          resolve(response);
         } else {
-          reject(new Error('Respuesta inválida del servidor'));
+          reject(new Error(response?.error || 'Respuesta inválida del servidor'));
         }
       });
+    });
+  }
+  
+  // Método adicional para solicitar lista de salas
+  requestRoomsList() {
+    if (!this.socket || !this.connected) {
+      console.warn('⚠️ Socket no conectado, no se puede solicitar lista de salas');
+      return;
+    }
+    
+    this.socket.emit('client:roomsList', (response) => {
+      if (response && response.success && response.rooms) {
+        console.log('📋 [WebSocket] Lista de salas recibida:', response.rooms.length, 'salas');
+        this.emit('roomsList', response.rooms);
+      }
     });
   }
 

@@ -213,9 +213,11 @@ const MiddleMenu = () => {
 					icon={refreshIcon}
 					size={20}
 					onClick={() => {
+						console.log('🔄 [MiddleMenu] Manual refresh triggered');
 						getRooms(true);
 						fetchScheduledDeactivations();
 					}}
+					title="Actualizar lista de salas"
 				>
 					Lista - {displayTitle}
 				</SubHeaderBar>
