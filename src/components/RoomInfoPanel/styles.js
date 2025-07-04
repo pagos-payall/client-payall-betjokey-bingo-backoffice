@@ -97,9 +97,9 @@ export const GameStatus = styled.div`
 `;
 
 export const DeactivationAlert = styled.div`
-  background: #fef3c7;
-  border: 1px solid #f59e0b;
-  color: #92400e;
+  background: ${props => props.$immediate ? '#fee2e2' : '#fef3c7'};
+  border: 1px solid ${props => props.$immediate ? '#dc2626' : '#f59e0b'};
+  color: ${props => props.$immediate ? '#991b1b' : '#92400e'};
   padding: 16px 20px;
   border-radius: 8px;
   display: flex;
@@ -120,7 +120,7 @@ export const DeactivationAlert = styled.div`
 `;
 
 export const AlertIcon = styled.span`
-  color: #f59e0b;
+  color: ${props => props.$immediate ? '#dc2626' : '#f59e0b'};
   font-size: 24px;
   line-height: 1;
 `;
@@ -168,7 +168,7 @@ export const MetricTrend = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: ${({ positive }) => positive ? theme.dark.colors.green : '#999'};
+  color: ${({ $positive }) => $positive ? theme.dark.colors.green : '#999'};
   font-size: 12px;
   margin-top: 8px;
 `;

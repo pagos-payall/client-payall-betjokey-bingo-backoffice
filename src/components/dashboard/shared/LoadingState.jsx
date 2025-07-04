@@ -51,7 +51,7 @@ const Skeleton = styled.div`
 	height: ${(props) => props.height || '20px'};
 	background-color: ${theme.dark.background.hover};
 	border-radius: 4px;
-	margin-bottom: ${(props) => props.mb || '10px'};
+	margin-bottom: ${(props) => props.$mb || '10px'};
 	animation: ${pulse} 1.5s infinite;
 `;
 
@@ -77,9 +77,9 @@ const LoadingState = ({
 	if (type === 'skeleton') {
 		return (
 			<SkeletonContainer padding={height}>
-				<Skeleton mb='15px' height='30px' />
-				<Skeleton mb='15px' />
-				<Skeleton mb='15px' />
+				<Skeleton $mb='15px' height='30px' />
+				<Skeleton $mb='15px' />
+				<Skeleton $mb='15px' />
 				<Skeleton height='200px' />
 			</SkeletonContainer>
 		);

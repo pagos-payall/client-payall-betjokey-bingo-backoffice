@@ -1,9 +1,11 @@
 import axios from 'axios';
 
 // Use public environment variables for client-side
+const baseURL = process.env.NEXT_PUBLIC_API_HOST + process.env.NEXT_PUBLIC_API_URL;
+
 const instance = axios.create({
 	withCredentials: true,
-	baseURL: process.env.NEXT_PUBLIC_API_HOST + process.env.NEXT_PUBLIC_API_URL,
+	baseURL: baseURL,
 	timeout: 30000,
 	headers: {
 		'Content-Type': 'application/json',

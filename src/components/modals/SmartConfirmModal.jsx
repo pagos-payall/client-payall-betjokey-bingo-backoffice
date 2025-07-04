@@ -1,14 +1,28 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import { ModalContainer, ModalBox } from './ModalStyles';
+import { ModalContainer } from './ModalStyles';
 import Button from '../Button';
 import { theme } from '../../data/themes';
+
+const ModalBox = styled.div`
+  margin: auto;
+  background: rgb(30, 30, 30);
+  width: 90%;
+  max-width: 500px;
+  max-height: ${props => props.$maxHeight || '85vh'};
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  color: white;
+  overflow: hidden;
+`;
 
 const ModalContent = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  width: 100%;
+  height: 100%;
+  min-height: 0;
 `;
 
 const Title = styled.h3`
@@ -80,6 +94,11 @@ const ButtonContainer = styled.div`
   display: flex;
   gap: 10px;
   width: 100%;
+  padding: 20px;
+  background: ${theme.dark.background.secundary};
+  border-top: 1px solid ${theme.dark.borders.table};
+  border-radius: 0 0 12px 12px;
+  flex-shrink: 0;
 `;
 
 const InfoText = styled.p`
@@ -148,41 +167,43 @@ const SmartConfirmModal = ({
   
   return (
     <ModalContainer>
-      <ModalBox $maxHeight={'500px'}>
+      <ModalBox $maxHeight={'85vh'}>
         <ModalContent>
-          <Title>{modalContent.title}</Title>
-          
-          {modalContent.subtitle && (
-            <Subtitle>{modalContent.subtitle}</Subtitle>
-          )}
-          
-          {hasWarnings && (
-            <WarningsContainer>
-              <WarningTitle>⚠️ Esta acción afectará a:</WarningTitle>
-              <WarningList>
-                {warnings.map((warning, index) => (
-                  <WarningItem key={index}>{warning}</WarningItem>
-                ))}
-              </WarningList>
-            </WarningsContainer>
-          )}
-          
-          {showReasonInput && (
-            <div>
-              <Label>
-                Razón de la operación {reasonRequired && '*'}
-              </Label>
-              <ReasonInput
-                placeholder="Describe brevemente la razón de esta acción..."
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                maxLength={200}
-              />
-              <InfoText>
-                {reason.length}/200 caracteres
-              </InfoText>
-            </div>
-          )}
+          <div style={{ padding: '20px', flex: 1, overflowY: 'auto' }}>
+            <Title>{modalContent.title}</Title>
+            
+            {modalContent.subtitle && (
+              <Subtitle>{modalContent.subtitle}</Subtitle>
+            )}
+            
+            {hasWarnings && (
+              <WarningsContainer>
+                <WarningTitle>⚠️ Esta acción afectará a:</WarningTitle>
+                <WarningList>
+                  {warnings.map((warning, index) => (
+                    <WarningItem key={index}>{warning}</WarningItem>
+                  ))}
+                </WarningList>
+              </WarningsContainer>
+            )}
+            
+            {showReasonInput && (
+              <div style={{ marginTop: '20px' }}>
+                <Label>
+                  Razón de la operación {reasonRequired && '*'}
+                </Label>
+                <ReasonInput
+                  placeholder="Describe brevemente la razón de esta acción..."
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  maxLength={200}
+                />
+                <InfoText>
+                  {reason.length}/200 caracteres
+                </InfoText>
+              </div>
+            )}
+          </div>
           
           <ButtonContainer>
             <Button 

@@ -9,7 +9,7 @@ import useFetch from '@/hooks/useFetch';
 import Button from '@/components/Button';
 import { addIcon, closeIcon, saveIcon } from '@/data/icons';
 import { createRoomValidationSchema } from '@/validationSchemas/createRoom';
-import FormikInputValue, { Input } from '@/components/FormikInputValue';
+import FormikInputValue from '@/components/FormikInputValue';
 import SubHeaderBar from '@/components/SubHeaderBar';
 import LoadingCircle from '@/components/LoadingCircle';
 import { isoShortDate } from '@/services/getISODate';
@@ -49,24 +49,10 @@ export default function RoomForm() {
 		createAt: '',
 		ref: '',
 		game: null,
+		game_id: null,
 		users: null,
+		scheduled_deactivation: null,
 	});
-	let fields = {
-		host_username: 'test',
-		room_name: '',
-		typeOfGame: '',
-		card_price: '',
-		play: '',
-		comision: 50,
-		pote_especial: 20,
-		premios: 30,
-		min_value: '',
-		taxes: [],
-		carton_full: true,
-		linea_full: true,
-		porcen_premio_asignado_carton: 70,
-		porcen_premio_asignado_linea: 30,
-	};
 
 	async function handleSubmit(values, setSubmitting, resetForm) {
 		let method = 'post';
@@ -138,18 +124,33 @@ export default function RoomForm() {
 	}
 
 	useEffect(() => {
+		const fields = {
+			host_username: 'test',
+			room_name: '',
+			typeOfGame: '',
+			card_price: '',
+			play: '',
+			comision: 50,
+			pote_especial: 20,
+			premios: 30,
+			min_value: '',
+			taxes: [],
+			carton_full: true,
+			linea_full: true,
+			porcen_premio_asignado_carton: 70,
+			porcen_premio_asignado_linea: 30,
+		};
+		
 		if (searchParams.size === 0) {
 			setInitialValues(fields);
 			setUpdateView(false);
 		} else {
 			for (const key of searchParams.keys()) {
 				const data = JSON.parse(key);
-				console.log('Room data received:', data);
 				const array = Object.entries(data);
 
 				array.forEach((entrie) => {
 					const [key, value] = entrie;
-					console.log('Processing entry:', key, value);
 
 					if (Array.isArray(value)) {
 						const obj = new Object();
@@ -171,12 +172,20 @@ export default function RoomForm() {
 					if (
 						salaData[key] !== undefined ||
 						key === 'game' ||
-						key === 'users'
+						key === 'users' ||
+						key === 'scheduled_deactivation'
 					) {
 						const obj = new Object();
-						obj[key] = value;
-
-						console.log('obj', obj);
+						// For game object, extract game_id from last 4 characters of ref
+						if (key === 'game' && value) {
+							obj[key] = value;
+							// Extract last 4 characters from ref as game_id
+							if (value.ref && typeof value.ref === 'string') {
+								obj['game_id'] = value.ref.slice(-4);
+							}
+						} else {
+							obj[key] = value;
+						}
 
 						setSalaData((oldValues) => ({ ...oldValues, ...obj }));
 					}
@@ -185,7 +194,6 @@ export default function RoomForm() {
 						// Special handling for game object
 						if (key === 'game' && value) {
 							// Extract game fields that match our form fields
-							console.log('object game:', value);
 
 							const gameFields = [
 								'typeOfGame',
@@ -269,6 +277,28 @@ export default function RoomForm() {
 								updateMode={updateMode}
 								setUpdateMode={setUpdateMode}
 								room={salaData}
+								onRoomUpdate={async () => {
+									// Refresh room data after operations
+									getRooms();
+									
+									// Actualizar el estado local de la sala
+									try {
+										const apiConfig = await roomService.getRoom(salaData.room_id);
+										const response = await fetchAPICall(apiConfig.url, apiConfig.method);
+										if (response) {
+											// Actualizar scheduled_deactivation y game_id en salaData
+											const gameId = response.game?.ref ? response.game.ref.slice(-4) : null;
+											setSalaData(prevData => ({
+												...prevData,
+												scheduled_deactivation: response.scheduled_deactivation || null,
+												game: response.game || null,
+												game_id: gameId
+											}));
+										}
+									} catch (error) {
+										console.error('Error updating room data:', error);
+									}
+								}}
 							/>
 						)}
 					</SubHeaderBar>
@@ -277,6 +307,28 @@ export default function RoomForm() {
 							room={salaData}
 							initialValues={initialValues}
 							onEditClick={() => setUpdateMode(true)}
+							onRoomUpdate={async () => {
+								// Recargar los datos de la sala
+								getRooms();
+								
+								// Actualizar el estado local de la sala
+								try {
+									const apiConfig = await roomService.getRoom(salaData.room_id);
+									const response = await fetchAPICall(apiConfig.url, apiConfig.method);
+									if (response) {
+										// Actualizar scheduled_deactivation y game_id en salaData
+										const gameId = response.game?.ref ? response.game.ref.slice(-4) : null;
+										setSalaData(prevData => ({
+											...prevData,
+											scheduled_deactivation: response.scheduled_deactivation || null,
+											game: response.game || null,
+											game_id: gameId
+										}));
+									}
+								} catch (error) {
+									console.error('Error updating room data:', error);
+								}
+							}}
 						/>
 					) : (
 					<div

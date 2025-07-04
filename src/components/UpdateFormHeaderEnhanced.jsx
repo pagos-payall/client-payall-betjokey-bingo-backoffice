@@ -8,6 +8,7 @@ import StatusLight from './StatusLight';
 import RoomStatusBadge from './RoomStatusBadge';
 import RoomActionButtons from './RoomActionButtons';
 import SmartConfirmModal from './modals/SmartConfirmModal';
+import DeactivationModal from './modals/DeactivationModal';
 import { getActionRestriction } from '@/utils/errorHandler';
 import { roomService } from '@/services/roomService';
 
@@ -19,6 +20,7 @@ const UpdateFormHeaderEnhanced = ({
 	setUpdateMode,
 	updateMode,
 	room, // Full room object with game info
+	onRoomUpdate,
 }) => {
 	const { getRooms, getUsers } = useContext(RoomsContext);
 	const { username, hasPermission } = useUser();
@@ -30,6 +32,7 @@ const UpdateFormHeaderEnhanced = ({
 	const fetchMethod = 'patch';
 
 	const [confirmModal, setConfirmModal] = useState(false);
+	const [deactivationModal, setDeactivationModal] = useState(false);
 	const [modalContent, setModalContent] = useState({
 		type: '',
 		title: '',
@@ -55,7 +58,6 @@ const UpdateFormHeaderEnhanced = ({
 				case 'deactivate':
 					apiConfig = await roomService.scheduleDeactivation(codigo, username, {
 						reason,
-						autoExecute: true,
 					});
 					break;
 
@@ -69,6 +71,10 @@ const UpdateFormHeaderEnhanced = ({
 
 				case 'delete':
 					apiConfig = await roomService.deleteRoom(codigo, username, reason);
+					break;
+
+				case 'cancelDeactivation':
+					apiConfig = await roomService.cancelScheduledDeactivation(codigo, username);
 					break;
 
 				default:
@@ -95,6 +101,13 @@ const UpdateFormHeaderEnhanced = ({
 			// Success - refresh data and redirect
 			if (!path.includes('user')) {
 				getRooms();
+				// Show success message for cancel deactivation
+				if (operation === 'cancelDeactivation') {
+					toast.success('Desactivación programada cancelada exitosamente');
+					if (onRoomUpdate) {
+						onRoomUpdate();
+					}
+				}
 				router.push('/dashboard');
 			} else {
 				getUsers();
@@ -142,12 +155,20 @@ const UpdateFormHeaderEnhanced = ({
 				break;
 
 			case 'deactivate':
-				modalConfig.title = `¿Estás seguro que deseas desactivar ${
-					user_or_room ? 'el usuario' : 'la sala'
-				}?`;
-				modalConfig.subtitle =
-					'Una sala desactivada no podrá tener juegos activos';
+				// Si es una sala, usar el nuevo modal de desactivación
+				if (!user_or_room) {
+					setDeactivationModal(true);
+					return;
+				}
+				// Para usuarios, usar el modal normal
+				modalConfig.title = '¿Estás seguro que deseas desactivar el usuario?';
 				modalConfig.confirmText = 'Desactivar';
+				break;
+
+			case 'cancelDeactivation':
+				modalConfig.title = '¿Estás seguro que deseas cancelar la desactivación programada?';
+				modalConfig.subtitle = 'La sala volverá a su estado normal y no se desactivará automáticamente.';
+				modalConfig.confirmText = 'Cancelar Desactivación';
 				break;
 		}
 
@@ -177,6 +198,34 @@ const UpdateFormHeaderEnhanced = ({
 		}
 	};
 
+	const handleDeactivationConfirm = async (data) => {
+		try {
+			const apiConfig = await roomService.scheduleDeactivation(codigo, username, {
+				reason: data.reason,
+				immediate_deactivation: data.immediate_deactivation
+			});
+
+
+			await fetchAPICall(apiConfig.url, apiConfig.method, apiConfig.data);
+			
+			// Mostrar mensaje de éxito según el tipo
+			if (data.immediate_deactivation) {
+				toast.success('La sala está siendo desactivada inmediatamente');
+			} else {
+				toast.info('La sala fue programada para desactivación al culminar la próxima partida');
+			}
+
+			// Refrescar datos y redirigir
+			getRooms();
+			if (onRoomUpdate) {
+				onRoomUpdate();
+			}
+			router.push('/dashboard');
+		} catch (error) {
+			console.error('Error al programar desactivación:', error);
+		}
+	};
+
 	// Permissions for action buttons
 	const permissions = {
 		delete: hasPermission('delete', user_or_room ? 'users' : 'rooms'),
@@ -203,6 +252,15 @@ const UpdateFormHeaderEnhanced = ({
 					showReasonInput={!user_or_room} // Show reason input for rooms
 					reasonRequired={false} // Reason is optional
 					room={room} // Pass room data for warnings
+				/>
+			)}
+
+			{deactivationModal && (
+				<DeactivationModal
+					isOpen={deactivationModal}
+					onClose={() => setDeactivationModal(false)}
+					room={room}
+					onConfirm={handleDeactivationConfirm}
 				/>
 			)}
 

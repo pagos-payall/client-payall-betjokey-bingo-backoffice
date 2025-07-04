@@ -112,14 +112,19 @@ const ScheduledBadge = styled.div`
   gap: 6px;
   padding: 2px 8px;
   border-radius: 20px;
-  background-color: rgba(135, 206, 235, 0.2); // Sky blue with transparency
-  border: 1px solid #87CEEB;
+  background-color: ${props => props.$immediate 
+    ? 'rgba(255, 0, 0, 0.2)'  // Red with transparency for immediate
+    : 'rgba(135, 206, 235, 0.2)'}; // Sky blue with transparency for scheduled
+  border: 1px solid ${props => props.$immediate ? '#ff4444' : '#87CEEB'};
   font-size: 10px;
   font-weight: 500;
-  color: #87CEEB;
+  color: ${props => props.$immediate ? '#ff4444' : '#87CEEB'};
 `;
 
 const SalaMenuCardEnhanced = ({ data, isScheduledForDeactivation = false }) => {
+  // Check if deactivation is immediate
+  const isImmediateDeactivation = data?.scheduled_deactivation?.immediate_deactivation === true;
+  
   // Format date
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -159,7 +164,11 @@ const SalaMenuCardEnhanced = ({ data, isScheduledForDeactivation = false }) => {
           <BadgesContainer>
             <RoomStatusBadge room={data} />
             {isScheduledForDeactivation && (
-              <ScheduledBadge>Desactivación - programada</ScheduledBadge>
+              <ScheduledBadge $immediate={isImmediateDeactivation}>
+                {isImmediateDeactivation 
+                  ? 'Desactivación - inmediata' 
+                  : 'Desactivación - programada'}
+              </ScheduledBadge>
             )}
           </BadgesContainer>
         </CardHeader>

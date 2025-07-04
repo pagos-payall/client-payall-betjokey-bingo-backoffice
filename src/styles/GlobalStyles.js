@@ -14,6 +14,9 @@ const GlobalStyles = createGlobalStyle`
   #__next {
     background-color: ${theme.dark.background.primary};
     min-height: 100vh;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
   }
 
   /* Asegurar que todos los inputs mantengan el tema oscuro */

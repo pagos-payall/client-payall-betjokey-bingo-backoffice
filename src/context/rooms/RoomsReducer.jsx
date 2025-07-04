@@ -15,6 +15,8 @@ const RoomsReducer = (state, action) => {
 				...state,
 				users: payload,
 			};
+		default:
+			return state;
 	}
 };
 

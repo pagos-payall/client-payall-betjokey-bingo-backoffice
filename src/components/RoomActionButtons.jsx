@@ -9,6 +9,7 @@ import {
   unarchiveIcon,
   toggle_on,
   toggle_off,
+  closeIcon,
 } from '@/data/icons';
 
 const ButtonGroup = styled.div`
@@ -96,6 +97,10 @@ const Tooltip = styled.div`
  */
 const RoomActionButtons = ({ room, onAction, permissions = {} }) => {
   const [hoveredAction, setHoveredAction] = useState(null);
+  
+  // Check if room has scheduled deactivation - check both possible locations
+  const hasScheduledDeactivation = room?.scheduled_deactivation?.enabled === true || 
+                                   room?.scheduledDeactivation?.enabled === true;
 
   // Get restriction info for each action
   const canDelete = getActionRestriction(room, 'delete');
@@ -147,7 +152,7 @@ const RoomActionButtons = ({ room, onAction, permissions = {} }) => {
 
   return (
     <ButtonGroup>
-      {/* Activate/Deactivate button - Always visible except for archived rooms */}
+      {/* Activate/Deactivate/Cancel Deactivation button - Always visible except for archived rooms */}
       
       {permissions.toggle !== false && room.status !== 'archive' && (
         room.status === 'disable' ? (
@@ -157,6 +162,15 @@ const RoomActionButtons = ({ room, onAction, permissions = {} }) => {
             'Activar',
             canActivate,
             'normal'
+          )
+        ) : hasScheduledDeactivation ? (
+          // Show cancel deactivation button when room has scheduled deactivation
+          renderActionButton(
+            'cancelDeactivation',
+            closeIcon,
+            'Cancelar Desactivación',
+            { disabled: false }, // Always enabled for canceling
+            'danger'
           )
         ) : (
           renderActionButton(

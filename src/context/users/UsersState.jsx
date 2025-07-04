@@ -3,6 +3,7 @@ import { useEffect, useReducer } from 'react'
 import UsersContext from './UsersContext'
 import UsersReducer from './UsersReducer'
 import Cookies from 'js-cookie'
+import { syncAuthCookies } from '@/services/authSync'
 
 const UsersState = ({ children }) => {
 	const initialState = {
@@ -62,7 +63,6 @@ const UsersState = ({ children }) => {
 
 		// Only dispatch if status actually changed to prevent infinite loops
 		if (state.token_status !== token_status) {
-			console.log('🔄 Token status changing from', state.token_status, 'to', token_status);
 			dispatch({
 				type: 'SET_TOKEN_STATUS',
 				payload: {
@@ -83,18 +83,27 @@ const UsersState = ({ children }) => {
 	}
 
 	useEffect(() => {
-		setActUsername(
-			Cookies.get('username', {
-				expires: 0.29,
-				path: '/',
-				sameSite: 'Strict',
-			}) || undefined,
-			Cookies.get('level', {
-				expires: 0.29,
-				path: '/',
-				sameSite: 'Strict',
-			}) || undefined
-		)
+		// First try to sync auth cookies from JWT tokens
+		const syncedAuth = syncAuthCookies();
+		
+		if (syncedAuth) {
+			// If we successfully synced from JWT, use those values
+			setActUsername(syncedAuth.username, syncedAuth.level);
+		} else {
+			// Otherwise, try to get from existing cookies
+			setActUsername(
+				Cookies.get('username', {
+					expires: 0.29,
+					path: '/',
+					sameSite: 'Strict',
+				}) || undefined,
+				Cookies.get('level', {
+					expires: 0.29,
+					path: '/',
+					sameSite: 'Strict',
+				}) || undefined
+			)
+		}
 	}, [])
 
 	return (

@@ -213,13 +213,13 @@ const SystemStatusPanel = () => {
 				{},
 				false
 			);
-			setSystemData(data.data);
-
-			setRefreshKey((prevKey) => prevKey + 1);
-
-			console.log(data.data.servicios.servidores);
-
-			// setSystemData(mockSystemStatus);
+			if (data && data.data) {
+				setSystemData(data.data);
+				setRefreshKey((prevKey) => prevKey + 1);
+			} else {
+				console.error('Invalid data structure received:', data);
+				setError('Estructura de datos inválida recibida del servidor');
+			}
 		} catch (err) {
 			console.error('Error loading system status data:', err);
 			setError(
@@ -258,14 +258,21 @@ const SystemStatusPanel = () => {
 
 	// Prepare chart data
 	const getPerformanceChartData = () => {
-		if (!systemData || !systemData.rendimiento_historico) return [];
+		if (!systemData || !systemData.rendimiento_historico || !systemData.rendimiento_historico.timestamps) {
+			return [];
+		}
 
-		return systemData.rendimiento_historico.timestamps.map((time, index) => ({
-			time: new Date(time).toLocaleTimeString(),
-			cpu: systemData.rendimiento_historico.cpu[index],
-			memoria: systemData.rendimiento_historico.memoria[index],
-			respuesta: systemData.rendimiento_historico.respuesta[index],
-		}));
+		try {
+			return systemData.rendimiento_historico.timestamps.map((time, index) => ({
+				time: new Date(time).toLocaleTimeString(),
+				cpu: systemData.rendimiento_historico.cpu?.[index] || 0,
+				memoria: systemData.rendimiento_historico.memoria?.[index] || 0,
+				respuesta: systemData.rendimiento_historico.respuesta?.[index] || 0,
+			}));
+		} catch (err) {
+			console.error('Error preparing chart data:', err);
+			return [];
+		}
 	};
 
 	// If loading, show loading state
@@ -324,9 +331,9 @@ const SystemStatusPanel = () => {
 					<div
 						style={{
 							backgroundColor:
-								systemData.estado_general.nivelAlerta === 'critical'
+								systemData.estado_general?.nivelAlerta === 'critical'
 									? theme.dark.error
-									: systemData.estado_general.nivelAlerta === 'warning'
+									: systemData.estado_general?.nivelAlerta === 'warning'
 									? theme.dark.warning
 									: theme.dark.success,
 							color: 'white',
@@ -336,9 +343,9 @@ const SystemStatusPanel = () => {
 							fontWeight: 'bold',
 						}}
 					>
-						{systemData.estado_general.nivelAlerta === 'critical'
+						{systemData.estado_general?.nivelAlerta === 'critical'
 							? 'CRÍTICO'
-							: systemData.estado_general.nivelAlerta === 'warning'
+							: systemData.estado_general?.nivelAlerta === 'warning'
 							? 'ADVERTENCIA'
 							: 'NORMAL'}
 					</div>
@@ -347,9 +354,9 @@ const SystemStatusPanel = () => {
 				<div
 					style={{
 						backgroundColor:
-							systemData.estado_general.nivelAlerta === 'critical'
+							systemData.estado_general?.nivelAlerta === 'critical'
 								? 'rgba(242, 92, 120, 0.1)'
-								: systemData.estado_general.nivelAlerta === 'warning'
+								: systemData.estado_general?.nivelAlerta === 'warning'
 								? 'rgba(242, 175, 92, 0.1)'
 								: 'rgba(43, 217, 153, 0.1)',
 						padding: '10px 15px',
@@ -358,7 +365,7 @@ const SystemStatusPanel = () => {
 						marginBottom: '20px',
 					}}
 				>
-					{systemData.estado_general.mensaje}
+					{systemData.estado_general?.mensaje || 'Estado del sistema normal'}
 				</div>
 
 				<div
@@ -383,22 +390,22 @@ const SystemStatusPanel = () => {
 			<GridContainer>
 				<KPICard
 					title='Disponibilidad'
-					value={systemData.estado_general.disponibilidad}
+					value={systemData.estado_general?.disponibilidad || 0}
 					format={formatPercent}
 				/>
 				<KPICard
 					title='Carga del Sistema'
-					value={systemData.metricas_rendimiento.cargaSistema}
+					value={systemData.metricas_rendimiento?.cargaSistema || 0}
 					format={formatPercent}
 				/>
 				<KPICard
 					title='Uso de Memoria'
-					value={systemData.metricas_rendimiento.usoMemoria}
+					value={systemData.metricas_rendimiento?.usoMemoria || 0}
 					format={formatPercent}
 				/>
 				<KPICard
 					title='Tiempo de Respuesta'
-					value={systemData.metricas_rendimiento.tiempoRespuesta.promedio}
+					value={systemData.metricas_rendimiento?.tiempoRespuesta?.promedio || 0}
 					format={(value) => `${value} ms`}
 				/>
 			</GridContainer>
@@ -409,11 +416,11 @@ const SystemStatusPanel = () => {
 					{/* Database Services */}
 					<ServiceCard>
 						<ServiceName>Base de Datos</ServiceName>
-						<StatusIndicator status={systemData.servicios.baseDatos.main}>
-							{systemData.servicios.baseDatos.main ? 'OK' : 'ERROR'}
+						<StatusIndicator status={systemData.servicios?.baseDatos?.main}>
+							{systemData.servicios?.baseDatos?.main ? 'OK' : 'ERROR'}
 						</StatusIndicator>
-						<StatusText status={systemData.servicios.baseDatos.main}>
-							{systemData.servicios.baseDatos.main
+						<StatusText status={systemData.servicios?.baseDatos?.main}>
+							{systemData.servicios?.baseDatos?.main
 								? 'Funcionando correctamente'
 								: 'Servicio interrumpido'}
 						</StatusText>
@@ -422,11 +429,11 @@ const SystemStatusPanel = () => {
 					{/* Web Server */}
 					<ServiceCard>
 						<ServiceName>Servidor Web</ServiceName>
-						<StatusIndicator status={systemData.servicios.servidores.web}>
-							{systemData.servicios.servidores.web ? 'OK' : 'ERROR'}
+						<StatusIndicator status={systemData.servicios?.servidores?.web}>
+							{systemData.servicios?.servidores?.web ? 'OK' : 'ERROR'}
 						</StatusIndicator>
-						<StatusText status={systemData.servicios.servidores.web}>
-							{systemData.servicios.servidores.web
+						<StatusText status={systemData.servicios?.servidores?.web}>
+							{systemData.servicios?.servidores?.web
 								? 'Funcionando correctamente'
 								: 'Servicio interrumpido'}
 						</StatusText>
@@ -435,11 +442,11 @@ const SystemStatusPanel = () => {
 					{/* WebSocket Server */}
 					<ServiceCard>
 						<ServiceName>Servidor WS</ServiceName>
-						<StatusIndicator status={systemData.servicios.servidores.websocket}>
-							{systemData.servicios.servidores.websocket ? 'OK' : 'ERROR'}
+						<StatusIndicator status={systemData.servicios?.servidores?.websocket}>
+							{systemData.servicios?.servidores?.websocket ? 'OK' : 'ERROR'}
 						</StatusIndicator>
-						<StatusText status={systemData.servicios.servidores.websocket}>
-							{systemData.servicios.servidores.websocket
+						<StatusText status={systemData.servicios?.servidores?.websocket}>
+							{systemData.servicios?.servidores?.websocket
 								? 'Funcionando correctamente'
 								: 'Servicio interrumpido'}
 						</StatusText>
@@ -516,7 +523,7 @@ const SystemStatusPanel = () => {
 			{/* Alerts */}
 			<ChartContainer title='Alertas Recientes'>
 				<AlertsContainer>
-					{systemData.alertas_recientes.length > 0 ? (
+					{systemData.alertas_recientes && systemData.alertas_recientes.length > 0 ? (
 						systemData.alertas_recientes.map((alerta, index) => (
 							<Alert key={index} type={alerta.tipo}>
 								<AlertIcon>{getAlertIcon(alerta.tipo)}</AlertIcon>
@@ -559,32 +566,32 @@ const SystemStatusPanel = () => {
 							<MetricName>Uptime</MetricName>
 							<MetricValue>
 								{formatTime(
-									systemData.metricas_rendimiento.uptime * 3600 * 1000
+									(systemData.metricas_rendimiento?.uptime || 0) * 3600 * 1000
 								)}
 							</MetricValue>
 						</MetricRow>
 						<MetricRow>
 							<MetricName>Salas Activas</MetricName>
 							<MetricValue>
-								{formatNumber(systemData.estadisticas.salasActivas)}
+								{formatNumber(systemData.estadisticas?.salasActivas || 0)}
 							</MetricValue>
 						</MetricRow>
 						<MetricRow>
 							<MetricName>Juegos Activos</MetricName>
 							<MetricValue>
-								{formatNumber(systemData.estadisticas.juegosActivos)}
+								{formatNumber(systemData.estadisticas?.juegosActivos || 0)}
 							</MetricValue>
 						</MetricRow>
 						<MetricRow>
 							<MetricName>Juegos en Espera</MetricName>
 							<MetricValue>
-								{formatNumber(systemData.estadisticas.juegosEsperando)}
+								{formatNumber(systemData.estadisticas?.juegosEsperando || 0)}
 							</MetricValue>
 						</MetricRow>
 						<MetricRow>
 							<MetricName>Sesiones Activas</MetricName>
 							<MetricValue>
-								{formatNumber(systemData.estadisticas.sesionesActivas)}
+								{formatNumber(systemData.estadisticas?.sesionesActivas || 0)}
 							</MetricValue>
 						</MetricRow>
 					</div>
@@ -598,8 +605,8 @@ const SystemStatusPanel = () => {
 							<MetricName>Pagos Pendientes</MetricName>
 							<MetricValue>
 								{formatNumber(
-									systemData.estadisticas.transaccionesPendientes
-										.pagosPendientes
+									systemData.estadisticas?.transaccionesPendientes
+										?.pagosPendientes || 0
 								)}
 							</MetricValue>
 						</MetricRow>

@@ -40,8 +40,28 @@ const MiddleMenu = () => {
 	const debouncedSearchTerm = useDebounce(searchbarvalue);
 	const { fetchAPICall } = useFetch();
 
+	// Log when rooms change
+	useEffect(() => {
+		console.log(
+			'🏠 [MiddleMenu] Rooms updated from context:',
+			rooms.length,
+			'rooms'
+		);
+		if (rooms.length > 0) {
+			console.log(rooms[1]);
+
+			console.log(
+				'  - First 3 rooms:',
+				rooms
+					.slice(0, 3)
+					.map((r) => ({ id: r.room_id, name: r.room_name, status: r.status }))
+			);
+		}
+	}, [rooms]);
+
 	// Obtener salas programadas para desactivación
 	const fetchScheduledDeactivations = async () => {
+		console.log('🕑 [MiddleMenu] Fetching scheduled deactivations...');
 		try {
 			const apiConfig = await roomService.getScheduledDeactivations();
 			const response = await fetchAPICall(
@@ -50,11 +70,8 @@ const MiddleMenu = () => {
 				undefined,
 				false
 			);
-			console.log('Scheduled deactivations response:', response);
-
 			// La respuesta puede venir en diferentes formatos
 			const data = response?.result || response?.data || response || {};
-			console.log('Scheduled deactivations data:', data);
 
 			// La respuesta viene con estructura { count: number, rooms: Array }
 			const scheduledRooms = data.rooms || [];
@@ -67,33 +84,54 @@ const MiddleMenu = () => {
 
 	useEffect(() => {
 		// Obtener desactivaciones programadas cuando se monta el componente
+		console.log(
+			'🎮 [MiddleMenu] Component mounted, fetching scheduled deactivations'
+		);
 		fetchScheduledDeactivations();
 	}, []);
 
+	// Refrescar desactivaciones programadas cuando el filtro es 'scheduled'
 	useEffect(() => {
+		if (displayFilter === 'scheduled') {
+			fetchScheduledDeactivations();
+		}
+	}, [displayFilter]);
+
+	useEffect(() => {
+		console.log('📋 [MiddleMenu] useEffect triggered');
+		console.log('  - Display Filter:', displayFilter);
+		console.log('  - Rooms count:', rooms.length);
+		console.log(
+			'  - Room statuses:',
+			rooms.map((r) => `${r.room_id}:${r.status}`).join(', ')
+		);
+
 		if (displayFilter === 'all') {
-			setDisplayData(() => rooms.filter((room) => room.status !== 'archive'));
+			const filtered = rooms.filter((room) => room.status !== 'archive');
+			console.log('  - Showing all non-archived rooms:', filtered.length);
+			setDisplayData(filtered);
 		} else if (displayFilter === 'scheduled') {
 			// Los datos de scheduledDeactivations ya son objetos de sala completos
-			console.log('Scheduled rooms from API:', scheduledDeactivations);
 
 			// Extraer los room_ids de las salas programadas
 			const scheduledRoomIds = scheduledDeactivations.map(
 				(room) => room.room_id
 			);
-			console.log('Scheduled room IDs:', scheduledRoomIds);
 
 			// Filtrar las salas del contexto que están programadas para desactivación
 			const filteredRooms = rooms.filter((room) =>
 				scheduledRoomIds.includes(room.room_id)
 			);
-			console.log('Filtered rooms:', filteredRooms);
 
+			console.log('  - Scheduled rooms filtered:', filteredRooms.length);
 			setDisplayData(filteredRooms);
 		} else {
-			setDisplayData(() =>
-				rooms.filter((room) => room.status === displayFilter)
+			const filtered = rooms.filter((room) => room.status === displayFilter);
+			console.log(
+				`  - Filtered by status '${displayFilter}':`,
+				filtered.length
 			);
+			setDisplayData(filtered);
 		}
 	}, [displayFilter, rooms, scheduledDeactivations]);
 
@@ -105,12 +143,10 @@ const MiddleMenu = () => {
 				{ value: debouncedSearchTerm },
 				true
 			).then((data) => {
-				console.log(data);
-
 				setRooms(data.result.reverse());
 			});
 		}
-	}, [debouncedSearchTerm]);
+	}, [debouncedSearchTerm, fetchAPICall, setRooms]);
 
 	return (
 		<div
@@ -176,7 +212,10 @@ const MiddleMenu = () => {
 				<SubHeaderBar
 					icon={refreshIcon}
 					size={20}
-					onClick={() => getRooms(true)}
+					onClick={() => {
+						getRooms(true);
+						fetchScheduledDeactivations();
+					}}
 				>
 					Lista - {displayTitle}
 				</SubHeaderBar>
@@ -194,12 +233,21 @@ const MiddleMenu = () => {
 						overflowY: 'auto',
 					}}
 				>
-					{displayData.length > 0 ? (
+					{rooms.length === 0 ? (
+						<div
+							style={{ textAlign: 'center', padding: '20px', color: '#999' }}
+						>
+							No hay salas disponibles
+						</div>
+					) : displayData.length > 0 ? (
 						displayData.map((room, key) => {
 							// Verificar si esta sala está programada para desactivación
-							const isScheduled = scheduledDeactivations.some(
-								(scheduled) => scheduled.room_id === room.room_id
-							);
+							// Puede estar en la lista de scheduled o tener el flag enabled
+							const isScheduled =
+								room.scheduled_deactivation?.enabled ||
+								scheduledDeactivations.some(
+									(scheduled) => scheduled.room_id === room.room_id
+								);
 							return (
 								<SalaMenuCardEnhanced
 									data={room}

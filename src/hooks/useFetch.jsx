@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import useUser from './useUser';
@@ -162,7 +163,7 @@ export default function useFetch() {
 	 * @param {boolean} notification - Si mostrar notificaciones toast
 	 * @returns {Promise<any>} Datos de la respuesta
 	 */
-	const fetchAPICall = async (
+	const fetchAPICall = useCallback(async (
 		route,
 		method = 'get',
 		body = {},
@@ -190,7 +191,7 @@ export default function useFetch() {
 		return notification
 			? executeWithNotification(requestPromise)
 			: executeWithoutNotification(requestPromise);
-	};
+	}, [isLogged, isExpired, router]);
 
 	return { fetchAPICall };
 }

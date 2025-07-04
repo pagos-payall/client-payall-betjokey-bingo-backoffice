@@ -11,6 +11,13 @@ export const roomService = {
 		return `${ROOM_API_BASE}`;
 	},
 
+	async getRoom(roomId) {
+		return {
+			url: `${ROOM_API_BASE}/${roomId}/estado`,
+			method: 'get',
+		};
+	},
+
 	async createRoom(data) {
 		return {
 			url: `${ROOM_API_BASE}`,
@@ -68,16 +75,22 @@ export const roomService = {
 
 	// Scheduled deactivation
 	async scheduleDeactivation(roomId, requestedBy, options = {}) {
+		const data = {
+			requestedBy,
+			reason: options.reason || 'Desactivación programada desde backoffice',
+			notifyUsers: options.notifyUsers !== false,
+			immediateDeactivation: !!options.immediate_deactivation,
+		};
+		
+		// Solo agregar scheduledAt si no es desactivación inmediata
+		if (!options.immediate_deactivation) {
+			data.scheduledAt = options.scheduledAt || new Date().toISOString();
+		}
+		
 		return {
 			url: `${ROOM_API_BASE}/${roomId}/schedule-deactivation`,
 			method: 'post',
-			data: {
-				requestedBy,
-				reason: options.reason || 'Desactivación programada desde backoffice',
-				scheduledAt: options.scheduledAt || new Date().toISOString(),
-				notifyUsers: options.notifyUsers !== false,
-				autoExecute: options.autoExecute !== false,
-			},
+			data,
 		};
 	},
 

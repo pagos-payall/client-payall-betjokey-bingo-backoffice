@@ -8,6 +8,7 @@ import RoomPerformancePanel from '@/components/dashboard/RoomsPerformance';
 import SystemStatusPanel from '@/components/dashboard/SystemMetrics';
 import UserMetricsPanel from '@/components/dashboard/UsersMetrics';
 import GameAnalyticsPanel from '@/components/dashboard/GameMetrics';
+import RoomStatistics from '@/components/dashboard/RoomStatistics';
 
 // Styled components
 const DashboardContainer = styled.div`
@@ -17,8 +18,10 @@ const DashboardContainer = styled.div`
 	width: 100%;
 	padding: 20px;
 	overflow-y: auto;
+	overflow-x: hidden;
 	color: ${theme.dark.text.primary};
 	background-color: ${theme.dark.background.secondary};
+	flex: 1;
 `;
 
 const TabsContainer = styled.div`
@@ -31,15 +34,15 @@ const TabButton = styled.button`
 	padding: 10px 20px;
 	margin-right: 10px;
 	background-color: ${(props) =>
-		props.active ? theme.dark.background.accent : 'transparent'};
+		props.$active ? theme.dark.background.accent : 'transparent'};
 	color: ${(props) =>
-		props.active ? theme.dark.text.primary : theme.dark.text.secondary};
+		props.$active ? theme.dark.text.primary : theme.dark.text.secondary};
 	border: none;
 	border-bottom: 3px solid
-		${(props) => (props.active ? theme.dark.text.accent : 'transparent')};
+		${(props) => (props.$active ? theme.dark.text.accent : 'transparent')};
 	border-radius: 4px 4px 0 0;
 	cursor: pointer;
-	font-weight: ${(props) => (props.active ? 'bold' : 'normal')};
+	font-weight: ${(props) => (props.$active ? 'bold' : 'normal')};
 	transition: all 0.3s ease;
 
 	&:hover {
@@ -51,6 +54,8 @@ const TabButton = styled.button`
 const PanelContainer = styled.div`
 	flex: 1;
 	overflow-y: auto;
+	overflow-x: hidden;
+	min-height: 0;
 `;
 
 export default function DashboardPage() {
@@ -63,6 +68,7 @@ export default function DashboardPage() {
 	const tabs = [
 		{ id: 'financial', label: 'Finanzas' },
 		{ id: 'rooms', label: 'Salas' },
+		{ id: 'room-stats', label: 'Estadísticas de Salas' },
 		{ id: 'users', label: 'Usuarios' },
 		{ id: 'game', label: 'Análisis de Juego' },
 		{ id: 'system', label: 'Estado del Sistema' },
@@ -75,6 +81,8 @@ export default function DashboardPage() {
 				return <FinancialPanel />;
 			case 'rooms':
 				return <RoomPerformancePanel />;
+			case 'room-stats':
+				return <RoomStatistics />;
 			case 'users':
 				return <UserMetricsPanel />;
 			case 'game':
@@ -94,7 +102,7 @@ export default function DashboardPage() {
 				{tabs.map((tab) => (
 					<TabButton
 						key={tab.id}
-						active={activeTab === tab.id}
+						$active={activeTab === tab.id}
 						onClick={() => setActiveTab(tab.id)}
 					>
 						{tab.label}

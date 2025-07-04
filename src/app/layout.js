@@ -10,6 +10,7 @@ import TokenStatusWatcher from '@/components/TokenStatusWatcher'
 import InactivityWarning from '@/components/InactivityWarning'
 import { headers } from 'next/headers'
 import StyledComponentsProvider from '@/components/StyledComponentsProvider'
+import { WebSocketProvider } from '@/components/WebSocketProvider'
 
 const inter = Inter({ subsets: ['latin'] })
 export const metadata = {
@@ -31,12 +32,14 @@ export default function RootLayout({ children }) {
 			<body className={inter.className}>
 				<StyledComponentsProvider>
 					<UsersState>
+						<WebSocketProvider>
 							<TokenStatusWatcher />
 							<LogoutTimer />
 							<InactivityWarning sessionTime={600000} />
 							<RefreshModal />
 							<Toastbox />
 							<RoomsState>{children}</RoomsState>
+						</WebSocketProvider>
 					</UsersState>
 				</StyledComponentsProvider>
 			</body>

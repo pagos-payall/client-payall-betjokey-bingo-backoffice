@@ -8,6 +8,7 @@ import useUser from '@/hooks/useUser.jsx';
 import useFetch from '@/hooks/useFetch';
 import { useState } from 'react';
 import AlertConfirmModal from './modals/AlertConfirmModal';
+import WebSocketStatus from './WebSocketStatus';
 
 function LeftMenuBar() {
 	const router = useRouter();
@@ -73,9 +74,11 @@ function LeftMenuBar() {
 					flex: 0.5,
 					flexDirection: 'column',
 					justifyContent: 'flex-end',
+					alignItems: 'center',
+					paddingBottom: '10px',
 				}}
 			>
-				{/* <IconComponent size={25} url={settingsIcon} /> */}
+				<WebSocketStatus showText={false} />
 			</div>
 		</MenuComponent>
 	);
