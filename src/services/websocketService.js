@@ -56,6 +56,12 @@ class WebSocketService extends EventEmitter {
       this.reconnectAttempts = 0;
       this.emit('connected');
       
+      // Test basic communication
+      console.log('🧪 Testing WebSocket communication...');
+      this.socket.emit('ping', (response) => {
+        console.log('🏓 Ping response:', response);
+      });
+      
       // Solicitar estado inicial
       console.log('📤 Emitiendo backoffice:init');
       this.socket.emit('backoffice:init', (response) => {
@@ -230,6 +236,11 @@ class WebSocketService extends EventEmitter {
     // DEBUG: Capturar TODOS los eventos (ACTIVADO TEMPORALMENTE)
     if (process.env.NODE_ENV === 'development') {
       this.socket.onAny((eventName, ...args) => {
+        // Ignorar eventos de ping/pong
+        if (eventName === 'ping' || eventName === 'pong') {
+          return;
+        }
+        
         console.log('%c🎯 [ANY EVENT] ' + eventName, 'color: #ff00ff; font-weight: bold');
         console.log('Arguments:', args);
         
@@ -239,7 +250,7 @@ class WebSocketService extends EventEmitter {
         }
       });
       
-      console.log('📡 Listener para TODOS los eventos activado');
+      console.log('📡 Listener para TODOS los eventos activado (ping/pong ignorados)');
     }
   }
 
@@ -319,27 +330,62 @@ class WebSocketService extends EventEmitter {
         }
       }, 1000);
       
-      function tryFallback() {
+      const tryFallback = () => {
         if (gotResponse) return;
         
         console.log('📤 [WebSocketService] Trying server:getRoomsList as fallback');
-        this.socket.emit('server:getRoomsList', (rooms) => {
-          if (gotResponse) return;
-          gotResponse = true;
-          clearTimeout(timeout);
-          clearTimeout(fallbackTimeout);
-          
-          console.log('📥 [WebSocketService] server:getRoomsList response:', rooms);
-          
-          if (Array.isArray(rooms)) {
-            console.log('✅ [WebSocketService] Rooms received from fallback');
-            resolve(rooms);
-          } else {
-            console.error('❌ [WebSocketService] Invalid fallback response');
-            reject(new Error('No se pudo obtener la lista de salas'));
+        
+        // Try different event names
+        const eventNames = ['server:getRoomsList', 'getRoomsList', 'rooms:list', 'backoffice:rooms:list'];
+        let eventIndex = 0;
+        
+        const tryNextEvent = () => {
+          if (gotResponse || eventIndex >= eventNames.length) {
+            if (!gotResponse) {
+              console.error('❌ [WebSocketService] All event names failed');
+              reject(new Error('No se pudo obtener la lista de salas - ningún evento respondió'));
+            }
+            return;
           }
-        });
-      }
+          
+          const eventName = eventNames[eventIndex];
+          console.log(`🔍 [WebSocketService] Trying event: ${eventName}`);
+          
+          this.socket.emit(eventName, (response) => {
+            if (gotResponse) return;
+            
+            console.log(`📥 [WebSocketService] Response from ${eventName}:`, response);
+            
+            if (Array.isArray(response)) {
+              gotResponse = true;
+              clearTimeout(timeout);
+              clearTimeout(fallbackTimeout);
+              console.log(`✅ [WebSocketService] Rooms received from ${eventName}`);
+              resolve(response);
+            } else if (response && response.rooms && Array.isArray(response.rooms)) {
+              gotResponse = true;
+              clearTimeout(timeout);
+              clearTimeout(fallbackTimeout);
+              console.log(`✅ [WebSocketService] Rooms received from ${eventName} (in response.rooms)`);
+              resolve(response.rooms);
+            } else {
+              console.warn(`⚠️ [WebSocketService] Invalid response from ${eventName}`);
+              eventIndex++;
+              setTimeout(tryNextEvent, 100);
+            }
+          });
+          
+          // Try next event after 500ms if no response
+          setTimeout(() => {
+            if (!gotResponse) {
+              eventIndex++;
+              tryNextEvent();
+            }
+          }, 500);
+        };
+        
+        tryNextEvent();
+      };
     });
   }
   
@@ -514,10 +560,52 @@ class WebSocketService extends EventEmitter {
   getSocketId() {
     return this.socket?.id || null;
   }
+  
+  // Debug method to test available events
+  debugAvailableEvents() {
+    if (!this.socket || !this.connected) {
+      console.error('Socket not connected');
+      return;
+    }
+    
+    console.log('🔍 Testing available WebSocket events...');
+    
+    // Common event patterns
+    const testEvents = [
+      'client:roomsList',
+      'server:roomsList',
+      'backoffice:getRoomsList',
+      'getRoomsList',
+      'rooms:list',
+      'rooms:get',
+      'rooms',
+      'listRooms',
+      'room:list',
+      'backoffice:rooms',
+      'admin:rooms:list'
+    ];
+    
+    testEvents.forEach((eventName, index) => {
+      setTimeout(() => {
+        console.log(`🧪 Testing event: ${eventName}`);
+        this.socket.emit(eventName, (response) => {
+          if (response !== undefined) {
+            console.log(`✅ ${eventName} RESPONDED:`, response);
+          }
+        });
+      }, index * 200); // Stagger requests
+    });
+  }
 }
 
 // Singleton
 const websocketService = new WebSocketService();
 
+// DEBUG: Expose to window for debugging
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  window.websocketService = websocketService;
+  console.log('💡 WebSocket service exposed to window.websocketService for debugging');
+  console.log('   Try: window.websocketService.debugAvailableEvents()');
+}
 
 export default websocketService;
