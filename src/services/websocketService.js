@@ -64,14 +64,45 @@ class WebSocketService extends EventEmitter {
       
       // Solicitar lista de salas inicial usando client:roomsList
       console.log('📤 Solicitando lista de salas inicial con client:roomsList');
+      
+      // Intentar primero con client:roomsList
+      let responseReceived = false;
+      
       this.socket.emit('client:roomsList', (response) => {
+        responseReceived = true;
+        console.log('📥 [WebSocketService] Initial client:roomsList response:', {
+          type: typeof response,
+          isArray: Array.isArray(response),
+          hasSuccess: response?.success,
+          hasRooms: response?.rooms,
+          responseKeys: response ? Object.keys(response) : null,
+          fullResponse: response
+        });
+        
         if (response && response.success && response.rooms) {
-          console.log('📥 Lista de salas recibida:', response.rooms.length, 'salas');
+          console.log('✅ Lista de salas recibida:', response.rooms.length, 'salas');
           this.emit('roomsList', response.rooms);
+        } else if (Array.isArray(response)) {
+          console.log('✅ Lista de salas recibida (array directo):', response.length, 'salas');
+          this.emit('roomsList', response);
         } else {
           console.warn('⚠️ Respuesta inesperada de client:roomsList:', response);
         }
       });
+      
+      // Fallback: intentar con server:getRoomsList si no hay respuesta
+      setTimeout(() => {
+        if (!responseReceived) {
+          console.log('⚠️ No response from client:roomsList, trying server:getRoomsList');
+          this.socket.emit('server:getRoomsList', (rooms) => {
+            console.log('📥 [WebSocketService] server:getRoomsList response:', rooms);
+            if (Array.isArray(rooms)) {
+              console.log('✅ Lista de salas recibida (server:getRoomsList):', rooms.length, 'salas');
+              this.emit('roomsList', rooms);
+            }
+          });
+        }
+      }, 1000);
     });
 
     this.socket.on('disconnect', (reason) => {
@@ -196,15 +227,20 @@ class WebSocketService extends EventEmitter {
       this.emit('unauthorized', error);
     });
 
-    // DEBUG: Capturar TODOS los eventos (DESACTIVADO)
-    // if (process.env.NODE_ENV === 'development') {
-    //   this.socket.onAny((eventName, ...args) => {
-    //     console.log('%c🎯 [ANY EVENT] ' + eventName, 'color: #ff00ff; font-weight: bold');
-    //     console.log('Arguments:', args);
-    //   });
-    //   
-    //   console.log('📡 Listener para TODOS los eventos activado');
-    // }
+    // DEBUG: Capturar TODOS los eventos (ACTIVADO TEMPORALMENTE)
+    if (process.env.NODE_ENV === 'development') {
+      this.socket.onAny((eventName, ...args) => {
+        console.log('%c🎯 [ANY EVENT] ' + eventName, 'color: #ff00ff; font-weight: bold');
+        console.log('Arguments:', args);
+        
+        // Log específico para eventos de salas
+        if (eventName.includes('room') || eventName.includes('Room')) {
+          console.log('%c📋 Room-related event detected!', 'color: #00ff00; font-weight: bold');
+        }
+      });
+      
+      console.log('📡 Listener para TODOS los eventos activado');
+    }
   }
 
   // Métodos de emisión con promesas
@@ -228,22 +264,82 @@ class WebSocketService extends EventEmitter {
 
   getRoomsList() {
     return new Promise((resolve, reject) => {
+      // Verificar conexión primero
+      if (!this.socket || !this.connected) {
+        console.error('❌ [WebSocketService] getRoomsList - Socket no conectado');
+        reject(new Error('WebSocket no conectado'));
+        return;
+      }
+      
+      console.log('📤 [WebSocketService] getRoomsList - Emitiendo client:roomsList');
+      
       const timeout = setTimeout(() => {
+        console.error('⏱️ [WebSocketService] getRoomsList - Timeout alcanzado (5s)');
         reject(new Error('Timeout obteniendo lista de salas'));
       }, 5000);
 
+      // Track if we got a response
+      let gotResponse = false;
+      
       // Usar client:roomsList según el documento
       this.socket.emit('client:roomsList', (response) => {
+        if (gotResponse) return; // Avoid duplicate responses
+        gotResponse = true;
         clearTimeout(timeout);
+        
+        // Log detallado de la respuesta
+        console.log('📥 [WebSocketService] getRoomsList client:roomsList response:', {
+          type: typeof response,
+          isArray: Array.isArray(response),
+          hasSuccess: response?.success,
+          hasRooms: response?.rooms,
+          responseKeys: response ? Object.keys(response) : null,
+          fullResponse: response
+        });
+        
         if (response && response.success && Array.isArray(response.rooms)) {
+          console.log('✅ [WebSocketService] Rooms array found in response.rooms');
           resolve(response.rooms);
         } else if (Array.isArray(response)) {
           // Fallback si la respuesta es directamente un array
+          console.log('✅ [WebSocketService] Response is directly an array');
           resolve(response);
         } else {
-          reject(new Error(response?.error || 'Respuesta inválida del servidor'));
+          console.error('❌ [WebSocketService] Invalid response format from client:roomsList');
+          // Try fallback
+          tryFallback();
         }
       });
+      
+      // Fallback after 1 second if no response
+      const fallbackTimeout = setTimeout(() => {
+        if (!gotResponse) {
+          console.warn('⚠️ [WebSocketService] No response from client:roomsList, trying fallback');
+          tryFallback();
+        }
+      }, 1000);
+      
+      function tryFallback() {
+        if (gotResponse) return;
+        
+        console.log('📤 [WebSocketService] Trying server:getRoomsList as fallback');
+        this.socket.emit('server:getRoomsList', (rooms) => {
+          if (gotResponse) return;
+          gotResponse = true;
+          clearTimeout(timeout);
+          clearTimeout(fallbackTimeout);
+          
+          console.log('📥 [WebSocketService] server:getRoomsList response:', rooms);
+          
+          if (Array.isArray(rooms)) {
+            console.log('✅ [WebSocketService] Rooms received from fallback');
+            resolve(rooms);
+          } else {
+            console.error('❌ [WebSocketService] Invalid fallback response');
+            reject(new Error('No se pudo obtener la lista de salas'));
+          }
+        });
+      }
     });
   }
   

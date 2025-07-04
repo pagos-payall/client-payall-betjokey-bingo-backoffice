@@ -15,37 +15,65 @@ export function useWebSocketStatistics(roomId) {
 
   // Request rooms list when component mounts or roomId changes
   useEffect(() => {
-    if (!roomId || !websocket.connected) {
+    if (!roomId) {
       setLoading(false);
       return;
     }
 
-    console.log(`📊 [useWebSocketStatistics] Requesting rooms for ${roomId}`);
+    console.log(`📊 [useWebSocketStatistics] Effect triggered for room ${roomId}, connected: ${websocket.connected}`);
     
-    // Request initial data
-    websocket.getRoomsList()
-      .then((rooms) => {
-        const foundRoom = rooms.find(r => 
-          (r.room === roomId) || 
-          (r.room_id === roomId) || 
-          (r.roomId === roomId)
-        );
-        
-        if (foundRoom) {
-          console.log(`📊 [useWebSocketStatistics] Room found:`, foundRoom);
-          setRoom(foundRoom);
-          setError(null);
+    // If not connected, wait a bit for connection
+    if (!websocket.connected) {
+      console.log(`📊 [useWebSocketStatistics] WebSocket not connected yet, waiting...`);
+      setLoading(true);
+      
+      // Set a timeout to check connection after a delay
+      const checkTimeout = setTimeout(() => {
+        if (websocket.connected) {
+          console.log(`📊 [useWebSocketStatistics] WebSocket connected after wait, requesting rooms`);
+          requestRoomData();
         } else {
-          console.warn(`📊 [useWebSocketStatistics] Room ${roomId} not found`);
-          setError(new Error('Sala no encontrada'));
+          console.error(`📊 [useWebSocketStatistics] WebSocket still not connected after wait`);
+          setError(new Error('WebSocket no conectado'));
+          setLoading(false);
         }
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(`📊 [useWebSocketStatistics] Error:`, err);
-        setError(err);
-        setLoading(false);
-      });
+      }, 2000); // Wait 2 seconds for connection
+      
+      return () => clearTimeout(checkTimeout);
+    }
+    
+    // If already connected, request immediately
+    requestRoomData();
+    
+    function requestRoomData() {
+      console.log(`📊 [useWebSocketStatistics] Requesting rooms list for ${roomId}`);
+      
+      websocket.getRoomsList()
+        .then((rooms) => {
+          console.log(`📊 [useWebSocketStatistics] Received ${rooms?.length || 0} rooms`);
+          
+          const foundRoom = rooms.find(r => 
+            (r.room === roomId) || 
+            (r.room_id === roomId) || 
+            (r.roomId === roomId)
+          );
+          
+          if (foundRoom) {
+            console.log(`📊 [useWebSocketStatistics] Room found:`, foundRoom);
+            setRoom(foundRoom);
+            setError(null);
+          } else {
+            console.warn(`📊 [useWebSocketStatistics] Room ${roomId} not found in list`);
+            setError(new Error('Sala no encontrada'));
+          }
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error(`📊 [useWebSocketStatistics] Error:`, err);
+          setError(err);
+          setLoading(false);
+        });
+    }
   }, [roomId, websocket.connected]);
 
   // Listen for updates
