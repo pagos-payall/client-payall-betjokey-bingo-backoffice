@@ -1,5 +1,5 @@
 import { GET_USERS } from '../users/types';
-import { GET_ROOMS } from './types';
+import { GET_ROOMS, UPDATE_ROOM } from './types';
 
 const RoomsReducer = (state, action) => {
 	const { payload, type } = action;
@@ -14,6 +14,18 @@ const RoomsReducer = (state, action) => {
 			return {
 				...state,
 				users: payload,
+			};
+		case UPDATE_ROOM:
+			// Actualizar solo una sala específica
+			const { roomId, updates } = payload;
+			const updatedRooms = state.rooms.map(room => 
+				room.room_id === roomId 
+					? { ...room, ...updates }
+					: room
+			);
+			return {
+				...state,
+				rooms: updatedRooms,
 			};
 		default:
 			return state;

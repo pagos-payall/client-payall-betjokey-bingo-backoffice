@@ -5,6 +5,7 @@ import RoomsReducer from './RoomsReducer';
 import useFetch from '@/hooks/useFetch';
 import useUser from '@/hooks/useUser';
 import { useWebSocketContext } from '@/components/WebSocketProvider';
+import { UPDATE_ROOM } from './types';
 
 const RoomsState = ({ children }) => {
 	const { fetchAPICall } = useFetch();
@@ -116,12 +117,44 @@ const RoomsState = ({ children }) => {
 					break;
 					
 				case 'rooms:list:full':
-					// Lista completa de salas recibida del WebSocket
-					if (update.data.rooms) {
-						dispatch({
-							type: 'GET_ROOMS',
-							payload: update.data.rooms
-						});
+					// Este evento envía información mínima sobre cambios específicos
+					// NO es una lista completa, es información sobre UNA sala
+					if (update.data) {
+						const { roomId, action, newState } = update.data;
+						
+						// Verificar si la sala existe en el estado actual
+						const roomExists = state.rooms.some(room => room.room_id === roomId);
+						
+						if (roomExists) {
+							// Determinar el nuevo estado según la acción
+							let updates = {};
+							
+							switch (action) {
+								case 'activated':
+									updates.status = 'waiting';
+									break;
+								case 'deactivated':
+									updates.status = 'off';
+									break;
+								case 'status_changed':
+									if (newState) {
+										updates.status = newState;
+									}
+									break;
+							}
+							
+							// Usar la nueva acción UPDATE_ROOM
+							dispatch({
+								type: 'UPDATE_ROOM',
+								payload: {
+									roomId,
+									updates
+								}
+							});
+						} else {
+							// Si la sala no existe, recargar toda la lista
+							getRooms(true);
+						}
 					}
 					break;
 				
