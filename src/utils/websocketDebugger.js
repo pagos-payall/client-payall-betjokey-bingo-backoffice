@@ -182,14 +182,14 @@ class WebSocketDebugger {
 if (typeof window !== 'undefined') {
   window.wsdebug = new WebSocketDebugger();
   
-  console.log('%c🐛 WebSocket Debugger Loaded', 'color: #00ff00; font-size: 14px; font-weight: bold');
-  console.log('Comandos disponibles:');
-  console.log('  wsdebug.startMonitoring() - Iniciar monitoreo de eventos');
-  console.log('  wsdebug.stopMonitoring() - Detener monitoreo');
-  console.log('  wsdebug.showEventLog() - Ver eventos capturados');
-  console.log('  wsdebug.clearLog() - Limpiar log');
-  console.log('  wsdebug.testConnection() - Test completo de conexión');
-  console.log('  wsdebug.sendTestEvent() - Enviar evento de prueba');
+  // console.log('%c🐛 WebSocket Debugger Loaded', 'color: #00ff00; font-size: 14px; font-weight: bold');
+  // console.log('Comandos disponibles:');
+  // console.log('  wsdebug.startMonitoring() - Iniciar monitoreo de eventos');
+  // console.log('  wsdebug.stopMonitoring() - Detener monitoreo');
+  // console.log('  wsdebug.showEventLog() - Ver eventos capturados');
+  // console.log('  wsdebug.clearLog() - Limpiar log');
+  // console.log('  wsdebug.testConnection() - Test completo de conexión');
+  // console.log('  wsdebug.sendTestEvent() - Enviar evento de prueba');
 }
 
 export default WebSocketDebugger;

@@ -20,20 +20,16 @@ export function useWebSocketStatistics(roomId) {
       return;
     }
 
-    console.log(`📊 [useWebSocketStatistics] Effect triggered for room ${roomId}, connected: ${websocket.connected}`);
     
     // If not connected, wait a bit for connection
     if (!websocket.connected) {
-      console.log(`📊 [useWebSocketStatistics] WebSocket not connected yet, waiting...`);
       setLoading(true);
       
       // Set a timeout to check connection after a delay
       const checkTimeout = setTimeout(() => {
         if (websocket.connected) {
-          console.log(`📊 [useWebSocketStatistics] WebSocket connected after wait, requesting rooms`);
           requestRoomData();
         } else {
-          console.error(`📊 [useWebSocketStatistics] WebSocket still not connected after wait`);
           setError(new Error('WebSocket no conectado'));
           setLoading(false);
         }
@@ -46,88 +42,28 @@ export function useWebSocketStatistics(roomId) {
     requestRoomData();
     
     function requestRoomData() {
-      console.log(`📊 [useWebSocketStatistics] Requesting room info for ${roomId}`);
       
-      // Try getRoomInfo first (for individual room data)
-      if (websocket.getRoomInfo) {
-        websocket.getRoomInfo(roomId)
-          .then((roomInfo) => {
-            console.log(`📊 [useWebSocketStatistics] Received room info:`, roomInfo);
-            
-            if (roomInfo) {
-              // Add room_id to the data if not present
-              const roomData = {
-                ...roomInfo,
-                room_id: roomId
-              };
-              setRoom(roomData);
-              setError(null);
-            } else {
-              console.warn(`📊 [useWebSocketStatistics] No data for room ${roomId}`);
-              setError(new Error('No se encontraron datos de la sala'));
-            }
-            setLoading(false);
-          })
-          .catch((err) => {
-            console.error(`📊 [useWebSocketStatistics] Error getting room info:`, err);
-            
-            // Fallback to getRoomsList
-            console.log(`📊 [useWebSocketStatistics] Falling back to getRoomsList`);
-            
-            websocket.getRoomsList()
-              .then((rooms) => {
-                console.log(`📊 [useWebSocketStatistics] Received ${rooms?.length || 0} rooms from list`);
-                
-                const foundRoom = rooms.find(r => 
-                  (r.room === roomId) || 
-                  (r.room_id === roomId) || 
-                  (r.roomId === roomId)
-                );
-                
-                if (foundRoom) {
-                  console.log(`📊 [useWebSocketStatistics] Room found in list:`, foundRoom);
-                  setRoom(foundRoom);
-                  setError(null);
-                } else {
-                  console.warn(`📊 [useWebSocketStatistics] Room ${roomId} not found in list`);
-                  setError(new Error('Sala no encontrada'));
-                }
-                setLoading(false);
-              })
-              .catch((listErr) => {
-                console.error(`📊 [useWebSocketStatistics] Error in fallback:`, listErr);
-                setError(listErr);
-                setLoading(false);
-              });
-          });
-      } else {
-        // If getRoomInfo doesn't exist, use getRoomsList directly
-        websocket.getRoomsList()
-          .then((rooms) => {
-            console.log(`📊 [useWebSocketStatistics] Received ${rooms?.length || 0} rooms`);
-            
-            const foundRoom = rooms.find(r => 
-              (r.room === roomId) || 
-              (r.room_id === roomId) || 
-              (r.roomId === roomId)
-            );
-            
-            if (foundRoom) {
-              console.log(`📊 [useWebSocketStatistics] Room found:`, foundRoom);
-              setRoom(foundRoom);
-              setError(null);
-            } else {
-              console.warn(`📊 [useWebSocketStatistics] Room ${roomId} not found in list`);
-              setError(new Error('Sala no encontrada'));
-            }
-            setLoading(false);
-          })
-          .catch((err) => {
-            console.error(`📊 [useWebSocketStatistics] Error:`, err);
-            setError(err);
-            setLoading(false);
-          });
-      }
+      // Use getRoomInfo with client:getRoomInfo event
+      websocket.getRoomInfo(roomId)
+        .then((roomInfo) => {
+          
+          if (roomInfo) {
+            // Add room_id to the data if not present
+            const roomData = {
+              ...roomInfo,
+              room_id: roomId
+            };
+            setRoom(roomData);
+            setError(null);
+          } else {
+            setError(new Error('No se encontraron datos de la sala'));
+          }
+          setLoading(false);
+        })
+        .catch((err) => {
+          setError(err);
+          setLoading(false);
+        });
     }
   }, [roomId, websocket.connected]);
 
@@ -146,7 +82,6 @@ export function useWebSocketStatistics(roomId) {
       );
       
       if (updatedRoom) {
-        console.log(`📊 [useWebSocketStatistics] Room updated from list:`, updatedRoom);
         setRoom(updatedRoom);
         setLoading(false);
       }
@@ -158,7 +93,6 @@ export function useWebSocketStatistics(roomId) {
       const updateRoomId = data.host?.gameURI?.split('/').pop() || data.room_id;
       
       if (updateRoomId === roomId) {
-        console.log(`📊 [useWebSocketStatistics] Room info update for our room:`, data);
         const roomData = {
           ...data,
           room_id: roomId
@@ -172,19 +106,17 @@ export function useWebSocketStatistics(roomId) {
     if ((type === 'room:status:changed' || type === 'game:state:updated') && 
         (data.roomId === roomId || data.room_id === roomId)) {
       // Request fresh data for this specific room
-      if (websocket.getRoomInfo) {
-        websocket.getRoomInfo(roomId)
-          .then((roomInfo) => {
-            if (roomInfo) {
-              const roomData = {
-                ...roomInfo,
-                room_id: roomId
-              };
-              setRoom(roomData);
-            }
-          })
-          .catch(console.error);
-      }
+      websocket.getRoomInfo(roomId)
+        .then((roomInfo) => {
+          if (roomInfo) {
+            const roomData = {
+              ...roomInfo,
+              room_id: roomId
+            };
+            setRoom(roomData);
+          }
+        })
+        .catch(() => {});
     }
   }, [websocket.lastUpdate, roomId]);
 
@@ -192,7 +124,6 @@ export function useWebSocketStatistics(roomId) {
   const statistics = useMemo(() => {
     if (!room) return null;
 
-    console.log('📊 [useWebSocketStatistics] Processing room data:', room);
 
     // Handle the nested structure from server:getRoomInfo
     let roomData, gameData, usersData;
@@ -202,6 +133,7 @@ export function useWebSocketStatistics(roomId) {
       roomData = room.host;
       gameData = room.game;
       usersData = room.host.users || [];
+      
     } else {
       // Old structure fallback
       roomData = room;
@@ -255,12 +187,20 @@ export function useWebSocketStatistics(roomId) {
         game_type: gameData.type || roomData.typeOfGame
       },
       requirements_status: {
-        minimum_cards: roomData.min_cards || roomData.min_value || 100, // Default min
+        // Si hay min_value, calcular cuántos cartones se necesitan basándose en el precio
+        // Si hay min_cards, usar ese valor directamente
+        minimum_cards: roomData.min_cards || 
+          (roomData.min_value && cardPrice > 0 ? Math.ceil(roomData.min_value / cardPrice) : 0) || 
+          100, // Default min
+        minimum_value: roomData.min_value || (roomData.min_cards ? roomData.min_cards * cardPrice : 0),
         current_cards: soldCards,
-        can_start_game: soldCards >= (roomData.min_cards || roomData.min_value || 100),
-        percentage_complete: (roomData.min_cards || roomData.min_value) > 0 
-          ? (soldCards / (roomData.min_cards || roomData.min_value)) * 100 
-          : 0
+        current_value: revenue,
+        can_start_game: roomData.min_value 
+          ? revenue >= roomData.min_value  // Si hay min_value, comparar por valor
+          : soldCards >= (roomData.min_cards || 100), // Si no, comparar por cartones
+        percentage_complete: roomData.min_value 
+          ? (roomData.min_value > 0 ? (revenue / roomData.min_value) * 100 : 0)
+          : ((roomData.min_cards || 100) > 0 ? (soldCards / (roomData.min_cards || 100)) * 100 : 0)
       },
       rewards: {
         linea: roomData.rewards?.linea || 0,
@@ -277,16 +217,22 @@ export function useWebSocketStatistics(roomId) {
     error,
     refresh: () => {
       setLoading(true);
-      websocket.getRoomsList()
-        .then((rooms) => {
-          const foundRoom = rooms.find(r => 
-            (r.room === roomId) || 
-            (r.room_id === roomId) || 
-            (r.roomId === roomId)
-          );
-          if (foundRoom) {
-            setRoom(foundRoom);
+      setError(null);
+      
+      // Use getRoomInfo directly for the specific room
+      websocket.getRoomInfo(roomId)
+        .then((roomInfo) => {
+          
+          if (roomInfo) {
+            // Add room_id to the data if not present
+            const roomData = {
+              ...roomInfo,
+              room_id: roomId
+            };
+            setRoom(roomData);
             setError(null);
+          } else {
+            setError(new Error('No se recibieron datos de la sala'));
           }
           setLoading(false);
         })

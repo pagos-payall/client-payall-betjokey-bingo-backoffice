@@ -12,6 +12,8 @@ const nextConfig = {
 	compiler: {
 		styledComponents: true,
 	},
+	// Disable source maps in production for better performance
+	productionBrowserSourceMaps: false,
 }
 
 export default nextConfig

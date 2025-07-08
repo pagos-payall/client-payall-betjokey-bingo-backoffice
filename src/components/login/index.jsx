@@ -36,6 +36,7 @@ const LoginForm = () => {
 					obj.level = res.level;
 
 					login(obj);
+					// Event will be dispatched by axios interceptor after cookies are set
 					setTimeout(router.push('/dashboard'), 2000);
 				}
 			})

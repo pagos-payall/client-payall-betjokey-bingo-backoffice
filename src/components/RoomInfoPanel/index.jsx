@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import {
 	PanelContainer,
@@ -34,16 +34,28 @@ import {
 	StatLabel,
 } from './styles';
 import { formatCurrency, formatNumber } from '@/services/utilFunctions';
+
+// Helper function for game status text
+function getGameStatusText(status) {
+	const statusMap = {
+		'waiting': 'Esperando jugadores',
+		'active': 'En progreso',
+		'in_progress': 'En progreso',
+		'finishing': 'Finalizando',
+		'finished': 'Terminado',
+		'off': 'Desactivada',
+		'archive': 'Archivada'
+	};
+	return statusMap[status] || 'Estado desconocido';
+}
 import { roomService } from '@/services/roomService';
 import useFetch from '@/hooks/useFetch';
 import useUser from '@/hooks/useUser';
 import Button from '@/components/Button';
 import { closeIcon } from '@/data/icons';
-import RoomStatsPanel from '@/components/RoomStatsPanel';
-import { useFormattedStatistics } from '@/hooks/useRoomStatistics';
-import { useWebSocketStatistics } from '@/hooks/useWebSocketStatistics';
+import { useRoomStatisticsCombined } from '@/hooks/useRoomStatisticsCombined';
 
-const RoomInfoPanel = ({ room, initialValues, onEditClick, onRoomUpdate }) => {
+const RoomInfoPanel = ({ room, initialValues, onRoomUpdate }) => {
 	const { fetchAPICall } = useFetch();
 	const { username } = useUser();
 
@@ -67,31 +79,14 @@ const RoomInfoPanel = ({ room, initialValues, onEditClick, onRoomUpdate }) => {
 
 	const statusInfo = getStatusMapping(room.status);
 
-	// Get statistics from WebSocket instead of API
-	const { statistics: wsStatistics, loading: wsLoading, error: wsError, refresh: wsRefresh } = useWebSocketStatistics(room?.room_id);
-	
-	// Fallback to API statistics if needed (commented out for now)
-	// const { statistics: apiStatistics, loading: apiLoading, error: apiError } = useFormattedStatistics(
-	//	room?.room_id,
-	//	{
-	//		autoRefresh: false,
-	//		enabled: false // Disabled by default
-	//	}
-	// );
-	
-	// Use WebSocket statistics
-	const statistics = wsStatistics;
-	const statsLoading = wsLoading;
-	const statsError = wsError;
+	// Get combined statistics from both API and WebSocket
+	const { 
+		statistics, 
+		loading: statsLoading, 
+		error: statsError, 
+		refresh: statsRefresh
+	} = useRoomStatisticsCombined(room?.room_id, { ...initialValues, status: room?.status });
 
-	// Debug log
-	console.log('🎯 [RoomInfoPanel] WebSocket Statistics:', {
-		roomId: room?.room_id,
-		loading: wsLoading,
-		error: wsError,
-		statistics: wsStatistics,
-		room: room
-	});
 
 	// Use API data or fallback to room data
 	const currentMetrics = statistics?.current_metrics || {
@@ -101,21 +96,21 @@ const RoomInfoPanel = ({ room, initialValues, onEditClick, onRoomUpdate }) => {
 		total_cards: room.game?.cards?.total || 0,
 		revenue: (room.game?.cards?.sold || 0) * (initialValues?.card_price || 0),
 		game_status: room.game?.status || null,
+		game_status_text: null,
 		occupancy_percentage: room.game?.cards?.total > 0 
 			? ((room.game?.cards?.sold || 0) / room.game.cards.total) * 100 
 			: 0
 	};
 	
 	const dailyStats = statistics?.daily_stats || {};
-	const financialBreakdown = statistics?.financial_breakdown || {};
 	const requirementsStatus = statistics?.requirements_status || {
-		// Fallback requirements
-		minimum_cards: initialValues?.min_value || 0,
-		current_cards: room.game?.cards?.sold || 0,
-		can_start_game: (room.game?.cards?.sold || 0) >= (initialValues?.min_value || 0),
-		percentage_complete: initialValues?.min_value > 0 
-			? ((room.game?.cards?.sold || 0) / initialValues.min_value) * 100 
-			: 0
+		// Fallback requirements - use correct fields from initialValues
+		minimum_cards: initialValues?.minimum_cards || initialValues?.min_cards || 100,
+		minimum_value: initialValues?.minimum_value || initialValues?.min_value || null,
+		current_cards: currentMetrics.sold_cards || 0,
+		current_value: currentMetrics.revenue || 0,
+		can_start_game: false,
+		percentage_complete: 0
 	};
 
 
@@ -161,7 +156,6 @@ const RoomInfoPanel = ({ room, initialValues, onEditClick, onRoomUpdate }) => {
 				onRoomUpdate();
 			}
 		} catch (error) {
-			console.error('Error al cancelar desactivación:', error);
 			toast.error('Error al cancelar la desactivación programada');
 		} finally {
 			setCancellingDeactivation(false);
@@ -171,10 +165,10 @@ const RoomInfoPanel = ({ room, initialValues, onEditClick, onRoomUpdate }) => {
 	return (
 		<PanelContainer>
 			{/* Card de Estado Principal */}
-			<StatusCard status={statusInfo.color}>
+			<StatusCard $status={statusInfo.color}>
 				<StatusHeader>
 					<div>
-						<StatusBadge status={statusInfo.color}>
+						<StatusBadge $status={statusInfo.color}>
 							<span className='status-icon'></span>
 							{statusInfo.label}
 						</StatusBadge>
@@ -252,12 +246,12 @@ const RoomInfoPanel = ({ room, initialValues, onEditClick, onRoomUpdate }) => {
 			)}
 
 			{/* Botón de actualización manual */}
-			{wsError && (
+			{statsError && (
 				<div style={{ textAlign: 'center', marginBottom: '16px' }}>
 					<Button 
 						type="button" 
 						color="blue" 
-						onClick={wsRefresh}
+						onClick={statsRefresh}
 						style={{ padding: '8px 16px', fontSize: '12px' }}
 					>
 						🔄 Actualizar estadísticas
@@ -290,7 +284,7 @@ const RoomInfoPanel = ({ room, initialValues, onEditClick, onRoomUpdate }) => {
 						{statsLoading ? '...' : formatNumber(currentMetrics.sold_cards || 0)}
 					</MetricValue>
 					<MetricSubtitle>
-						de {formatNumber(currentMetrics.total_cards || 0)} disponibles
+						de {formatNumber(currentMetrics.total_cards || 0)} totales ({formatNumber(currentMetrics.available_cards || 0)} disponibles)
 					</MetricSubtitle>
 					<MetricTrend>
 						{currentMetrics.occupancy_formatted || `${Math.round(currentMetrics.occupancy_percentage || 0)}%`}
@@ -313,15 +307,20 @@ const RoomInfoPanel = ({ room, initialValues, onEditClick, onRoomUpdate }) => {
 				<MetricCard>
 					<MetricLabel>Estado del Juego</MetricLabel>
 					<MetricValue style={{ fontSize: '20px' }}>
-						{statsLoading ? '...' : (currentMetrics.game_status_text || 'Sin juego')}
+						{statsLoading ? '...' : 
+							(room.status === 'archive' || room.status === 'archived') ? 'No asignado' :
+							(currentMetrics.game_status_text || getGameStatusText(currentMetrics.game_status) || 'Sin juego')
+						}
 					</MetricValue>
-					{currentMetrics.game_duration_formatted && (
+					{currentMetrics.game_duration_formatted && room.status !== 'archive' && room.status !== 'archived' && (
 						<MetricSubtitle>Tiempo: {currentMetrics.game_duration_formatted}</MetricSubtitle>
 					)}
 					<MetricTrend>
-						{room.game
-							? `Juego #${room.game_id || (room.game?.ref ? room.game.ref.slice(-4) : '1')}`
-							: 'Esperando inicio'}
+						{room.status === 'archive' || room.status === 'archived' 
+							? 'Sin juego asignado'
+							: (room.game
+								? `Juego #${room.game_id || (room.game?.ref ? room.game.ref.slice(-4) : '1')}`
+								: 'Esperando inicio')}
 					</MetricTrend>
 				</MetricCard>
 			</MetricsGrid>
@@ -332,14 +331,25 @@ const RoomInfoPanel = ({ room, initialValues, onEditClick, onRoomUpdate }) => {
 
 				<ProgressBarContainer>
 					<ProgressInfo>
-						<ProgressLabel>Cartones mínimos</ProgressLabel>
+						<ProgressLabel>
+							{requirementsStatus.minimum_value ? 'Valor mínimo' : 'Cartones mínimos'}
+						</ProgressLabel>
 						<ProgressValues>
-							{requirementsStatus.current_cards || 0} / {requirementsStatus.minimum_cards || 0}
+							{requirementsStatus.minimum_value ? (
+								<>
+									{formatCurrency(requirementsStatus.current_value || 0)} / {formatCurrency(requirementsStatus.minimum_value)}
+									<div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+										({requirementsStatus.current_cards || 0} / {requirementsStatus.minimum_cards || 0} cartones)
+									</div>
+								</>
+							) : (
+								`${requirementsStatus.current_cards || 0} / ${requirementsStatus.minimum_cards || 0}`
+							)}
 						</ProgressValues>
 					</ProgressInfo>
 					<ProgressBar>
 						<ProgressFill
-							status={getProgressBarColor(requirementsStatus.percentage_complete || 0)}
+							$status={getProgressBarColor(requirementsStatus.percentage_complete || 0)}
 							style={{
 								width: `${Math.min(requirementsStatus.percentage_complete || 0, 100)}%`,
 							}}
@@ -378,7 +388,7 @@ const RoomInfoPanel = ({ room, initialValues, onEditClick, onRoomUpdate }) => {
 					</ConfigItem>
 					<ConfigItem>
 						<ConfigLabel>Creada</ConfigLabel>
-						<ConfigValue>{formatDate(room.createAt)}</ConfigValue>
+						<ConfigValue>{formatDate(statistics?.createdAt || room.createAt)}</ConfigValue>
 					</ConfigItem>
 					<ConfigItem>
 						<ConfigLabel>Comisión</ConfigLabel>
@@ -423,7 +433,7 @@ const RoomInfoPanel = ({ room, initialValues, onEditClick, onRoomUpdate }) => {
 					</StatItem>
 					<StatItem>
 						<StatValue>
-							{statsLoading ? '...' : (dailyStats.total_revenue_formatted || formatCurrency(0))}
+							{statsLoading ? '...' : formatCurrency(dailyStats.total_revenue || 0)}
 						</StatValue>
 						<StatLabel>Recaudación Total</StatLabel>
 					</StatItem>

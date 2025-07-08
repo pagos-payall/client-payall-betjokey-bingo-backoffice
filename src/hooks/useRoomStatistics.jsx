@@ -44,12 +44,12 @@ export function useRoomStatistics(roomId, options = {}) {
         period
       });
 
-      console.log(`📈 [useRoomStatistics] Received data for room ${roomId}:`, data);
+      // Data received successfully
 
       if (mountedRef.current) {
         setStatistics(data);
         setLastUpdated(new Date());
-        console.log(`📈 [useRoomStatistics] Statistics state updated for room ${roomId}`);
+        // State updated successfully
       }
     } catch (err) {
       if (mountedRef.current) {
@@ -70,22 +70,14 @@ export function useRoomStatistics(roomId, options = {}) {
     fetchStatistics();
   }, [fetchStatistics]);
 
-  /**
-   * Clear interval on unmount
-   */
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, []);
+  // This useEffect is removed because cleanup is handled in the main useEffect below
 
   /**
    * Set up auto-refresh and initial fetch
    */
   useEffect(() => {
+    mountedRef.current = true; // Ensure component is marked as mounted
+    
     if (!roomId || !enabled) {
       setStatistics(null);
       setLoading(false);
@@ -102,6 +94,7 @@ export function useRoomStatistics(roomId, options = {}) {
 
     // Cleanup
     return () => {
+      mountedRef.current = false;
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
@@ -272,8 +265,11 @@ export function useGameStatusMonitor(roomId, onStatusChange, options = {}) {
 export function useFormattedStatistics(roomId, options = {}) {
   const { statistics, loading, error, lastUpdated, refresh } = useRoomStatistics(roomId, options);
 
+  // Format statistics data
+
   const formatted = statistics ? {
     ...statistics,
+    requirements_status: statistics.requirements_status, // Ensure requirements are preserved
     current_metrics: {
       ...statistics.current_metrics,
       revenue_formatted: roomStatisticsService.formatCurrency(statistics.current_metrics?.revenue || 0),
@@ -303,6 +299,8 @@ export function useFormattedStatistics(roomId, options = {}) {
       revenue_display: roomStatisticsService.getTrendDisplay(statistics.trends.revenue_trend)
     } : null
   } : null;
+
+  // Return formatted data
 
   return {
     statistics: formatted,

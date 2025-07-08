@@ -29,7 +29,7 @@ export const StatusCard = styled.div`
   padding: 24px;
   position: relative;
   overflow: hidden;
-  border: 2px solid ${({ status }) => getStatusColor(status)};
+  border: 2px solid ${({ $status }) => getStatusColor($status)};
   transition: all 0.3s ease;
 
   &::before {
@@ -39,12 +39,12 @@ export const StatusCard = styled.div`
     left: 0;
     width: 100%;
     height: 4px;
-    background: ${({ status }) => getStatusColor(status)};
+    background: ${({ $status }) => getStatusColor($status)};
   }
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px ${({ status }) => getStatusColor(status)}33;
+    box-shadow: 0 4px 12px ${({ $status }) => getStatusColor($status)}33;
   }
 `;
 
@@ -64,7 +64,7 @@ export const StatusBadge = styled.span`
   border-radius: 8px;
   font-weight: 600;
   font-size: 14px;
-  background: ${({ status }) => getStatusColor(status)};
+  background: ${({ $status }) => getStatusColor($status)};
   color: white;
   
   .status-icon {
@@ -221,10 +221,10 @@ export const ProgressBar = styled.div`
 `;
 
 export const ProgressFill = styled.div`
-  background: ${({ status }) => 
-    status === 'success' ? theme.dark.colors.green :
-    status === 'warning' ? theme.dark.colors.yellow :
-    status === 'danger' ? theme.dark.colors.red :
+  background: ${({ $status }) => 
+    $status === 'success' ? theme.dark.colors.green :
+    $status === 'warning' ? theme.dark.colors.yellow :
+    $status === 'danger' ? theme.dark.colors.red :
     theme.dark.colors.green};
   height: 100%;
   transition: width 0.5s ease, background-color 0.3s ease;

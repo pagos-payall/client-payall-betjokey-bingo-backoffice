@@ -142,12 +142,7 @@ class WebSocketDiagnostics {
 if (typeof window !== 'undefined') {
   window.wsdiag = new WebSocketDiagnostics();
   
-  // Auto-run diagnostics en desarrollo
-  if (process.env.NODE_ENV === 'development') {
-    console.log('💡 WebSocket Diagnostics loaded. Use window.wsdiag for debugging:');
-    console.log('- wsdiag.diagnoseConnection() - Check connection status');
-    console.log('- wsdiag.monitorEvents() - Monitor events for 10 seconds');
-  }
+  // WebSocket diagnostics available at window.wsdiag
 }
 
 export default WebSocketDiagnostics;

@@ -10,7 +10,7 @@ const HeaderTitleComp = () => (
 			justifyContent: 'flex-start',
 		}}
 	>
-		<Image src={logo_compact} alt={'ico'} width={45} height={45} />
+		<Image src={logo_compact} alt={'ico'} width={45} height={45} priority />
 	</div>
 )
 

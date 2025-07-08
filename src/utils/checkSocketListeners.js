@@ -106,10 +106,10 @@ if (typeof window !== 'undefined') {
   window.emitTestEvent = emitTestEvent;
   window.requestServerTest = requestServerTest;
   
-  console.log('🔧 Socket Listener Checker cargado:');
-  console.log('  checkSocketListeners() - Ver todos los listeners');
-  console.log('  emitTestEvent() - Emitir evento de prueba');
-  console.log('  requestServerTest() - Solicitar eventos de prueba del servidor');
+  // console.log('🔧 Socket Listener Checker cargado:');
+  // console.log('  checkSocketListeners() - Ver todos los listeners');
+  // console.log('  emitTestEvent() - Emitir evento de prueba');
+  // console.log('  requestServerTest() - Solicitar eventos de prueba del servidor');
 }
 
 export { checkSocketListeners, emitTestEvent, requestServerTest };

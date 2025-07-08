@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { toast } from 'react-toastify';
 import websocketService from '@/services/websocketService';
 
-export function useWebSocket(showToasts = false) {
+export function useWebSocket(showToasts = false, shouldConnect = true) {
   const [connected, setConnected] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(null);
@@ -27,7 +27,6 @@ export function useWebSocket(showToasts = false) {
   const isEventProcessed = useCallback((eventType, data) => {
     const key = getEventKey(eventType, data);
     if (processedEvents.current.has(key)) {
-      console.log(`⚠️ [useWebSocket] ${instanceId.current} - Evento duplicado ignorado: ${key}`);
       return true;
     }
     processedEvents.current.add(key);
@@ -48,7 +47,6 @@ export function useWebSocket(showToasts = false) {
     
     if (lastOperationToast.current.roomId === roomId && 
         (now - lastOperationToast.current.timestamp) < recentTime) {
-      console.log(`🚫 [useWebSocket] ${instanceId.current} - Toast de operación ya mostrado para sala ${roomId}`);
       return false;
     }
     
@@ -57,14 +55,19 @@ export function useWebSocket(showToasts = false) {
   }, []);
   
   useEffect(() => {
-    console.log(`🔧 [useWebSocket] Instancia ${instanceId.current} creada - showToasts: ${showToasts}`);
     return () => {
-      console.log(`🗑️ [useWebSocket] Instancia ${instanceId.current} destruida`);
     };
   }, []);
 
   useEffect(() => {
     mountedRef.current = true;
+    
+    // Only connect if shouldConnect is true
+    if (!shouldConnect) {
+      setConnected(false);
+      setConnecting(false);
+      return;
+    }
     
     // Conectar al montar
     setConnecting(true);
@@ -72,13 +75,11 @@ export function useWebSocket(showToasts = false) {
 
     // Event handlers
     const handleConnected = () => {
-      console.log(`📡 [useWebSocket] ${instanceId.current} - handleConnected, showToasts: ${showToasts}`);
       if (mountedRef.current) {
         setConnected(true);
         setConnecting(false);
         setError(null);
         if (showToasts) {
-          console.log(`🍞 [useWebSocket] ${instanceId.current} - Mostrando toast de conexión`);
           toast.success('Conectado al servidor en tiempo real', {
             position: 'bottom-right',
             autoClose: 3000,
@@ -130,7 +131,6 @@ export function useWebSocket(showToasts = false) {
       if (mountedRef.current) {
         setError(error);
         setConnecting(false);
-        console.error('WebSocket error:', error);
       }
     };
 
@@ -171,14 +171,12 @@ export function useWebSocket(showToasts = false) {
     };
 
     const handleRoomStatusChanged = (data) => {
-      console.log(`🔄 [useWebSocket] ${instanceId.current} - handleRoomStatusChanged:`, data);
       
       // Verificar duplicados
       if (isEventProcessed('room:status:changed', data)) {
         return;
       }
       
-      console.log('  - Mounted:', mountedRef.current, 'showToasts:', showToasts);
       
       if (mountedRef.current) {
         const update = {
@@ -186,7 +184,6 @@ export function useWebSocket(showToasts = false) {
           data,
           timestamp: Date.now()
         };
-        console.log('  - Setting lastUpdate:', update);
         setLastUpdate(update);
         
         // Notificación específica según el estado
@@ -200,7 +197,6 @@ export function useWebSocket(showToasts = false) {
         const message = statusMessages[data.newStatus] || data.newStatus;
         // No mostrar toast para cambios de estado si es parte de una activación
         if (showToasts && data.newStatus !== 'waiting' && shouldShowOperationToast(data.roomId || data.room_id, 'status-change')) {
-          console.log(`🍞 [useWebSocket] ${instanceId.current} - Mostrando toast cambio estado`);
           toast.info(`Sala ${data.roomName || data.roomId}: ${message}`, {
             position: 'top-right',
             autoClose: 4000,
@@ -211,14 +207,12 @@ export function useWebSocket(showToasts = false) {
     };
 
     const handleRoomActivated = (data) => {
-      console.log(`🟢 [useWebSocket] ${instanceId.current} - handleRoomActivated:`, data);
       
       // Verificar duplicados
       if (isEventProcessed('room:activated', data)) {
         return;
       }
       
-      console.log('  - Mounted:', mountedRef.current, 'showToasts:', showToasts);
       
       if (mountedRef.current) {
         const update = {
@@ -226,11 +220,9 @@ export function useWebSocket(showToasts = false) {
           data,
           timestamp: Date.now()
         };
-        console.log('  - Setting lastUpdate:', update);
         setLastUpdate(update);
         
         if (showToasts && shouldShowOperationToast(data.roomId || data.room_id, 'activated')) {
-          console.log(`🍞 [useWebSocket] ${instanceId.current} - Mostrando toast activación`);
           toast.success(`✅ Sala ${data.roomName || data.room_name || data.roomId} activada`, {
             position: 'top-right',
             autoClose: 4000,
@@ -241,14 +233,12 @@ export function useWebSocket(showToasts = false) {
     };
 
     const handleRoomDeactivated = (data) => {
-      console.log(`🔴 [useWebSocket] ${instanceId.current} - handleRoomDeactivated:`, data);
       
       // Verificar duplicados
       if (isEventProcessed('room:deactivated', data)) {
         return;
       }
       
-      console.log('  - Mounted:', mountedRef.current, 'showToasts:', showToasts);
       
       if (mountedRef.current) {
         const update = {
@@ -256,11 +246,9 @@ export function useWebSocket(showToasts = false) {
           data,
           timestamp: Date.now()
         };
-        console.log('  - Setting lastUpdate:', update);
         setLastUpdate(update);
         
         if (showToasts && shouldShowOperationToast(data.roomId || data.room_id, 'deactivated')) {
-          console.log(`🍞 [useWebSocket] ${instanceId.current} - Mostrando toast desactivación`);
           toast.warning(`🔴 Sala ${data.roomName || data.room_name || data.roomId} desactivada: ${data.reason}`, {
             position: 'top-right',
             autoClose: 5000,
@@ -287,8 +275,6 @@ export function useWebSocket(showToasts = false) {
     };
 
     const handleRoomsListUpdated = (data) => {
-      console.log('📋 [useWebSocket] handleRoomsListUpdated called:', data);
-      console.log('  - Mounted:', mountedRef.current);
       
       if (mountedRef.current) {
         const update = {
@@ -296,7 +282,6 @@ export function useWebSocket(showToasts = false) {
           data,
           timestamp: Date.now()
         };
-        console.log('  - Setting lastUpdate:', update);
         setLastUpdate(update);
       }
     };
@@ -312,7 +297,6 @@ export function useWebSocket(showToasts = false) {
     };
 
     const handleCardsSoldUpdated = (data) => {
-      console.log(`💳 [useWebSocket] ${instanceId.current} - handleCardsSoldUpdated:`, data);
       
       if (mountedRef.current) {
         const update = {
@@ -320,11 +304,9 @@ export function useWebSocket(showToasts = false) {
           data,
           timestamp: Date.now()
         };
-        console.log('  - Setting lastUpdate:', update);
         setLastUpdate(update);
         
         if (showToasts && data.cards?.sold) {
-          console.log(`🍞 [useWebSocket] ${instanceId.current} - Mostrando toast venta cartones`);
           toast.info(`💳 Sala ${data.roomName || data.roomId}: ${data.cards.sold} cartones vendidos`, {
             position: 'top-right',
             autoClose: 3000,
@@ -335,7 +317,6 @@ export function useWebSocket(showToasts = false) {
     };
     
     const handleRoomsList = (rooms) => {
-      console.log(`📋 [useWebSocket] ${instanceId.current} - handleRoomsList:`, rooms?.length || 0, 'salas');
       
       if (mountedRef.current && Array.isArray(rooms)) {
         const update = {
@@ -343,13 +324,11 @@ export function useWebSocket(showToasts = false) {
           data: { rooms },
           timestamp: Date.now()
         };
-        console.log('  - Setting lastUpdate with full rooms data');
         setLastUpdate(update);
       }
     };
     
     const handleRoomInfo = (roomInfo) => {
-      console.log(`🏠 [useWebSocket] ${instanceId.current} - handleRoomInfo:`, roomInfo);
       
       if (mountedRef.current && roomInfo) {
         const update = {
@@ -357,7 +336,6 @@ export function useWebSocket(showToasts = false) {
           data: roomInfo,
           timestamp: Date.now()
         };
-        console.log('  - Setting lastUpdate with room info');
         setLastUpdate(update);
       }
     };
@@ -406,9 +384,12 @@ export function useWebSocket(showToasts = false) {
       websocketService.off('roomsList', handleRoomsList);
       websocketService.off('roomInfo', handleRoomInfo);
       
-      // No desconectar aquí porque otros componentes pueden estar usando el servicio
+      // Disconnect if shouldConnect becomes false
+      if (!shouldConnect && websocketService.isConnected()) {
+        websocketService.disconnect();
+      }
     };
-  }, [isEventProcessed, showToasts]); // Dependencias necesarias
+  }, [isEventProcessed, showToasts, shouldConnect]); // Dependencias necesarias
 
   // Métodos del WebSocket
   const activateRoom = useCallback(async (roomId, reason) => {
@@ -461,7 +442,6 @@ export function useWebSocket(showToasts = false) {
       const rooms = await websocketService.getRoomsList();
       return rooms;
     } catch (error) {
-      console.error('Error obteniendo lista de salas:', error);
       throw error;
     }
   }, []);
@@ -479,7 +459,6 @@ export function useWebSocket(showToasts = false) {
       const status = await websocketService.getRoomStatus(roomId);
       return status;
     } catch (error) {
-      console.error('Error obteniendo estado de sala:', error);
       throw error;
     }
   }, []);
@@ -517,7 +496,7 @@ export function useWebSocket(showToasts = false) {
     deactivateRoom,
     scheduleDeactivation,
     getRoomsList,
-    getRoomInfo: websocketService.getRoomInfo.bind(websocketService),
+    getRoomInfo: (roomId, roomStatus) => websocketService.getRoomInfo(roomId, roomStatus),
     monitorRoom,
     unmonitorRoom,
     getRoomStatus,

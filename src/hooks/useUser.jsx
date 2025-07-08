@@ -2,6 +2,7 @@ import UsersContext from '@/context/users/UsersContext';
 import { useContext, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from '@/config/axiosConfig';
+import websocketService from '@/services/websocketService';
 
 export default function useUser() {
 	const {
@@ -36,6 +37,12 @@ export default function useUser() {
 	const logout = useCallback(
 		async (logoutAllDevices = false) => {
 			try {
+				// Disconnect WebSocket before logout
+				if (websocketService.isConnected()) {
+					console.log('🔌 Disconnecting WebSocket before logout');
+					websocketService.disconnect();
+				}
+				
 				if (logoutAllDevices) {
 					// Call API to invalidate all sessions
 					await axios.post('/auth/logout-all');

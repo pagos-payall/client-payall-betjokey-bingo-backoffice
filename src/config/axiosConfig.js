@@ -38,6 +38,22 @@ instance.interceptors.request.use(
 // Response interceptor to handle token refresh
 instance.interceptors.response.use(
 	(response) => {
+		// Check if this is a successful login response
+		if (response.config.url === '/auth/' && response.config.method === 'post' && response.status === 200) {
+			console.log('🎉 Login successful, checking for tokens...');
+			
+			// Give the browser time to process Set-Cookie headers
+			setTimeout(() => {
+				const hasTokens = !!(document.cookie.includes('access_token') || document.cookie.includes('refresh_token'));
+				if (hasTokens) {
+					console.log('✅ Tokens detected after login, dispatching login-success event');
+					window.dispatchEvent(new Event('login-success'));
+				} else {
+					console.warn('⚠️ No tokens found after login response');
+				}
+			}, 100);
+		}
+		
 		return response;
 	},
 	async (error) => {

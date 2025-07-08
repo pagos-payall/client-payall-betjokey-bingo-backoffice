@@ -164,11 +164,11 @@ class WebSocketTester {
 if (typeof window !== 'undefined') {
   window.wstest2 = new WebSocketTester();
   
-  console.log('%c🔬 WebSocket Tester Loaded', 'color: #00ff00; font-size: 14px; font-weight: bold');
-  console.log('Comandos disponibles:');
-  console.log('  wstest2.testConfigurations() - Probar diferentes configuraciones');
-  console.log('  wstest2.testNamespace() - Probar diferentes namespaces');
-  console.log('  wstest2.cleanup() - Cerrar todas las conexiones de prueba');
+  // console.log('%c🔬 WebSocket Tester Loaded', 'color: #00ff00; font-size: 14px; font-weight: bold');
+  // console.log('Comandos disponibles:');
+  // console.log('  wstest2.testConfigurations() - Probar diferentes configuraciones');
+  // console.log('  wstest2.testNamespace() - Probar diferentes namespaces');
+  // console.log('  wstest2.cleanup() - Cerrar todas las conexiones de prueba');
 }
 
 export default WebSocketTester;

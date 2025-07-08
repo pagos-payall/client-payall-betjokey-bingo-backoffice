@@ -92,7 +92,7 @@ class TokenManager {
 
     // Schedule refresh
     this.tokenExpiryTimeout = setTimeout(() => {
-      console.log('🔄 Auto-refreshing token before expiry');
+      // Auto-refreshing token before expiry
       this.refreshToken();
     }, timeUntilRefresh);
   }
@@ -163,6 +163,11 @@ class TokenManager {
       
       // Notify success
       this.notifySubscribers({ status: 'active', refreshed: true });
+      
+      // Dispatch token refreshed event for WebSocket reconnection
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('token-refreshed'));
+      }
       
       return { success: true };
     } catch (error) {

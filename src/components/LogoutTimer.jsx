@@ -32,7 +32,6 @@ const LogoutTimer = ({ logoutTime = 600000 }) => { // 10 minutes (600 seconds)
 			// If token will expire before inactivity timeout, don't set logout timer
 			// Let the token refresh mechanism handle it
 			if (timeUntilExpiry < logoutTime && timeUntilExpiry > 0) {
-				console.log('🕑 Token will expire before inactivity timeout')
 				return
 			}
 		}

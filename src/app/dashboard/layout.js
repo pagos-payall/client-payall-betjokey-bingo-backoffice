@@ -42,9 +42,9 @@ export default function DashboardLayout({ children }) {
 		// Load WebSocket diagnostics in development
 		if (process.env.NODE_ENV === 'development') {
 			import('@/utils/websocketDiagnostics').then(() => {
-				console.log('WebSocket diagnostics loaded');
+				// WebSocket diagnostics loaded silently
 			}).catch(err => {
-				console.error('Failed to load WebSocket diagnostics:', err);
+				// Failed to load WebSocket diagnostics
 			});
 		}
 		

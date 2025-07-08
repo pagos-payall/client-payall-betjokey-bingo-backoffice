@@ -2,6 +2,7 @@
 import { useEffect, useContext, useRef } from 'react';
 import UsersContext from '@/context/users/UsersContext';
 import tokenManager from '@/services/tokenManager';
+import websocketService from '@/services/websocketService';
 
 const TokenStatusWatcher = () => {
   const { setTokenStatus, token_status } = useContext(UsersContext);
@@ -20,12 +21,17 @@ const TokenStatusWatcher = () => {
 
       // Only update if status actually changed from what we last saw
       if (tokenStatus && tokenStatus !== lastTokenStatus.current) {
-        console.log('🔄 Token status changed from', lastTokenStatus.current, 'to', tokenStatus);
+        // Token status changed
         lastTokenStatus.current = tokenStatus;
         
         if (tokenStatus === 'expired') {
           setTokenStatus(false); // This triggers isExpired = true
           tokenManager.notifySubscribers({ status: 'expired' });
+          // Disconnect WebSocket when token expires
+          if (websocketService.isConnected()) {
+            console.log('🔌 Disconnecting WebSocket due to token expiration');
+            websocketService.disconnect();
+          }
         } else if (tokenStatus === 'active') {
           setTokenStatus(true); // This triggers isLogged = true
           // Schedule automatic refresh if we have expiry time
@@ -47,6 +53,11 @@ const TokenStatusWatcher = () => {
       } else if (event.status === 'expired' || event.status === 'failed') {
         setTokenStatus(false);
         lastTokenStatus.current = 'expired';
+        // Disconnect WebSocket when token expires or refresh fails
+        if (websocketService.isConnected()) {
+          console.log('🔌 Disconnecting WebSocket due to token event:', event.status);
+          websocketService.disconnect();
+        }
       }
     });
     

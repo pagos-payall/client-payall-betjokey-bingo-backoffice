@@ -42,26 +42,10 @@ const MiddleMenu = () => {
 
 	// Log when rooms change
 	useEffect(() => {
-		console.log(
-			'🏠 [MiddleMenu] Rooms updated from context:',
-			rooms.length,
-			'rooms'
-		);
-		if (rooms.length > 0) {
-			console.log(rooms[1]);
-
-			console.log(
-				'  - First 3 rooms:',
-				rooms
-					.slice(0, 3)
-					.map((r) => ({ id: r.room_id, name: r.room_name, status: r.status }))
-			);
-		}
 	}, [rooms]);
 
 	// Obtener salas programadas para desactivación
 	const fetchScheduledDeactivations = async () => {
-		console.log('🕑 [MiddleMenu] Fetching scheduled deactivations...');
 		try {
 			const apiConfig = await roomService.getScheduledDeactivations();
 			const response = await fetchAPICall(
@@ -77,16 +61,12 @@ const MiddleMenu = () => {
 			const scheduledRooms = data.rooms || [];
 			setScheduledDeactivations(scheduledRooms);
 		} catch (error) {
-			console.error('Error fetching scheduled deactivations:', error);
 			setScheduledDeactivations([]);
 		}
 	};
 
 	useEffect(() => {
 		// Obtener desactivaciones programadas cuando se monta el componente
-		console.log(
-			'🎮 [MiddleMenu] Component mounted, fetching scheduled deactivations'
-		);
 		fetchScheduledDeactivations();
 	}, []);
 
@@ -98,17 +78,9 @@ const MiddleMenu = () => {
 	}, [displayFilter]);
 
 	useEffect(() => {
-		console.log('📋 [MiddleMenu] useEffect triggered');
-		console.log('  - Display Filter:', displayFilter);
-		console.log('  - Rooms count:', rooms.length);
-		console.log(
-			'  - Room statuses:',
-			rooms.map((r) => `${r.room_id}:${r.status}`).join(', ')
-		);
 
 		if (displayFilter === 'all') {
 			const filtered = rooms.filter((room) => room.status !== 'archive');
-			console.log('  - Showing all non-archived rooms:', filtered.length);
 			setDisplayData(filtered);
 		} else if (displayFilter === 'scheduled') {
 			// Los datos de scheduledDeactivations ya son objetos de sala completos
@@ -123,14 +95,9 @@ const MiddleMenu = () => {
 				scheduledRoomIds.includes(room.room_id)
 			);
 
-			console.log('  - Scheduled rooms filtered:', filteredRooms.length);
 			setDisplayData(filteredRooms);
 		} else {
 			const filtered = rooms.filter((room) => room.status === displayFilter);
-			console.log(
-				`  - Filtered by status '${displayFilter}':`,
-				filtered.length
-			);
 			setDisplayData(filtered);
 		}
 	}, [displayFilter, rooms, scheduledDeactivations]);
@@ -213,7 +180,6 @@ const MiddleMenu = () => {
 					icon={refreshIcon}
 					size={20}
 					onClick={() => {
-						console.log('🔄 [MiddleMenu] Manual refresh triggered');
 						getRooms(true);
 						fetchScheduledDeactivations();
 					}}

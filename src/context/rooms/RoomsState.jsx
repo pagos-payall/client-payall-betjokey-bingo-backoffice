@@ -17,12 +17,10 @@ const RoomsState = ({ children }) => {
 	const [state, dispatch] = useReducer(RoomsReducer, initialState);
 
 	const getRooms = useCallback(async (notification) => {
-		console.log('🏠 [RoomsState] getRooms called, notification:', notification);
 		let response;
 		let boolean = notification ? notification : false;
 
 		try {
-			console.log('  - Fetching rooms from API...');
 			const data = await fetchAPICall(
 				'/bingo/rooms',
 				'get',
@@ -30,14 +28,11 @@ const RoomsState = ({ children }) => {
 				boolean
 			);
 			response = data?.result ? data.result.reverse() : [];
-			console.log('  - Rooms fetched:', response.length, 'rooms');
 			
 		} catch (error) {
-			console.error('  - Error fetching rooms:', error);
 			response = [];
 		}
 
-		console.log('  - Dispatching GET_ROOMS with', response.length, 'rooms');
 		dispatch({
 			type: 'GET_ROOMS',
 			payload: response,
@@ -85,18 +80,13 @@ const RoomsState = ({ children }) => {
 
 	// Escuchar eventos WebSocket para actualizar automáticamente (mantener como respaldo)
 	useEffect(() => {
-		console.log('🔌 [RoomsState] WebSocket effect triggered');
-		console.log('  - Connected:', websocket.connected);
-		console.log('  - Last Update:', websocket.lastUpdate);
 		
 		if (!websocket.connected || !websocket.lastUpdate) {
-			console.log('  - WebSocket not connected or no update, skipping');
 			return;
 		}
 
 		// Evitar procesar eventos duplicados basándose en timestamp
 		if (websocket.lastUpdate.timestamp && websocket.lastUpdate.timestamp <= (window.lastRoomsUpdateTimestamp || 0)) {
-			console.log('  - Duplicate event ignored, timestamp:', websocket.lastUpdate.timestamp);
 			return;
 		}
 		
@@ -105,9 +95,7 @@ const RoomsState = ({ children }) => {
 
 		// Handler para cuando el WebSocket nos envía actualizaciones
 		const handleWebSocketUpdate = (update) => {
-			console.log('🔄 [RoomsState] handleWebSocketUpdate called:', update);
 			if (!update) {
-				console.log('  - No update data, returning');
 				return;
 			}
 
@@ -118,23 +106,17 @@ const RoomsState = ({ children }) => {
 				case 'room:archived':
 				case 'rooms:list:updated':
 					// Refrescar lista de salas cuando hay cambios
-					console.log('✅ [RoomsState] Room update detected:', update.type);
-					console.log('  - Update data:', update.data);
-					console.log('  - Calling getRooms(true)...');
 					getRooms(true); // true indica que es una notificación
 					break;
 				
 				case 'game:state:updated':
 				case 'cards:sold:updated':
 					// También refrescar en cambios de juego o venta de cartones
-					console.log('🎮 [RoomsState] Game/Cards update detected:', update.type);
-					console.log('  - Calling getRooms(true)...');
 					getRooms(true);
 					break;
 					
 				case 'rooms:list:full':
 					// Lista completa de salas recibida del WebSocket
-					console.log('📋 [RoomsState] Full rooms list received:', update.data.rooms?.length || 0, 'rooms');
 					if (update.data.rooms) {
 						dispatch({
 							type: 'GET_ROOMS',
@@ -144,13 +126,11 @@ const RoomsState = ({ children }) => {
 					break;
 				
 				default:
-					console.log('⚠️ [RoomsState] Unhandled update type:', update.type);
 			}
 		};
 
 		// Revisar si hay una actualización pendiente
 		if (websocket.lastUpdate) {
-			console.log('📨 [RoomsState] Processing pending update');
 			handleWebSocketUpdate(websocket.lastUpdate);
 		}
 
@@ -161,14 +141,12 @@ const RoomsState = ({ children }) => {
 		const checkInterval = setInterval(() => {
 			if (websocket.lastUpdate && 
 				websocket.lastUpdate.timestamp > lastProcessedTimestamp) {
-				console.log('🆕 [RoomsState] New update detected in interval');
 				handleWebSocketUpdate(websocket.lastUpdate);
 				lastProcessedTimestamp = websocket.lastUpdate.timestamp;
 			}
 		}, 500);
 
 		return () => {
-			console.log('🚫 [RoomsState] Cleaning up WebSocket effect');
 			clearInterval(checkInterval);
 		};
 	}, [websocket.connected, websocket.lastUpdate, getRooms]);

@@ -24,16 +24,13 @@ class RoomStatisticsService {
         }
       });
 
-      console.log(`📊 [RoomStatisticsService] Statistics response for room ${roomId}:`, response.data);
       
       // Handle different response structures
       const data = response.data.data || response.data.result || response.data;
       
-      console.log(`📊 [RoomStatisticsService] Extracted data:`, data);
       
       return data;
     } catch (error) {
-      console.error('Error fetching room statistics:', error.response?.data || error.message);
       throw this.handleError(error);
     }
   }
@@ -204,16 +201,6 @@ class RoomStatisticsService {
    */
   handleError(error) {
     // Log detailed error information
-    console.error('📊 [RoomStatisticsService] Error details:', {
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      data: error.response?.data,
-      config: {
-        url: error.config?.url,
-        method: error.config?.method,
-        params: error.config?.params
-      }
-    });
 
     if (error.response?.data?.error) {
       const apiError = error.response.data.error;
