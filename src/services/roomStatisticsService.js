@@ -150,11 +150,14 @@ class RoomStatisticsService {
   getGameStatusText(gameStatus) {
     const statusMap = {
       null: 'Sin juego',
+      'created': 'Creado',
       'waiting': 'Esperando jugadores',
       'countdown': 'Iniciando...',
-      'in_progress': 'En progreso',
-      'finishing': 'Finalizando',
-      'finished': 'Terminado'
+      'running': 'En progreso',
+      'paused': 'Pausado',
+      'settling': 'Procesando ganadores',
+      'completed': 'Completado',
+      'cancelled': 'Cancelado'
     };
     return statusMap[gameStatus] || 'Estado desconocido';
   }

@@ -4,6 +4,7 @@ import UsersContext from './UsersContext'
 import UsersReducer from './UsersReducer'
 import Cookies from 'js-cookie'
 import { syncAuthCookies } from '@/services/authSync'
+import tokenManager from '@/services/tokenManager'
 
 const UsersState = ({ children }) => {
 	const initialState = {
@@ -104,6 +105,21 @@ const UsersState = ({ children }) => {
 				}) || undefined
 			)
 		}
+	}, [])
+
+	// Subscribe to token manager events
+	useEffect(() => {
+		const unsubscribe = tokenManager.subscribe((event) => {
+			if (event.status === 'active' && event.refreshed) {
+				// Token was refreshed successfully
+				setTokenStatus(true);
+			} else if (event.status === 'expired') {
+				// Token expired
+				setTokenStatus(false);
+			}
+		});
+
+		return () => unsubscribe();
 	}, [])
 
 	return (

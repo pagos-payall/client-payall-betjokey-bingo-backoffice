@@ -38,11 +38,15 @@ import { formatCurrency, formatNumber } from '@/services/utilFunctions';
 // Helper function for game status text
 function getGameStatusText(status) {
 	const statusMap = {
+		'created': 'Creado',
 		'waiting': 'Esperando jugadores',
-		'active': 'En progreso',
-		'in_progress': 'En progreso',
-		'finishing': 'Finalizando',
-		'finished': 'Terminado',
+		'countdown': 'Iniciando...',
+		'running': 'En progreso',
+		'paused': 'Pausado',
+		'settling': 'Procesando ganadores',
+		'completed': 'Completado',
+		'cancelled': 'Cancelado',
+		// Room status mappings (not game status)
 		'off': 'Desactivada',
 		'archive': 'Archivada'
 	};

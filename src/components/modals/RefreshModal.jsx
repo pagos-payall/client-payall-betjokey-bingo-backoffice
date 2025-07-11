@@ -111,7 +111,8 @@ const RefreshModal = () => {
 			// No recargar la página para mantener el trabajo del usuario
 			toast.success('Sesión actualizada exitosamente');
 			
-			// Modal will be hidden by token manager event
+			// The modal will be hidden automatically when isExpired changes to false
+			
 		} catch (error) {
 			console.error('Token refresh failed:', error);
 			toast.error('No se pudo actualizar la sesión');
